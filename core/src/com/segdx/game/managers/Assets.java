@@ -1,6 +1,10 @@
 package com.segdx.game.managers;
 
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.SkinLoader;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 public class Assets {
 	public static final int LOAD_ASSETS = 0;
@@ -14,13 +18,17 @@ public class Assets {
 		currentload = blockid;
 		switch (blockid) {
 		case LOAD_ASSETS:
-			
+				manager.load("loading.png",Texture.class);
 			break;
 		case INTRO_ASSETS:
-			
+				manager.load("kyperbeltlogo.png",Texture.class);
+				manager.load("poweredbylibgdx.png",Texture.class);
 			break;
 		case MENU_ASSETS:
-			
+				manager.load("title.png",Texture.class);
+				Assets.manager.load("ui/uiskin.atlas", TextureAtlas.class);
+		        Assets.manager.load("ui/uiskin.json", Skin.class, new SkinLoader.SkinParameter("ui/uiskin.atlas"));
+		        
 			break;
 		case GAME_ASSETS:
 			

@@ -19,8 +19,9 @@ public class StateManager {
 		}
 		return sm;
 	}
-	public static void create(SEGDX game){
+	public static StateManager create(SEGDX game){
 		sm = new StateManager(game);
+		return sm;
 	}
 	
 	private SEGDX game;
@@ -48,6 +49,15 @@ public class StateManager {
 			System.exit(0);
 		}
 		game.setScreen(states.get(state));
+	}
+	
+	public void dispose(String state){
+		if(!states.containsKey(state)){
+			Gdx.app.log("ERROR:", "there is no trace of the "+state+" object, maybe you forgot to add it you made a type."
+					+ "to prevent this from happening please use the StateManager CONSTANTS.");
+			System.exit(0);
+		}
+		states.remove(state).dispose();
 	}
 	
 

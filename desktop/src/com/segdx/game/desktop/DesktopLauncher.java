@@ -7,6 +7,8 @@ import com.segdx.game.SEGDX;
 public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+		config.width = SEGDX.WIDTH;
+		config.height = SEGDX.HEIGHT;
 		new LwjglApplication(new SEGDX(), config);
 	}
 }
