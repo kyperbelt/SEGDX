@@ -9,6 +9,7 @@ public class DesktopLauncher {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 		config.width = SEGDX.WIDTH;
 		config.height = SEGDX.HEIGHT;
+		config.resizable = false;
 		new LwjglApplication(new SEGDX(), config);
 	}
 }

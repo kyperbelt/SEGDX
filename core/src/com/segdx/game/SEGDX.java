@@ -4,6 +4,7 @@ package com.segdx.game;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
@@ -11,6 +12,7 @@ import com.segdx.game.states.GameState;
 import com.segdx.game.states.IntroState;
 import com.segdx.game.states.LoadState;
 import com.segdx.game.states.MenuState;
+import com.segdx.game.tween.CameraAccessor;
 import com.segdx.game.tween.SpriteAccessor;
 
 import aurelienribon.tweenengine.Tween;
@@ -24,6 +26,7 @@ public class SEGDX extends Game {
 		
 		//REGISTER TWEEN accessors
 		Tween.registerAccessor(Sprite.class, new SpriteAccessor());
+		Tween.registerAccessor(OrthographicCamera.class, new CameraAccessor());
 		
 		//create states
 		StateManager sm = StateManager.create(this);

@@ -17,7 +17,7 @@ import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenManager;
 
 public class LoadState implements Screen{
-	private static final float LOAD_DELAY = 1;
+	private static final float LOAD_DELAY = .1f;
 	
 	private SpriteBatch batch;
 	private Sprite loading;
