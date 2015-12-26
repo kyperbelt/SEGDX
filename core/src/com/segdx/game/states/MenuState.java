@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
-import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -20,6 +19,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
 import com.segdx.game.managers.Assets;
+import com.segdx.game.managers.StateManager;
 import com.segdx.game.tween.CameraAccessor;
 
 import aurelienribon.tweenengine.Tween;
@@ -27,7 +27,7 @@ import aurelienribon.tweenengine.TweenManager;
 
 public class MenuState implements Screen{
 	
-	private static final boolean DEBUG = false; 
+	private static final boolean DEBUG = SEGDX.DEBUG; 
 	
 	private SpriteBatch batch;
 	private TweenManager tm;
@@ -43,11 +43,9 @@ public class MenuState implements Screen{
 	private ButtonGroup<TextButton> lore;
 	private ButtonGroup<TextButton> difficulty;
 	
-	private boolean in_tween;
 
 	@Override
 	public void show() {
-		in_tween = false;
 		batch = new SpriteBatch();
 		tm = new TweenManager();
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -161,6 +159,21 @@ public class MenuState implements Screen{
 		optioncontainer.center();
 		
 		startgame = new TextButton("START", skin);
+		startgame.addListener(new InputListener(){
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				Assets.loadBlock(Assets.GAME_ASSETS);
+				GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+				state.size = mapsizes.getCheckedIndex();
+				state.piracy = piracy.getCheckedIndex();
+				state.draft = draft.getCheckedIndex();
+				state.slore = lore.getCheckedIndex();
+				state.difficulty = difficulty.getCheckedIndex();
+				
+				StateManager.get().changeState(StateManager.LOAD);
+				return true;
+			}
+		});
 		back = new TextButton("BACK", skin);
 		back.addListener(new InputListener(){
 			@Override

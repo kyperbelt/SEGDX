@@ -57,7 +57,17 @@ public class StateManager {
 					+ "to prevent this from happening please use the StateManager CONSTANTS.");
 			System.exit(0);
 		}
+		
 		states.remove(state).dispose();
+	}
+	
+	public Screen getState(String state){
+		if(!states.containsKey(state)){
+			Gdx.app.log("ERROR:", "there is no trace of the "+state+" object, maybe you forgot to add it you made a type."
+					+ "to prevent this from happening please use the StateManager CONSTANTS.");
+			System.exit(0);
+		}
+		return states.get(state);
 	}
 	
 

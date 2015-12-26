@@ -1,8 +1,12 @@
 package com.segdx.game.managers;
 
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.input.GestureDetector.GestureListener;
+import com.badlogic.gdx.math.Vector2;
+import com.segdx.game.states.GameState;
 
-public class InputManager implements InputProcessor{
+public class InputManager implements InputProcessor,GestureListener{
 
 	@Override
 	public boolean keyDown(int keycode) {
@@ -41,7 +45,69 @@ public class InputManager implements InputProcessor{
 
 	@Override
 	public boolean scrolled(int amount) {
+		zoom(amount);
+		return true;
+	}
+
+	//GESTURES
+	@Override
+	public boolean touchDown(float x, float y, int pointer, int button) {
+		
 		return false;
+	}
+
+	@Override
+	public boolean tap(float x, float y, int count, int button) {
+		
+		return false;
+	}
+
+	@Override
+	public boolean longPress(float x, float y) {
+		
+		return false;
+	}
+
+	@Override
+	public boolean fling(float velocityX, float velocityY, int button) {
+		
+		return false;
+	}
+
+	@Override
+	public boolean pan(float x, float y, float deltaX, float deltaY) {
+		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+		OrthographicCamera cam = state.getSpaceMap().getCam();
+		cam.position.set(cam.position.x - deltaX, cam.position.y+deltaY, 0);
+		return false;
+	}
+
+	@Override
+	public boolean panStop(float x, float y, int pointer, int button) {
+		
+		return false;
+	}
+
+	@Override
+	public boolean zoom(float initialDistance, float distance) {
+		zoom(initialDistance-distance);
+		return true;
+	}
+
+	@Override
+	public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
+		
+		return false;
+	}
+	
+	public void zoom(float zoom){
+		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+		OrthographicCamera cam = state.getSpaceMap().getCam();
+		cam.zoom += zoom*(cam.zoom*.05f);
+		if(cam.zoom > 4f)
+			cam.zoom = 4f;
+		if(cam.zoom < .9f)
+			cam.zoom = .9f;
 	}
 
 }

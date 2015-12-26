@@ -18,6 +18,7 @@ import com.segdx.game.tween.SpriteAccessor;
 import aurelienribon.tweenengine.Tween;
 
 public class SEGDX extends Game {
+	public static final boolean DEBUG = true;
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 600;
 	

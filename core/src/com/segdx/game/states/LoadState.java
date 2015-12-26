@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.Timer.Task;
 import com.segdx.game.SEGDX;
+import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.tween.SpriteAccessor;
@@ -67,6 +68,9 @@ public class LoadState implements Screen{
 					
 					@Override
 					public void run() {
+						GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+						state.setLoreEnabled(SpaceMap.intToBool(state.slore));
+						state.setMap(SpaceMap.generateSpaceMap(state.size, state.piracy, state.draft, state.difficulty));
 						StateManager.get().changeState(StateManager.GAME);
 					}
 				}, LOAD_DELAY);

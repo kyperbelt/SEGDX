@@ -31,7 +31,11 @@ public class Assets {
 		        
 			break;
 		case GAME_ASSETS:
-			
+			manager.load("map/bluenode.png",Texture.class);
+			manager.load("map/rednode.png",Texture.class);
+			manager.load("map/greennode.png",Texture.class);
+			manager.load("map/passivenode.png",Texture.class);
+			manager.load("map/shuttle.png",Texture.class);
 			break;
 
 		default:
