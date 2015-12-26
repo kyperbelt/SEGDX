@@ -2,15 +2,12 @@ package com.segdx.game.entity;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.Array;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
@@ -80,6 +77,25 @@ public class SpaceNode {
 		button.setY(node.getY());
 		button.setSize(16, 16);
 		button.setBounds(button.getX(), button.getY(), button.getWidth(), button.getHeight());
+		button.addListener(new ClickListener(){
+			
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				System.out.println("clicked"+node.getIndex());
+				GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+				SpaceMap map = state.getSpaceMap();
+				ButtonGroup<ImageButton> nodebuttons = map.getNodebuttons();
+				Array<ImageButton> buttons = nodebuttons.getButtons();
+				for (int i = 0; i < buttons.size; i++) {
+						if(!buttons.get(i).isChecked()){
+							buttons.get(i).setSize(16, 16);
+							buttons.get(i).invalidate();
+						}
+				}
+				((ImageButton)event.getListenerActor()).setSize(32, 32);
+				((ImageButton)event.getListenerActor()).invalidate();
+			}
+		});
 		
 		
 		return button;

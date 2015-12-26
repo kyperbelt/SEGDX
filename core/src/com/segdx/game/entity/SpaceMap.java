@@ -6,17 +6,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
-import com.segdx.game.managers.StateManager;
-import com.segdx.game.states.GameState;
+
+import aurelienribon.tweenengine.TweenManager;
 /**
  * SPACEMAP
  * 	
@@ -40,6 +38,7 @@ public class SpaceMap {
 	private int mapheight;
 	private int mapwidth;
 	private int numberofnodes;
+	private TweenManager tm;
 	
 	private Player player;
 	
@@ -54,10 +53,10 @@ public class SpaceMap {
 	
 	public SpaceMap(){
 		batch = new SpriteBatch();
-		this.stage = new Stage();
+		
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.setToOrtho(false);
-		stage.setViewport(new ScreenViewport(cam));
+		this.stage = new Stage(new ScreenViewport(cam));
 	}
 	
 	public OrthographicCamera getCam(){return cam;}
@@ -187,12 +186,23 @@ public class SpaceMap {
 			map.setMapwidth(1600);
 			map.setNumberofnodes(32);
 			break;
-
+		case 1:
+			map.setMapheight(2400);
+			map.setMapwidth(2400);
+			map.setNumberofnodes(64);
+			break;
+		case 2:
+			map.setMapheight(3200);
+			map.setMapwidth(3200);
+			map.setNumberofnodes(128);
+			break;
 		default:
 			break;
 		}
 		
 		ButtonGroup<ImageButton> nodebuttons = new ButtonGroup<ImageButton>();
+		nodebuttons.setMinCheckCount(0);
+		nodebuttons.setMaxCheckCount(1);
 		final Array<SpaceNode> nodes = createSpaceNodes(map);
 		for (int i = 0; i < nodes.size; i++) {
 			nodes.get(i).setButton(SpaceNode.createButton(nodes.get(i)));
@@ -265,6 +275,14 @@ public class SpaceMap {
 			return true;
 		else 
 			return false;
+	}
+
+	public TweenManager getTm() {
+		return tm;
+	}
+
+	public void setTm(TweenManager tm) {
+		this.tm = tm;
 	}
 
 

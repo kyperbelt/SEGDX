@@ -104,8 +104,8 @@ public class InputManager implements InputProcessor,GestureListener{
 		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
 		OrthographicCamera cam = state.getSpaceMap().getCam();
 		cam.zoom += zoom*(cam.zoom*.05f);
-		if(cam.zoom > 4f)
-			cam.zoom = 4f;
+		if(cam.zoom > 3f)
+			cam.zoom = 3f;
 		if(cam.zoom < .9f)
 			cam.zoom = .9f;
 	}
