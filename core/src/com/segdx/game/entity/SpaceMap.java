@@ -13,6 +13,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
+import com.segdx.game.managers.StateManager;
+import com.segdx.game.states.GameState;
 
 import aurelienribon.tweenengine.TweenManager;
 /**
@@ -52,6 +54,15 @@ public class SpaceMap {
 		player.getShip().getSprite().draw(batch);
 		batch.end();
 		cam.update();
+		
+		//use fuel
+				if(player.isTraveling()){
+					float distancetraveled = Vector2.dst(player.getCurrentNode().getX(), player.getCurrentNode().getY(), player.getX(), player.getY());
+					if(player.getDistanceTraveled()+10 < distancetraveled){
+						player.setCurrentFuel(player.getCurrentFuel()-1);
+						player.setDistanceTraveled(distancetraveled);
+					}
+				}
 	}
 	
 	public SpaceMap(){
@@ -60,7 +71,10 @@ public class SpaceMap {
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.setToOrtho(false);
 		this.stage = new Stage(new ScreenViewport(cam));
+		
 	}
+	
+	
 	
 	public OrthographicCamera getCam(){return cam;}
 	

@@ -10,6 +10,7 @@ public class StateManager {
 	public static final String INTRO = "intro_state";
 	public static final String MENU = "menu_state";
 	public static final String GAME = "game_state";
+	public static final String GAMEOVER = "gameover_state";
 	
 	private static StateManager sm;
 	public static StateManager get(){

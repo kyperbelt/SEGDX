@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
@@ -26,8 +27,10 @@ import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.InputManager;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.tween.PlayerAccessor;
+import com.segdx.game.tween.SpriteAccessor;
 
 import aurelienribon.tweenengine.BaseTween;
+import aurelienribon.tweenengine.Timeline;
 import aurelienribon.tweenengine.Tween;
 import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.TweenManager;
@@ -150,24 +153,30 @@ public class GameState implements Screen{
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				final SpaceNode selectednode = map.getAllnodes().get(map.getNodebuttons().getCheckedIndex());
-				
+				map.getPlayer().getShip().getSprite().setRotation(SpriteAccessor.getAngle(new Vector2(map.getPlayer().getX(),
+											map.getPlayer().getY()), new Vector2(selectednode.getX(),selectednode.getY())));
 				if(map.getPlayer().isTraveling()||map.getPlayer().getCurrentNode().getIndex() == selectednode.getIndex()){
 					return;
 				}
 				map.getPlayer().setTraveling(true);
-				Tween.to(map.getPlayer(), PlayerAccessor.POSITION, 10).target(selectednode.getX(),selectednode.getY()).setCallback(new TweenCallback()
-				{
-					
-					@Override
-					public void onEvent(int type, BaseTween<?> arg1) {
+				Timeline.createSequence()
+				.beginParallel()
+					.push(Tween.to(map.getPlayer(), PlayerAccessor.POSITION, 10).target(selectednode.getX(),selectednode.getY()).setCallback(new TweenCallback()
+					{
 						
-						if(type == COMPLETE){
-							map.getPlayer().setTraveling(false);
-							map.getPlayer().setCurrentNode(selectednode);
+						@Override
+						public void onEvent(int type, BaseTween<?> arg1) {
+							
+							if(type == COMPLETE){
+								map.getPlayer().setTraveling(false);
+								map.getPlayer().setCurrentNode(selectednode);
+								map.getPlayer().setDistanceTraveled(0);
+							}
+							
 						}
-						
-					}
-				}).start(tm);
+					}))
+				.end()
+				.start(tm);
 				
 				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
 			}
@@ -214,6 +223,9 @@ public class GameState implements Screen{
 		uistage.draw();
 		cam.update();
 		tm.update(delta);
+		
+		//update infobar
+		fuelinfo.setText(map.getPlayer().getCurrentFuel()+"/"+map.getPlayer().getShip().getMaxfuel());
 		
 		
 		

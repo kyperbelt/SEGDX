@@ -2,6 +2,8 @@ package com.segdx.game.entity;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.Vector;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
@@ -86,9 +88,18 @@ public class SpaceNode {
 			public void clicked(InputEvent event, float x, float y) {
 				System.out.println("clicked"+node.getIndex());
 				GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+
+				SpaceNode selectednodee = state.getSpaceMap().getAllnodes().get(state.getSpaceMap().getNodebuttons().getCheckedIndex());
+				Vector2 destination = new Vector2(selectednodee.getX(),selectednodee.getY());
+				Vector2 start = new Vector2(state.getSpaceMap().getPlayer().getX(),state.getSpaceMap().getPlayer().getY());
+				
+				state.nodedistance.setText("distance:"+(int)Vector2.dst(start.x, start.y, destination.x, destination.y));
 				SpaceMap map = state.getSpaceMap();
 				ButtonGroup<ImageButton> nodebuttons = map.getNodebuttons();
 				Array<ImageButton> buttons = nodebuttons.getButtons();
+				if(!buttons.get(node.getIndex()).isChecked()){
+					buttons.get(node.getIndex()).setChecked(true);
+				}
 				for (int i = 0; i < buttons.size; i++) {
 						if(!buttons.get(i).isChecked()){
 							buttons.get(i).setSize(16, 16);

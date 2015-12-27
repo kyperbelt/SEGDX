@@ -15,6 +15,8 @@ public class Player {
 	private float currentCapacity;
 	private float currentHull;
 	
+	private float distanceTraveled;
+	
 	private float currency;
 	
 	
@@ -27,6 +29,7 @@ public class Player {
 		setCurrentHull(ship.getHull());
 		setResources(new Array<Resource>());
 		setCurrency(1000);
+		setDistanceTraveled(0);
 	}
 	
 	public float getX(){
@@ -123,6 +126,14 @@ public class Player {
 
 	public void setCurrency(float currency) {
 		this.currency = currency;
+	}
+
+	public float getDistanceTraveled() {
+		return distanceTraveled;
+	}
+
+	public void setDistanceTraveled(float distanceTraveled) {
+		this.distanceTraveled = distanceTraveled;
 	}
 
 }
