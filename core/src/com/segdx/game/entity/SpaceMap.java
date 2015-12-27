@@ -47,7 +47,10 @@ public class SpaceMap {
 		stage.draw();
 		
 		stage.act(delta);
-		
+		batch.setProjectionMatrix(stage.getCamera().combined);
+		batch.begin();
+		player.getShip().getSprite().draw(batch);
+		batch.end();
 		cam.update();
 	}
 	
@@ -219,10 +222,20 @@ public class SpaceMap {
 	}
 	
 	public static Array<SpaceNode> createSpaceNodes(SpaceMap map){
-		float spawnradiusmax = 100;
-		float spawnradiusmin = 30;
+		float spawnradiusmin = 40;
 		float effectradiusmin = 80;
 		float effectradiusmax = 200;
+		float restSpawnArea = 400;
+		float tradeSpawnArea = 650;
+		if(map.getDifficulty()==0){
+			restSpawnArea = 300;
+			tradeSpawnArea = 520;
+		}
+		else if(map.getDifficulty()==2){
+			restSpawnArea = 500;
+			tradeSpawnArea = 800;
+		}
+		
 		
 		Array<SpaceNode> nodes = new Array<SpaceNode>();
 		SpaceNode node = new SpaceNode();
@@ -232,6 +245,9 @@ public class SpaceMap {
 		node.setNodeType(SpaceNode.REST);
 		nodes.add(node);
 		map.getCam().position.set(node.getX(), node.getY(), 0);
+		map.getPlayer().setX(node.getX());
+		map.getPlayer().setY(node.getY());
+		map.player.setCurrentNode(node);
 		while(nodes.size <= map.getNumberofnodes()-1){
 			boolean created = false;
 			
@@ -256,8 +272,32 @@ public class SpaceMap {
 					newnode.setIndex(nodes.size);
 					newnode.setX(x);
 					newnode.setY(y);
-					newnode.setEffectradius(new Circle(new Vector2(node.getX(), node.getY()), MathUtils.random(effectradiusmax)+effectradiusmin));
-					newnode.setNodeType(SpaceNode.NEUTRAL);
+					newnode.setEffectradius(new Circle(new Vector2(newnode.getX(), newnode.getY()), MathUtils.random(effectradiusmax)+effectradiusmin));
+					boolean isTradeCapable = true;
+					boolean isRestCapable = true;
+					for (int i = 0; i < nodes.size; i++) {
+						if(nodes.get(i).getIndex()!=newnode.getIndex()){
+							Circle tradespawnradius = new Circle(new Vector2(newnode.getX(),newnode.getY()), tradeSpawnArea);
+							if(nodes.get(i).getNodeType()==SpaceNode.TRADE&&tradespawnradius.contains(nodes.get(i).getX(), nodes.get(i).getY())){
+								isTradeCapable = false;
+							}
+							Circle restspawnradius = new Circle(new Vector2(newnode.getX(),newnode.getY()), restSpawnArea);
+							if(nodes.get(i).getNodeType()==SpaceNode.REST&&restspawnradius.contains(nodes.get(i).getX(), nodes.get(i).getY())){
+								isRestCapable = false;
+							}
+		
+		
+						}
+					}
+					
+					if(isTradeCapable){
+						newnode.setNodeType(SpaceNode.TRADE);
+					}else if(isRestCapable){
+						newnode.setNodeType(SpaceNode.REST);
+					}else {
+						newnode.setNodeType(SpaceNode.NEUTRAL);
+					}
+					
 					
 					nodes.add(newnode);
 				}

@@ -6,30 +6,50 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
 import com.segdx.game.entity.SpaceMap;
+import com.segdx.game.entity.SpaceNode;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.InputManager;
+import com.segdx.game.managers.SoundManager;
+import com.segdx.game.tween.PlayerAccessor;
 
+import aurelienribon.tweenengine.BaseTween;
+import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.TweenManager;
 
 public class GameState implements Screen{
+	
+	public static final float SLOW = 5;
+	public static final float NORMAL = 3;
+	public static final float FAST = 1.5f;
 
 	private SpaceMap map;
+	private Sprite background;
 	private boolean lore;
 	private Stage uistage;
 	private InputManager input;	
 	private Table travelbar,actionbar,tradebar,infobar;
-	public Label hullinfo,fuelinfo,foodinfo,cycleinfo,currencyinfo,cycletimer;
+	private TextButton travel,resourcetab,shiptab;
+	public Label hullinfo,fuelinfo,foodinfo,cycleinfo,currencyinfo,cycletimer,
+				 nodedistance,
+				 //a small description of the selected node
+				//some variables may affect the detail.
+				 selectednodeinfo;
 	public Image foodicon,fuelicon,hullicon,currencyicon,timericon;
 	private OrthographicCamera cam;
 	private TweenManager tm;
@@ -54,6 +74,8 @@ public class GameState implements Screen{
 		tm = new TweenManager();
 		map.setTm(tm);
 		
+		background = new Sprite(Assets.manager.get("map/m42orionnebula.png",Texture.class));
+		
 		Skin skin = Assets.manager.get("ui/uiskin.json",Skin.class);
 		Drawable defaultbackground = new Button(skin).getBackground();
 		float textscale = .5f;
@@ -63,9 +85,9 @@ public class GameState implements Screen{
 		infobar.setPosition(0, uistage.getHeight()*.95f);
 		infobar.setColor(Color.DARK_GRAY);
 		infobar.setBackground(defaultbackground);
-		infobar.center();
 		Table infobarleft = new Table();
 		infobarleft.setSize(infobar.getWidth()/2, infobar.getHeight());
+		infobarleft.left();
 		foodicon = new Image(Assets.manager.get("map/foodicon.png",Texture.class));
 		foodinfo = new Label(map.getPlayer().getFood()+"", skin);
 		foodinfo.setFontScale(textscale);
@@ -91,21 +113,74 @@ public class GameState implements Screen{
 		infobarleft.add(currencyicon);
 		infobarleft.add(currencyinfo);
 		
-		Table infobarright = new Table();
-		infobarright.setSize(infobar.getWidth()/2, infobar.getHeight());
 		
-		infobar.add(infobarleft).left();
-		infobar.add(infobarright).right();
+		Table infobarright = new Table();
+		infobarright.right();
+		infobarright.setSize(infobar.getWidth()/2, infobar.getHeight());
+		cycleinfo = new Label("1", skin);
+		cycleinfo.setFontScale(textscale);
+		cycletimer = new Label("1:34", skin);
+		cycletimer.setFontScale(textscale);
+		
+		infobarright.add(cycleinfo);
+		infobarright.add().pad(padding);
+		infobarright.add(cycletimer);
+		infobarright.add().pad(padding);
+		
+		infobar.add(infobarleft).left().expand().fill();
+		infobar.add(infobarright).right().expand().fill();
 		
 		
 		travelbar = new Table(skin);
 		travelbar.setPosition(uistage.getWidth()*.6f, 0);
-		travelbar.setSize(uistage.getWidth()*.4f, uistage.getHeight()*.3f);
+		travelbar.setSize(uistage.getWidth()*.4f, uistage.getHeight()*.2f);
 		travelbar.setColor(Color.DARK_GRAY);
 		travelbar.setBackground(defaultbackground);
 		travelbar.setVisible(true);
 		
+		Table travelbarinfo = new Table();
 		
+		Table travelbuttonanddistance = new Table();
+		travelbuttonanddistance.setSize(travelbar.getWidth(), travelbar.getHeight()*.3f);
+		nodedistance = new Label("distance:", skin);
+		nodedistance.setFontScale(textscale);
+		travel = new TextButton("TRAVEL", skin);
+		travel.getLabel().setFontScale(textscale);
+		travel.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				final SpaceNode selectednode = map.getAllnodes().get(map.getNodebuttons().getCheckedIndex());
+				
+				if(map.getPlayer().isTraveling()||map.getPlayer().getCurrentNode().getIndex() == selectednode.getIndex()){
+					return;
+				}
+				map.getPlayer().setTraveling(true);
+				Tween.to(map.getPlayer(), PlayerAccessor.POSITION, 10).target(selectednode.getX(),selectednode.getY()).setCallback(new TweenCallback()
+				{
+					
+					@Override
+					public void onEvent(int type, BaseTween<?> arg1) {
+						
+						if(type == COMPLETE){
+							map.getPlayer().setTraveling(false);
+							map.getPlayer().setCurrentNode(selectednode);
+						}
+						
+					}
+				}).start(tm);
+				
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
+			}
+		});
+		
+		travelbuttonanddistance.add(nodedistance);
+		travelbuttonanddistance.add().expand().fill();
+		travelbuttonanddistance.add().pad(padding);
+		travelbuttonanddistance.add().pad(padding);
+		travelbuttonanddistance.add(travel).right();
+		
+		travelbar.add(travelbarinfo).expand().row();;
+		travelbar.add(travelbuttonanddistance);
 		
 		uistage.addActor(infobar);
 		uistage.addActor(travelbar);
@@ -130,11 +205,15 @@ public class GameState implements Screen{
 	public void render(float delta) {
 		SEGDX.clear();
 		uistage.act(delta);
-		
+		uistage.getBatch().setProjectionMatrix(uistage.getCamera().combined);
+		uistage.getBatch().begin();
+		background.draw(uistage.getBatch());
+		uistage.getBatch().end();
 		map.render(delta);
 		
 		uistage.draw();
 		cam.update();
+		tm.update(delta);
 		
 		
 		

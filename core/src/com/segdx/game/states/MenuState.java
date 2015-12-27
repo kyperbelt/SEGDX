@@ -19,6 +19,7 @@ import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
 import com.segdx.game.managers.Assets;
+import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.tween.CameraAccessor;
 
@@ -66,6 +67,7 @@ public class MenuState implements Screen{
 		play.addListener(new InputListener(){
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
 				System.out.println("play pressed.");
 				Tween.to(cam, CameraAccessor.POSITION_X, 1).target(setup.getX()+(setup.getWidth()/2)).start(tm);
 				return true;
@@ -170,7 +172,9 @@ public class MenuState implements Screen{
 				state.slore = lore.getCheckedIndex();
 				state.difficulty = difficulty.getCheckedIndex();
 				
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
 				StateManager.get().changeState(StateManager.LOAD);
+				SoundManager.get().skipToNextMusic();
 				return true;
 			}
 		});
@@ -178,6 +182,7 @@ public class MenuState implements Screen{
 		back.addListener(new InputListener(){
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
 				Tween.to(cam, CameraAccessor.POSITION_X, 1).target(main.getX()+(main.getWidth()/2)).start(tm);
 				return true;
 			}

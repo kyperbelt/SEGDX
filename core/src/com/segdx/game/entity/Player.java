@@ -23,6 +23,8 @@ public class Player {
 	public Player(){
 		ship = new StarterShip();
 		setFood(10);
+		setCurrentFuel(ship.getMaxfuel());
+		setCurrentHull(ship.getHull());
 		setResources(new Array<Resource>());
 		setCurrency(1000);
 	}
@@ -40,7 +42,7 @@ public class Player {
 	}
 	
 	public void setY(float y){
-		ship.getY();
+		ship.setY(y);;
 	}
 	
 	public Ship getShip(){

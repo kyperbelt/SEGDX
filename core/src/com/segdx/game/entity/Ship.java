@@ -36,16 +36,16 @@ public class Ship {
 		this.speed = speed;
 	}
 	public float getX() {
-		return x;
+		return sprite.getX();
 	}
 	public void setX(float x) {
-		this.x = x;
+		sprite.setX(x);
 	}
 	public float getY() {
-		return y;
+		return sprite.getY();
 	}
 	public void setY(float y) {
-		this.y = y;
+		this.sprite.setY(y);
 	}
 	public float getCapacity() {
 		return capacity;

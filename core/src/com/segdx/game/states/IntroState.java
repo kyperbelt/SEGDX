@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.segdx.game.SEGDX;
 import com.segdx.game.managers.Assets;
+import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.tween.SpriteAccessor;
 
@@ -20,7 +21,6 @@ public class IntroState implements Screen{
 	
 	private SpriteBatch batch;
 	private Sprite kyperbeltlogo;
-	private Sprite gdxpowerlogo;
 	private OrthographicCamera cam;
 	private TweenManager tm;
 
@@ -28,7 +28,6 @@ public class IntroState implements Screen{
 	public void show() {
 		batch = new SpriteBatch();
 		kyperbeltlogo = new Sprite(Assets.manager.get("kyperbeltlogo.png",Texture.class));
-		gdxpowerlogo = new Sprite(Assets.manager.get("poweredbylibgdx.png",Texture.class));
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		kyperbeltlogo.setOriginCenter();
 		kyperbeltlogo.setAlpha(0);
@@ -36,7 +35,7 @@ public class IntroState implements Screen{
 		cam.position.set(kyperbeltlogo.getOriginX(), kyperbeltlogo.getOriginY(), 0);
 		tm = new TweenManager();
 		
-		
+		SoundManager.get().playMusicList();
 		Tween.to(kyperbeltlogo, SpriteAccessor.ALPHA, 1.5f).target(1).repeatYoyo(1, 1f).setCallback(
 				new TweenCallback() {
 					

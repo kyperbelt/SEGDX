@@ -8,8 +8,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
 import com.segdx.game.managers.Assets;
+import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.states.GameState;
 
@@ -76,6 +78,7 @@ public class SpaceNode {
 		button.setX(node.getX());
 		button.setY(node.getY());
 		button.setSize(16, 16);
+		button.setOrigin(Align.center);
 		button.setBounds(button.getX(), button.getY(), button.getWidth(), button.getHeight());
 		button.addListener(new ClickListener(){
 			
@@ -94,6 +97,7 @@ public class SpaceNode {
 				}
 				((ImageButton)event.getListenerActor()).setSize(32, 32);
 				((ImageButton)event.getListenerActor()).invalidate();
+				SoundManager.get().playSound(SoundManager.NODESELECT);
 			}
 		});
 		

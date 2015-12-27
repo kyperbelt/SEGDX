@@ -2,6 +2,8 @@ package com.segdx.game.managers;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.SkinLoader;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -21,6 +23,9 @@ public class Assets {
 				manager.load("loading.png",Texture.class);
 			break;
 		case INTRO_ASSETS:
+				manager.load(SoundManager.BLINDSHIFT,Music.class);
+				manager.load(SoundManager.STARLIGHT,Music.class);
+				manager.load(SoundManager.OPTIONPRESSED,Sound.class);
 				manager.load("kyperbeltlogo.png",Texture.class);
 				manager.load("poweredbylibgdx.png",Texture.class);
 			break;
@@ -31,6 +36,7 @@ public class Assets {
 		        
 			break;
 		case GAME_ASSETS:
+				manager.load(SoundManager.NODESELECT,Sound.class);
 				manager.load("map/bluenode.png",Texture.class);
 				manager.load("map/rednode.png",Texture.class);
 				manager.load("map/greennode.png",Texture.class);
@@ -40,6 +46,7 @@ public class Assets {
 				manager.load("map/fuelicon.png",Texture.class);
 				manager.load("map/currencyicon.png",Texture.class);
 				manager.load("map/hullicon.png",Texture.class);
+				manager.load("map/m42orionnebula.png",Texture.class);
 			break;
 
 		default:

@@ -1,6 +1,7 @@
 package com.segdx.game.tween;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.math.Vector2;
 
 import aurelienribon.tweenengine.TweenAccessor;
 
@@ -33,6 +34,16 @@ public class SpriteAccessor implements TweenAccessor<Sprite> {
 		default:
 			break;
 		}
+	}
+	
+	public static float getAngle(Vector2 point1,Vector2 point2){
+		float angle = (float) Math.toDegrees(Math.atan2(point2.y - point1.y, point2.x - point1.x));
+
+	    if(angle < 0){
+	        angle += 360;
+	    }
+
+	    return angle;
 	}
 
 }
