@@ -7,13 +7,16 @@ import com.segdx.game.managers.Assets;
 public class StarterShip extends Ship{
 	
 	public StarterShip(){
-		this.setName("Your Fathers Shuttle");
-		
+		this.setName("Your Fathers Ship");
+		this.setDescription("This was your fathers pride and joy. its a rare model type, highly "
+				+ "sought after by collectors..");
 		this.setCapacity(30);
 		this.setMaxfuel(100);
 		this.setHull(40);
-		this.setCost(10000);
-		this.setSpeed(1);
+		this.setCost(3000);
+		this.setSpeed(10);
+		this.setFuelEconomy(7);
+		this.setDetectionLevel(0);
 		Sprite shipsprite = new Sprite(Assets.manager.get("map/shuttle.png",Texture.class));
 		shipsprite.setOriginCenter();
 		this.setSprite(shipsprite);

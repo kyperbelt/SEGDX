@@ -3,6 +3,7 @@ package com.segdx.game.entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -13,8 +14,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
-import com.segdx.game.managers.StateManager;
-import com.segdx.game.states.GameState;
 
 import aurelienribon.tweenengine.TweenManager;
 /**
@@ -31,6 +30,7 @@ public class SpaceMap {
 	private boolean draft;
 	private OrthographicCamera cam;
 	private Stage stage;
+	private ShapeRenderer sr;
 	private SpriteBatch batch;
 	private ButtonGroup<ImageButton> nodebuttons;
 	private Array<SpaceNode> allnodes;
@@ -41,6 +41,7 @@ public class SpaceMap {
 	private int mapwidth;
 	private int numberofnodes;
 	private TweenManager tm;
+	private CycleTimer timer;
 	
 	private Player player;
 	
@@ -49,25 +50,46 @@ public class SpaceMap {
 		stage.draw();
 		
 		stage.act(delta);
+		
+		if(SEGDX.DEBUG){
+			sr.setProjectionMatrix(stage.getCamera().combined);
+			sr.begin();
+			sr.line(new Vector2(player.getX(),player.getY()), new Vector2(allnodes.get(player.getDestination()).getX(),
+					allnodes.get(player.getDestination()).getY()));
+			
+			int index = nodebuttons.getCheckedIndex();
+			if(index!=-1){
+				Circle effectradius = allnodes.get(index).getEffectradius();
+				sr.circle(effectradius.x, effectradius.y, effectradius.radius);
+			}
+			sr.end();
+		}
 		batch.setProjectionMatrix(stage.getCamera().combined);
 		batch.begin();
 		player.getShip().getSprite().draw(batch);
 		batch.end();
 		cam.update();
+		timer.update(delta);
 		
 		//use fuel
 				if(player.isTraveling()){
 					float distancetraveled = Vector2.dst(player.getCurrentNode().getX(), player.getCurrentNode().getY(), player.getX(), player.getY());
-					if(player.getDistanceTraveled()+10 < distancetraveled){
+					if(player.getDistanceTraveled()+player.getShip().getFuelEconomy() < distancetraveled){
 						player.setCurrentFuel(player.getCurrentFuel()-1);
 						player.setDistanceTraveled(distancetraveled);
 					}
 				}
+				
+		//update nodes
+				for (int i = 0; i < allnodes.size; i++) {
+					allnodes.get(i).update();
+				}
 	}
 	
 	public SpaceMap(){
+		sr = new ShapeRenderer();
+		sr.setAutoShapeType(true);
 		batch = new SpriteBatch();
-		
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		cam.setToOrtho(false);
 		this.stage = new Stage(new ScreenViewport(cam));
@@ -128,6 +150,14 @@ public class SpaceMap {
 
 	public int getMapheight() {
 		return mapheight;
+	}
+
+	public CycleTimer getTimer() {
+		return timer;
+	}
+
+	public void setTimer(CycleTimer timer) {
+		this.timer = timer;
 	}
 
 	public void setMapheight(int mapheight) {
@@ -197,11 +227,29 @@ public class SpaceMap {
 		map.draft = intToBool(draft);
 		map.difficulty = difficulty;
 		map.setPlayer(new Player());
+		map.setTimer(new CycleTimer());
+		
+		switch (difficulty) {
+		case 0:
+			map.getTimer().setCycleLength(CycleTimer.SLOW_CYCLE);
+			break;
+		case 1:
+			map.getTimer().setCycleLength(CycleTimer.NORMAL_CYCLE);
+			break;
+		case 2:
+			map.getTimer().setCycleLength(CycleTimer.FAST_CYCLE);
+			break;
+
+		default:
+			break;
+		}
+		
 		switch (size) {
 		case 0:
 			map.setMapheight(1600);
 			map.setMapwidth(1600);
 			map.setNumberofnodes(32);
+			
 			break;
 		case 1:
 			map.setMapheight(2400);
@@ -237,8 +285,8 @@ public class SpaceMap {
 	
 	public static Array<SpaceNode> createSpaceNodes(SpaceMap map){
 		float spawnradiusmin = 40;
-		float effectradiusmin = 80;
-		float effectradiusmax = 200;
+		float effectradiusmin = 240;
+		float effectradiusmax = 320;
 		float restSpawnArea = 400;
 		float tradeSpawnArea = 650;
 		if(map.getDifficulty()==0){
@@ -252,16 +300,22 @@ public class SpaceMap {
 		
 		
 		Array<SpaceNode> nodes = new Array<SpaceNode>();
-		SpaceNode node = new SpaceNode();
+		Array<SpaceNode> trade = new Array<SpaceNode>();
+		Array<SpaceNode> rest = new Array<SpaceNode>();
+		Array<SpaceNode> passive = new Array<SpaceNode>();
+		
+		SpaceNode node = new SpaceNode(map);
 		node.setX(MathUtils.random(map.getMapwidth()-10)+10);
 		node.setY(MathUtils.random(map.getMapheight()-10)+10);
 		node.setEffectradius(new Circle(new Vector2(node.getX(), node.getY()), MathUtils.random(effectradiusmax)+effectradiusmin));
 		node.setNodeType(SpaceNode.REST);
 		nodes.add(node);
+		rest.add(node);
 		map.getCam().position.set(node.getX(), node.getY(), 0);
 		map.getPlayer().setX(node.getX());
 		map.getPlayer().setY(node.getY());
 		map.player.setCurrentNode(node);
+	
 		while(nodes.size <= map.getNumberofnodes()-1){
 			boolean created = false;
 			
@@ -282,7 +336,7 @@ public class SpaceMap {
 					
 				}
 				if(created){
-					SpaceNode newnode = new SpaceNode();
+					SpaceNode newnode = new SpaceNode(map);
 					newnode.setIndex(nodes.size);
 					newnode.setX(x);
 					newnode.setY(y);
@@ -306,10 +360,13 @@ public class SpaceMap {
 					
 					if(isTradeCapable){
 						newnode.setNodeType(SpaceNode.TRADE);
+						trade.add(newnode);
 					}else if(isRestCapable){
 						newnode.setNodeType(SpaceNode.REST);
+						rest.add(newnode);
 					}else {
 						newnode.setNodeType(SpaceNode.NEUTRAL);
+						passive.add(newnode);
 					}
 					
 					

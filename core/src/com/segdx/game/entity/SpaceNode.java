@@ -2,7 +2,6 @@ package com.segdx.game.entity;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
@@ -16,12 +15,20 @@ import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.states.GameState;
+import com.segdx.game.tween.SpriteAccessor;
+import com.sun.javafx.geom.transform.GeneralTransform3D;
 
 public class SpaceNode {
 	public static final int NEUTRAL = 0;
 	public static final int REST = 1;
 	public static final int TRADE = 2;
 	public static final int DANGER = 3;
+	
+	//default node descriptions.
+	public static final String GENERIC_REST = "Seems like a safe place to rest and refuel.";
+	public static final String GENERIC_TRADE = "A trade post. Might be worth checking out what deals they have.";
+	public static final String GENERIC_PASSIVE = "Unknown part of space. Maybe you will find somethign interesting.";
+	public static final String GENERIC_DANGER = "Doesn't seem safe, better not risk it.";
 	
 	private int index;
 	private int prevtype;
@@ -30,7 +37,11 @@ public class SpaceNode {
 	private Circle effectradius;
 	private float x;
 	private float y;
+	private SpaceMap map;
 	
+	public SpaceNode(SpaceMap map){
+		this.map = map;
+	}
 	
 	public ImageButton getButton() {
 		return button;
@@ -75,20 +86,49 @@ public class SpaceNode {
 		this.prevtype = prevtype;
 	}
 	
+	public void update(){
+		
+	}
+	
+	public void changeNodeType(int type){
+		this.nodeType = type;
+		getButton().setStyle(getButtonStyle(this));
+		switch (type) {
+		case NEUTRAL:
+			
+			break;
+		case REST:
+					
+			break;
+		case TRADE:
+			
+			break;
+		case DANGER:
+			
+			break;
+
+		default:
+			break;
+		}
+	}
+	
 	public static ImageButton createButton(final SpaceNode node){
 		ImageButton button = new ImageButton(getButtonStyle(node));
 		button.setX(node.getX());
 		button.setY(node.getY());
-		button.setSize(16, 16);
+		button.setSize(32, 32);
+		button.getImage().setScale(.5f);
 		button.setOrigin(Align.center);
 		button.setBounds(button.getX(), button.getY(), button.getWidth(), button.getHeight());
 		button.addListener(new ClickListener(){
 			
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				System.out.println("clicked"+node.getIndex());
+				
 				GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
-
+				if(state.getSpaceMap().getNodebuttons().getCheckedIndex()==-1)
+					return;
+				System.out.println(node.getIndex()+"<-node checked index->"+state.getSpaceMap().getNodebuttons().getCheckedIndex());
 				SpaceNode selectednodee = state.getSpaceMap().getAllnodes().get(state.getSpaceMap().getNodebuttons().getCheckedIndex());
 				Vector2 destination = new Vector2(selectednodee.getX(),selectednodee.getY());
 				Vector2 start = new Vector2(state.getSpaceMap().getPlayer().getX(),state.getSpaceMap().getPlayer().getY());
@@ -102,13 +142,32 @@ public class SpaceNode {
 				}
 				for (int i = 0; i < buttons.size; i++) {
 						if(!buttons.get(i).isChecked()){
-							buttons.get(i).setSize(16, 16);
+							buttons.get(i).getImage().setScale(.5f);
 							buttons.get(i).invalidate();
 						}
 				}
-				((ImageButton)event.getListenerActor()).setSize(32, 32);
+				((ImageButton)event.getListenerActor()).getImage().setScale(1f);
 				((ImageButton)event.getListenerActor()).invalidate();
 				SoundManager.get().playSound(SoundManager.NODESELECT);
+				
+				if(!map.getPlayer().isTraveling())
+					map.getPlayer().getShip().getSprite().setRotation(SpriteAccessor.getAngle(new Vector2(map.getPlayer().getX(),
+							map.getPlayer().getY()), new Vector2(selectednodee.getX(),selectednodee.getY())));
+				switch (map.getPlayer().getShip().getDetectionLevel()) {
+				case Ship.NO_DETECTION:
+						if(node.getNodeType()==SpaceNode.NEUTRAL)
+							state.selectednodeinfo.setText(GENERIC_PASSIVE);
+						else if(node.getNodeType()==SpaceNode.TRADE)
+							state.selectednodeinfo.setText(GENERIC_TRADE);
+						else if(node.getNodeType()==SpaceNode.REST)
+							state.selectednodeinfo.setText(GENERIC_REST);
+						else if(node.getNodeType()==SpaceNode.DANGER)
+							state.selectednodeinfo.setText(GENERIC_DANGER);
+					break;
+
+				default:
+					break;
+				}
 			}
 		});
 		
@@ -148,6 +207,12 @@ public class SpaceNode {
 			break;
 		}
 		return ibs;
+	}
+	public SpaceMap getMap() {
+		return map;
+	}
+	public void setMap(SpaceMap map) {
+		this.map = map;
 	}
 	
 

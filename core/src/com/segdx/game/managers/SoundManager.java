@@ -21,7 +21,7 @@ public class SoundManager {
 		return manager;
 	}
 	
-	private float volume = 1f;
+	private float volume = .1f;
 	private Array<String> music;
 	private Array<String> sounds;
 	private int currentmusicindex;

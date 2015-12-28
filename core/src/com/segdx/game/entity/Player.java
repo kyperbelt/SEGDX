@@ -19,6 +19,8 @@ public class Player {
 	
 	private float currency;
 	
+	private boolean incombat;
+	
 	
 	private Array<Resource> resources;
 	
@@ -134,6 +136,14 @@ public class Player {
 
 	public void setDistanceTraveled(float distanceTraveled) {
 		this.distanceTraveled = distanceTraveled;
+	}
+
+	public boolean isIncombat() {
+		return incombat;
+	}
+
+	public void setIncombat(boolean incombat) {
+		this.incombat = incombat;
 	}
 
 }

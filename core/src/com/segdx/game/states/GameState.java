@@ -28,6 +28,7 @@ import com.segdx.game.managers.InputManager;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.tween.PlayerAccessor;
 import com.segdx.game.tween.SpriteAccessor;
+import com.segdx.game.tween.TableAccessor;
 
 import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Timeline;
@@ -46,8 +47,12 @@ public class GameState implements Screen{
 	private boolean lore;
 	private Stage uistage;
 	private InputManager input;	
-	private Table travelbar,actionbar,tradebar,infobar;
-	private TextButton travel,resourcetab,shiptab;
+	private Table travelbar,actionbar,tradebar,infobar,shipinfobar;
+	public TextButton travel,
+						//trade window tab buttons
+						resourcetab,shiptab,
+						shipinfotab;
+						
 	public Label hullinfo,fuelinfo,foodinfo,cycleinfo,currencyinfo,cycletimer,
 				 nodedistance,
 				 //a small description of the selected node
@@ -142,6 +147,11 @@ public class GameState implements Screen{
 		travelbar.setVisible(true);
 		
 		Table travelbarinfo = new Table();
+		selectednodeinfo = new Label("No information to display", skin);
+		selectednodeinfo.setFontScale(textscale);
+		selectednodeinfo.setWrap(true);
+		
+		travelbarinfo.add(selectednodeinfo).width(travelbar.getWidth()-(travelbar.getWidth()*.2f));
 		
 		Table travelbuttonanddistance = new Table();
 		travelbuttonanddistance.setSize(travelbar.getWidth(), travelbar.getHeight()*.3f);
@@ -152,16 +162,29 @@ public class GameState implements Screen{
 		travel.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
+				
+				if(map.getNodebuttons().getCheckedIndex()==-1)
+						return;
 				final SpaceNode selectednode = map.getAllnodes().get(map.getNodebuttons().getCheckedIndex());
-				map.getPlayer().getShip().getSprite().setRotation(SpriteAccessor.getAngle(new Vector2(map.getPlayer().getX(),
-											map.getPlayer().getY()), new Vector2(selectednode.getX(),selectednode.getY())));
 				if(map.getPlayer().isTraveling()||map.getPlayer().getCurrentNode().getIndex() == selectednode.getIndex()){
 					return;
 				}
+				
+				if(!map.getPlayer().isTraveling())
+					map.getPlayer().getShip().getSprite().setRotation(SpriteAccessor.getAngle(new Vector2(map.getPlayer().getX(),
+							map.getPlayer().getY()), new Vector2(selectednode.getX(),selectednode.getY())));
+				
 				map.getPlayer().setTraveling(true);
+				map.getPlayer().setDestination(selectednode.getIndex());
+				
+				Vector2 destination = new Vector2(selectednode.getX(),selectednode.getY());
+				Vector2 start = new Vector2(getSpaceMap().getPlayer().getX(),getSpaceMap().getPlayer().getY());
+				
+				float distance = Vector2.dst(start.x, start.y, destination.x, destination.y);
+				
 				Timeline.createSequence()
 				.beginParallel()
-					.push(Tween.to(map.getPlayer(), PlayerAccessor.POSITION, 10).target(selectednode.getX(),selectednode.getY()).setCallback(new TweenCallback()
+					.push(Tween.to(map.getPlayer(), PlayerAccessor.POSITION, (distance/10)/map.getPlayer().getShip().getSpeed()).target(selectednode.getX(),selectednode.getY()).setCallback(new TweenCallback()
 					{
 						
 						@Override
@@ -178,6 +201,7 @@ public class GameState implements Screen{
 				.end()
 				.start(tm);
 				
+				
 				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
 			}
 		});
@@ -191,6 +215,43 @@ public class GameState implements Screen{
 		travelbar.add(travelbarinfo).expand().row();;
 		travelbar.add(travelbuttonanddistance);
 		
+		
+		shipinfobar = new Table();
+		shipinfobar.setSize(uistage.getWidth()*.3f, uistage.getHeight()*.5f);
+		shipinfobar.setPosition(uistage.getWidth()-(uistage.getWidth()*.05f), uistage.getHeight()*.4f);
+		
+		Table shipinfotabcontainer = new Table();
+		shipinfotabcontainer.bottom();
+		shipinfotabcontainer.setSize(uistage.getWidth()-(uistage.getWidth()*.05f), uistage.getHeight()*.4f);
+		shipinfotab = new TextButton("ship<<<", skin);
+		shipinfotab.getLabel().setFontScale(textscale);
+		shipinfotab.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				
+				if(shipinfotab.isChecked()){
+					shipinfotab.setText("ship>>>");
+					Tween.to(shipinfobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-shipinfobar.getWidth()).start(tm);
+				}else{
+					shipinfotab.setText("ship<<<");
+					Tween.to(shipinfobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
+				}
+				
+			}
+		});
+		
+		shipinfotabcontainer.add().padBottom(shipinfobar.getHeight()-shipinfotab.getHeight()/2).row();
+		shipinfotabcontainer.add(shipinfotab).bottom();
+		
+		Table shipinformationcontainer = new Table();
+		shipinformationcontainer.setBackground(defaultbackground);
+		
+		shipinfobar.add(shipinfotabcontainer).left();
+		shipinfobar.add(shipinformationcontainer).expand().fill();
+		shipinfobar.add();
+		
+		
+		uistage.addActor(shipinfobar);
 		uistage.addActor(infobar);
 		uistage.addActor(travelbar);
 		input = new InputManager();
@@ -226,6 +287,8 @@ public class GameState implements Screen{
 		
 		//update infobar
 		fuelinfo.setText(map.getPlayer().getCurrentFuel()+"/"+map.getPlayer().getShip().getMaxfuel());
+		cycleinfo.setText("cycle:"+map.getTimer().getCurrentCycle()+"  timer:");
+		cycletimer.setText(""+(int)map.getTimer().getTimeLeft());
 		
 		
 		

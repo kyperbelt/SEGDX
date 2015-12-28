@@ -3,6 +3,12 @@ package com.segdx.game.entity;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class Ship {
+	
+	public static final int NO_DETECTION = 0;
+	public static final int SOME_DETECTION = 1;
+	public static final int FULL_DETECTION = 2;
+	
+	
 	//the amount of fuel carried by this ship
 	private float maxfuel;
 	//the speed of this ship
@@ -18,9 +24,11 @@ public class Ship {
 	//the cost of this hip
 	private int cost;
 	
-	private float x;
-	private float y;
+	private String description;
 	
+	private float fuelEconomy;
+	
+	private int detectionLevel;
 	
 	
 	public float getMaxfuel() {
@@ -76,6 +84,24 @@ public class Ship {
 	}
 	public void setHull(float hull) {
 		this.hull = hull;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	public float getFuelEconomy() {
+		return fuelEconomy;
+	}
+	public void setFuelEconomy(float fuelEconomy) {
+		this.fuelEconomy = fuelEconomy;
+	}
+	public int getDetectionLevel() {
+		return detectionLevel;
+	}
+	public void setDetectionLevel(int detectionLevel) {
+		this.detectionLevel = detectionLevel;
 	}
 	
 
