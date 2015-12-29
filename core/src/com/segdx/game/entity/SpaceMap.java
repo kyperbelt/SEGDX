@@ -14,6 +14,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
+import com.segdx.game.entity.CycleTimer.CycleTask;
+import com.segdx.game.entity.CycleTimer.TimedTask;
+import com.segdx.game.managers.StateManager;
+import com.segdx.game.states.GameState;
 
 import aurelienribon.tweenengine.TweenManager;
 /**
@@ -244,6 +248,9 @@ public class SpaceMap {
 			break;
 		}
 		
+		addCycleTasks(map.getTimer());
+		addTimedTasks(map.getTimer());
+		
 		switch (size) {
 		case 0:
 			map.setMapheight(1600);
@@ -379,6 +386,28 @@ public class SpaceMap {
 		
 		return nodes;
 		
+	}
+	
+	public static void addCycleTasks(final CycleTimer timer){
+		timer.addCycleTask(new CycleTask() {
+			
+			@Override
+			public void onCycle() {
+				System.out.println("cycle passed bro. its now :"+timer.getCurrentCycle());
+				
+			}
+		}).repeat().startCycle(1);;		
+	}
+	
+	public static void addTimedTasks(final CycleTimer timer){
+		timer.addTimedTask(new TimedTask() {
+			
+			@Override
+			public void onExecute() {
+				GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+				state.getSpaceMap().getPlayer().setFood((int) (state.getSpaceMap().getPlayer().getFood()-1));
+			}
+		}).setSleep(5).repeat();
 	}
 	
 	public static boolean intToBool(int bool){

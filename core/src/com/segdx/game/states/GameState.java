@@ -224,7 +224,7 @@ public class GameState implements Screen{
 		shipinfotabcontainer.bottom();
 		shipinfotabcontainer.setSize(uistage.getWidth()-(uistage.getWidth()*.05f), uistage.getHeight()*.4f);
 		shipinfotab = new TextButton("ship<<<", skin);
-		shipinfotab.getLabel().setFontScale(textscale);
+		shipinfotab.getLabel().setFontScaleX(textscale);
 		shipinfotab.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -240,7 +240,7 @@ public class GameState implements Screen{
 			}
 		});
 		
-		shipinfotabcontainer.add().padBottom(shipinfobar.getHeight()-shipinfotab.getHeight()/2).row();
+		shipinfotabcontainer.add().padBottom(shipinfobar.getHeight()-shipinfotab.getHeight()).row();
 		shipinfotabcontainer.add(shipinfotab).bottom();
 		
 		Table shipinformationcontainer = new Table();
@@ -289,6 +289,7 @@ public class GameState implements Screen{
 		fuelinfo.setText(map.getPlayer().getCurrentFuel()+"/"+map.getPlayer().getShip().getMaxfuel());
 		cycleinfo.setText("cycle:"+map.getTimer().getCurrentCycle()+"  timer:");
 		cycletimer.setText(""+(int)map.getTimer().getTimeLeft());
+		foodinfo.setText(""+map.getPlayer().getFood());
 		
 		
 		
