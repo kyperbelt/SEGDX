@@ -405,6 +405,9 @@ public class SpaceMap {
 			@Override
 			public void onExecute() {
 				GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+				if(state.getSpaceMap().getPlayer().getCurrentNode().getNodeType() == SpaceNode.REST
+						&&!state.getSpaceMap().getPlayer().isTraveling())
+					return;
 				state.getSpaceMap().getPlayer().setFood((int) (state.getSpaceMap().getPlayer().getFood()-1));
 			}
 		}).setSleep(5).repeat();

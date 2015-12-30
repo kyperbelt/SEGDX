@@ -47,17 +47,25 @@ public class GameState implements Screen{
 	private boolean lore;
 	private Stage uistage;
 	private InputManager input;	
-	private Table travelbar,actionbar,tradebar,infobar,shipinfobar;
+	private Table travelbar,actionbar,tradebar,infobar,shipinfobar,menubar,invetorybar;
 	public TextButton travel,
-						//trade window tab buttons
+						// window tab buttons
 						resourcetab,shiptab,
-						shipinfotab;
+						shipinfotab,
+						menutab,
+						inventorytab
+						//misc buttons
+						;
 						
 	public Label hullinfo,fuelinfo,foodinfo,cycleinfo,currencyinfo,cycletimer,
 				 nodedistance,
 				 //a small description of the selected node
 				//some variables may affect the detail.
-				 selectednodeinfo;
+				 selectednodeinfo,
+				 
+				 //shiptab information
+				 shipname,shipdescription,shipcapacity,shipfueleconomy,shipspeed;
+	
 	public Image foodicon,fuelicon,hullicon,currencyicon,timericon;
 	private OrthographicCamera cam;
 	private TweenManager tm;
@@ -245,6 +253,23 @@ public class GameState implements Screen{
 		
 		Table shipinformationcontainer = new Table();
 		shipinformationcontainer.setBackground(defaultbackground);
+		shipinformationcontainer.setSize(shipinfobar.getWidth()*.8f, shipinfobar.getHeight());
+		shipname = new Label("Name: "+map.getPlayer().getShip().getName(), skin);
+		shipname.setFontScale(textscale*.8f);
+		shipname.setWrap(true);
+		
+		shipdescription = new Label("Desc: "+map.getPlayer().getShip().getDescription(), skin);
+		shipdescription.setFontScale(textscale*.8f);
+		shipdescription.setWrap(true);
+		
+		
+		shipinformationcontainer.add(shipname).width(shipinformationcontainer.getWidth()).row();
+		shipinformationcontainer.add().pad(padding).row();
+		shipinformationcontainer.add(shipdescription).fillX().row();
+		shipinformationcontainer.add();
+		shipinformationcontainer.add();
+		shipinformationcontainer.add();
+		
 		
 		shipinfobar.add(shipinfotabcontainer).left();
 		shipinfobar.add(shipinformationcontainer).expand().fill();

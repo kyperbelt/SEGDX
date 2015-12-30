@@ -90,7 +90,7 @@ public class InputManager implements InputProcessor,GestureListener{
 
 	@Override
 	public boolean zoom(float initialDistance, float distance) {
-		zoom(initialDistance-distance);
+		zoom((initialDistance-distance)*.1f);
 		return true;
 	}
 
