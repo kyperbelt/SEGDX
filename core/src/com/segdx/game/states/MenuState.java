@@ -23,7 +23,9 @@ import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.tween.CameraAccessor;
 
+import aurelienribon.tweenengine.BaseTween;
 import aurelienribon.tweenengine.Tween;
+import aurelienribon.tweenengine.TweenCallback;
 import aurelienribon.tweenengine.TweenManager;
 
 public class MenuState implements Screen{
@@ -68,12 +70,22 @@ public class MenuState implements Screen{
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
-				System.out.println("play pressed.");
-				Tween.to(cam, CameraAccessor.POSITION_X, 1).target(setup.getX()+(setup.getWidth()/2)).start(tm);
+				startgame.setDisabled(true);
+				back.setDisabled(true);
+				Tween.to(cam, CameraAccessor.POSITION_X, 1).target(setup.getX()+(setup.getWidth()/2)).setCallback(
+						new TweenCallback() {
+							
+							@Override
+							public void onEvent(int type, BaseTween<?> arg1) {
+								if(type == TweenCallback.COMPLETE){
+									startgame.setDisabled(false);
+									back.setDisabled(false);
+								}
+							}
+						}).start(tm);
 				return true;
 			}
 		});
-		play.setChecked(true);
 		//play.setSize(300, 90);
 		main.add(play).width(300).height(90);
 		setup = new Table();

@@ -411,6 +411,16 @@ public class SpaceMap {
 				state.getSpaceMap().getPlayer().setFood((int) (state.getSpaceMap().getPlayer().getFood()-1));
 			}
 		}).setSleep(5).repeat();
+		
+		timer.addTimedTask(new TimedTask() {
+			
+			@Override
+			public void onExecute() {
+
+				System.out.println(""+Gdx.graphics.getFramesPerSecond());
+			}
+		}).setSleep(1).repeat();
+		
 	}
 	
 	public static boolean intToBool(int bool){

@@ -68,10 +68,12 @@ public class IntroState implements Screen{
 
 	@Override
 	public void pause() {
+		tm.pause();
 	}
 
 	@Override
 	public void resume() {
+		tm.resume();
 	}
 
 	@Override

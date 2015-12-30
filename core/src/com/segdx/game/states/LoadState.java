@@ -24,10 +24,11 @@ public class LoadState implements Screen{
 	private Sprite loading;
 	private OrthographicCamera cam;
 	private TweenManager tm;
-	;
+	private boolean actionPerformed;
 
 	@Override
 	public void show() {
+		actionPerformed = false;
 		batch = new SpriteBatch();
 		loading = new Sprite(Assets.manager.get("loading.png", Texture.class));
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -85,7 +86,6 @@ public class LoadState implements Screen{
 		batch.begin();
 		loading.draw(batch);
 		batch.end();
-		
 		tm.update(delta);
 		cam.update();
 	}

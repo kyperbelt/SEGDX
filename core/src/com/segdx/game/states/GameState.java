@@ -316,6 +316,8 @@ public class GameState implements Screen{
 		cycletimer.setText(""+(int)map.getTimer().getTimeLeft());
 		foodinfo.setText(""+map.getPlayer().getFood());
 		
+
+		
 		
 		
 	}
