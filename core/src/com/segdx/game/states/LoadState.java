@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Timer.Task;
 import com.segdx.game.SEGDX;
 import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.managers.Assets;
+import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.tween.SpriteAccessor;
 
@@ -19,16 +20,16 @@ import aurelienribon.tweenengine.TweenManager;
 
 public class LoadState implements Screen{
 	private static final float LOAD_DELAY = .1f;
+	public static boolean fired = false;
 	
 	private SpriteBatch batch;
 	private Sprite loading;
 	private OrthographicCamera cam;
 	private TweenManager tm;
-	private boolean actionPerformed;
-
+	private boolean paused;
 	@Override
 	public void show() {
-		actionPerformed = false;
+		paused = false;
 		batch = new SpriteBatch();
 		loading = new Sprite(Assets.manager.get("loading.png", Texture.class));
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
@@ -43,7 +44,18 @@ public class LoadState implements Screen{
 	@Override
 	public void render(float delta) {
 		
-		if(Assets.manager.update()){
+		SEGDX.clear();
+	    batch.setProjectionMatrix(cam.combined);
+		batch.begin();
+		loading.draw(batch);
+		batch.end();
+		tm.update(delta);
+		cam.update();
+		
+		if(paused==true)
+			return;
+		if(Assets.manager.update()&&!fired){
+			fired = true;
 			switch (Assets.currentload) {
 			case Assets.INTRO_ASSETS:
 				Timer.schedule(new Task() {
@@ -76,18 +88,21 @@ public class LoadState implements Screen{
 					}
 				}, LOAD_DELAY);
 				break;
-
+			case Assets.GAMEOVER_ASSETS:
+				Timer.schedule(new Task() {
+					
+					@Override
+					public void run() {
+						StateManager.get().changeState(StateManager.GAMEOVER);
+						SoundManager.get().playMusic(SoundManager.BOARDINGPARTY);
+					}
+				}, LOAD_DELAY);
+				break;
 			default:
 				break;
 			}
 		}
-		SEGDX.clear();
-	    batch.setProjectionMatrix(cam.combined);
-		batch.begin();
-		loading.draw(batch);
-		batch.end();
-		tm.update(delta);
-		cam.update();
+		
 	}
 
 	@Override
@@ -96,18 +111,24 @@ public class LoadState implements Screen{
 
 	@Override
 	public void pause() {
+		paused = true;
+		tm.pause();
 	}
 
 	@Override
 	public void resume() {
+		paused = false;
+		tm.resume();
 	}
 
 	@Override
 	public void hide() {
+		
 	}
 
 	@Override
 	public void dispose() {
+		System.out.println("disposed "+StateManager.GAME);
 		batch.dispose();
 		Assets.disposeBlock(Assets.LOAD_ASSETS);
 	}

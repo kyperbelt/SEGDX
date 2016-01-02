@@ -8,6 +8,6 @@ package com.segdx.game.entity.ship;
 public class ShipAbility {
 	
 	//TODO: make base ship ability class and then extend it into individual ability types
-	//abstract class performAbility(Targ)
+	//abstract class performAbility(Target)
 
 }

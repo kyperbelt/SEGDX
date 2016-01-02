@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.segdx.game.SEGDX;
+import com.segdx.game.states.LoadState;
 
 public class StateManager {
 	public static final String LOAD = "load_state";
@@ -50,6 +51,7 @@ public class StateManager {
 			System.exit(0);
 		}
 		game.setScreen(states.get(state));
+		LoadState.fired = false;
 	}
 	
 	public void dispose(String state){

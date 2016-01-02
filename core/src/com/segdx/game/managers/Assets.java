@@ -13,6 +13,7 @@ public class Assets {
 	public static final int INTRO_ASSETS = 1;
 	public static final int MENU_ASSETS = 2;
 	public static final int GAME_ASSETS = 3;
+	public static final int GAMEOVER_ASSETS = 4;
 	
 	public static final AssetManager manager = new AssetManager();
 	public static int currentload =-1;
@@ -36,6 +37,7 @@ public class Assets {
 		        
 			break;
 		case GAME_ASSETS:
+				manager.load(SoundManager.BOARDINGPARTY,Music.class);
 				manager.load(SoundManager.NODESELECT,Sound.class);
 				manager.load("map/bluenode.png",Texture.class);
 				manager.load("map/rednode.png",Texture.class);
@@ -47,8 +49,14 @@ public class Assets {
 				manager.load("map/currencyicon.png",Texture.class);
 				manager.load("map/hullicon.png",Texture.class);
 				manager.load("map/m42orionnebula.png",Texture.class);
+				manager.load("map/dridium.png",Texture.class);
+				manager.load("map/latterium.png",Texture.class);
+				manager.load("map/naquidra.png",Texture.class);
+				manager.load("map/kniptoryte.png",Texture.class);
 			break;
-
+		case GAMEOVER_ASSETS:
+				manager.load("map/godsandidols3.png",Texture.class);
+			break;
 		default:
 			assert false;
 			break;

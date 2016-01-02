@@ -9,7 +9,7 @@ public class StarterShip extends Ship{
 	public StarterShip(){
 		this.setName("Your Fathers Ship");
 		this.setDescription("This was your fathers pride and joy. its a rare model type, highly "
-				+ "sought after by collectors..");
+				+ "sought after by collectors.");
 		this.setCapacity(30);
 		this.setMaxfuel(100);
 		this.setHull(40);

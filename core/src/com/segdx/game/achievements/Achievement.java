@@ -9,5 +9,8 @@ package com.segdx.game.achievements;
  *
  */
 public class Achievement {
+	
+	//should like something like :
+	//public Achievement(int id,int points,String name,String descritopn)
 
 }

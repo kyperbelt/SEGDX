@@ -22,7 +22,7 @@ public class NodeEvent {
 	private boolean RequiresExtraction;
 	private int numberofInteractions;
 	private Array<String> interactions;
-	private Ship enemy;
+	private Enemy enemy;
 	private NodeEventAction action;
 	private float occuranceRate;
 	private boolean effectAplied;
@@ -133,11 +133,11 @@ public class NodeEvent {
 		this.resourcerates = resourcerates;
 	}
 
-	public Ship getEnemy() {
+	public Enemy getEnemy() {
 		return enemy;
 	}
 
-	public void setEnemy(Ship enemy) {
+	public void setEnemy(Enemy enemy) {
 		this.enemy = enemy;
 	}
 

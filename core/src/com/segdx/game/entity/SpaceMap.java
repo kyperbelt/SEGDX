@@ -316,6 +316,7 @@ public class SpaceMap {
 		node.setY(MathUtils.random(map.getMapheight()-10)+10);
 		node.setEffectradius(new Circle(new Vector2(node.getX(), node.getY()), MathUtils.random(effectradiusmax)+effectradiusmin));
 		node.setNodeType(SpaceNode.REST);
+		node.setReststop(SpaceNode.newRestStop());
 		nodes.add(node);
 		rest.add(node);
 		map.getCam().position.set(node.getX(), node.getY(), 0);
@@ -370,6 +371,7 @@ public class SpaceMap {
 						trade.add(newnode);
 					}else if(isRestCapable){
 						newnode.setNodeType(SpaceNode.REST);
+						newnode.setReststop(SpaceNode.newRestStop());
 						rest.add(newnode);
 					}else {
 						newnode.setNodeType(SpaceNode.NEUTRAL);
@@ -408,10 +410,11 @@ public class SpaceMap {
 				if(state.getSpaceMap().getPlayer().getCurrentNode().getNodeType() == SpaceNode.REST
 						&&!state.getSpaceMap().getPlayer().isTraveling())
 					return;
-				state.getSpaceMap().getPlayer().setFood((int) (state.getSpaceMap().getPlayer().getFood()-1));
+				state.getSpaceMap().getPlayer().removeFood();
 			}
 		}).setSleep(5).repeat();
 		
+		//fps counter task for testing :)
 		timer.addTimedTask(new TimedTask() {
 			
 			@Override
@@ -419,7 +422,7 @@ public class SpaceMap {
 
 				System.out.println(""+Gdx.graphics.getFramesPerSecond());
 			}
-		}).setSleep(1).repeat();
+		}).setSleep(15).repeat();
 		
 	}
 	

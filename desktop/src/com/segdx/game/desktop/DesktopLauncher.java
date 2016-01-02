@@ -10,6 +10,7 @@ public class DesktopLauncher {
 		config.width = SEGDX.WIDTH;
 		config.height = SEGDX.HEIGHT;
 		config.resizable = false;
+		config.fullscreen = false;
 		new LwjglApplication(new SEGDX(), config);
 	}
 }

@@ -2,6 +2,7 @@ package com.segdx.game.entity;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
@@ -16,13 +17,14 @@ import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.states.GameState;
 import com.segdx.game.tween.SpriteAccessor;
-import com.sun.javafx.geom.transform.GeneralTransform3D;
 
 public class SpaceNode {
 	public static final int NEUTRAL = 0;
 	public static final int REST = 1;
 	public static final int TRADE = 2;
 	public static final int DANGER = 3;
+	
+	public static int NODEINDEXTRACKER = 0;
 	
 	//default node descriptions.
 	public static final String GENERIC_REST = "Seems like a safe place to rest and refuel.";
@@ -38,6 +40,9 @@ public class SpaceNode {
 	private float x;
 	private float y;
 	private SpaceMap map;
+	
+	private RestStop reststop;
+	private TradePost tradepost;
 	
 	public SpaceNode(SpaceMap map){
 		this.map = map;
@@ -126,8 +131,10 @@ public class SpaceNode {
 			public void clicked(InputEvent event, float x, float y) {
 				
 				GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
-				if(state.getSpaceMap().getNodebuttons().getCheckedIndex()==-1)
-					return;
+				if(state.getSpaceMap().getNodebuttons().getCheckedIndex()==-1){
+					state.getSpaceMap().getNodebuttons().getButtons().get(NODEINDEXTRACKER).setChecked(true);
+				}
+				NODEINDEXTRACKER = state.getSpaceMap().getNodebuttons().getCheckedIndex();
 				System.out.println(node.getIndex()+"<-node checked index->"+state.getSpaceMap().getNodebuttons().getCheckedIndex());
 				SpaceNode selectednodee = state.getSpaceMap().getAllnodes().get(state.getSpaceMap().getNodebuttons().getCheckedIndex());
 				Vector2 destination = new Vector2(selectednodee.getX(),selectednodee.getY());
@@ -213,6 +220,27 @@ public class SpaceNode {
 	}
 	public void setMap(SpaceMap map) {
 		this.map = map;
+	}
+
+	public RestStop getReststop() {
+		return reststop;
+	}
+
+	public void setReststop(RestStop reststop) {
+		this.reststop = reststop;
+	}
+
+	public TradePost getTradepost() {
+		return tradepost;
+	}
+
+	public void setTradepost(TradePost tradepost) {
+		this.tradepost = tradepost;
+	}
+	
+	public static RestStop newRestStop(){
+		return new RestStop(MathUtils.random(RestStop.FUEL_COST_MIN, RestStop.FUEL_COST_MAX),
+				MathUtils.random(RestStop.FOOD_COST_MIN,RestStop.FOOD_COST_MAX));
 	}
 	
 

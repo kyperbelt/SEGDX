@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.segdx.game.entity.Player;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
+import com.segdx.game.states.GameOverState;
 import com.segdx.game.states.GameState;
 import com.segdx.game.states.IntroState;
 import com.segdx.game.states.LoadState;
@@ -41,6 +42,7 @@ public class SEGDX extends Game {
 		sm.addState(StateManager.INTRO, new IntroState());
 		sm.addState(StateManager.MENU, new MenuState());
 		sm.addState(StateManager.GAME, new GameState());
+		sm.addState(StateManager.GAMEOVER, new GameOverState());
 		
 		//load loadingscreen assets
 		Assets.loadBlock(Assets.LOAD_ASSETS);
