@@ -1,5 +1,7 @@
 package com.segdx.game.states;
 
+import java.text.DecimalFormat;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -84,6 +86,7 @@ public class GameState implements Screen{
 	public Image foodicon,fuelicon,hullicon,currencyicon,timericon,shiptabimage;
 	private OrthographicCamera cam;
 	private TweenManager tm;
+	private DecimalFormat df;
 	
 	public int size;
 	public int piracy;
@@ -93,7 +96,7 @@ public class GameState implements Screen{
 	
 	@Override
 	public void show() {
-		
+		df = new DecimalFormat("##.##");
 		if(map==null){
 			Gdx.app.log("ERROR:", "An instance of the class "+SpaceMap.class+" has not yet been created!");
 			System.exit(0);
@@ -165,7 +168,7 @@ public class GameState implements Screen{
 		
 		travelbar = new Table(skin);
 		travelbar.setPosition(uistage.getWidth()*.6f, 0);
-		travelbar.setSize(uistage.getWidth()*.4f, uistage.getHeight()*.2f);
+		travelbar.setSize(uistage.getWidth()*.4f, uistage.getHeight()*.24f);
 		travelbar.setColor(Color.DARK_GRAY);
 		travelbar.setBackground(defaultbackground);
 		travelbar.setVisible(true);
@@ -388,7 +391,7 @@ public class GameState implements Screen{
 		cargotabcontainer.setSize(uistage.getWidth()-(uistage.getWidth()*.05f), uistage.getHeight()*.4f);
 		cargotab = new TextButton("Haul<<<", skin);
 		cargotab.getLabel().setFontScaleX(textscale);
-		cargotab.setColor(Color.SKY);
+		cargotab.setColor(Color.DARK_GRAY);
 		cargotab.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
@@ -415,7 +418,7 @@ public class GameState implements Screen{
 		Table resourcecontainer = new Table();
 		resourcecontainer.setBackground(defaultbackground);
 		resourcecontainer.setSize(cargobar.getWidth()*.8f, cargobar.getHeight());
-		resourcecontainer.setColor(Color.SKY);
+		resourcecontainer.setColor(Color.DARK_GRAY);
 		
 		capacityleft = new Label("", skin);
 		capacityleft.setFontScale(textscale);
@@ -439,7 +442,7 @@ public class GameState implements Screen{
 											   new TextButton("Gossip", skin,"toggle"),
 											   new TextButton("Work", skin,"toggle"));
 		for (int i = 0; i < resttabs.getButtons().size; i++) {
-			resttabs.getButtons().get(i).setColor(Color.SKY);
+			resttabs.getButtons().get(i).setColor(Color.DARK_GRAY);
 			resttabs.getButtons().get(i).addListener(new ClickListener(){
 				@Override
 				public void clicked(InputEvent event, float x, float y) {
@@ -455,15 +458,15 @@ public class GameState implements Screen{
 		
 		randrtab = new Table();
 		randrtab.setBackground(defaultbackground);
-		randrtab.setColor(Color.SKY);
+		randrtab.setColor(Color.DARK_GRAY);
 		randrtab.setSize(restbar.getWidth(), restbar.getHeight()*.8f);
 		gossiptab = new Table();
 		gossiptab.setBackground(defaultbackground);
-		gossiptab.setColor(Color.SKY);
+		gossiptab.setColor(Color.DARK_GRAY);
 		gossiptab.setSize(restbar.getWidth(), restbar.getHeight()*.8f);
 		missiontab = new Table();
 		missiontab.setBackground(defaultbackground);
-		missiontab.setColor(Color.SKY);
+		missiontab.setColor(Color.DARK_GRAY);
 		missiontab.setSize(restbar.getWidth(), restbar.getHeight()*.8f);
 		
 		updateRestBar();
@@ -506,11 +509,13 @@ public class GameState implements Screen{
 			Table buyfoodandfuel = new Table();
 			Label buyfuel = new Label("Fuel:", skin);
 			buyfuel.setFontScale(.5f);
+			
+			//buy fuel buttons
 			final TextButton buyonefuel = new TextButton("buy("+restnode.getReststop().getFuelprice()+")", skin);
 			buyonefuel.getLabel().setFontScale(.5f);
 			if(map.getPlayer().getCurrentFuel()==map.getPlayer().getShip().getMaxfuel()){
 				buyonefuel.setDisabled(true);
-				buyonefuel.setColor(Color.BLACK);
+				buyonefuel.setColor(Color.FIREBRICK);
 			}
 			buyonefuel.addListener(new ClickListener(){
 				@Override
@@ -523,13 +528,13 @@ public class GameState implements Screen{
 					updateRestBar();
 				}
 			});
-			final TextButton buyallfuel = new TextButton("buyall("+((map.getPlayer().getShip().getMaxfuel()
-					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice())+")", skin);
+			final TextButton buyallfuel = new TextButton("buyall("+df.format(((map.getPlayer().getShip().getMaxfuel()
+					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice()))+")", skin);
 			buyallfuel.getLabel().setFontScale(.5f);
 			if(((map.getPlayer().getShip().getMaxfuel()
 					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice())<=0){
 				buyallfuel.setDisabled(true);
-				buyallfuel.setColor(Color.BLACK);
+				buyallfuel.setColor(Color.FIREBRICK);
 			}
 			buyallfuel.addListener(new ClickListener(){
 				@Override
@@ -542,38 +547,44 @@ public class GameState implements Screen{
 				}
 			});
 			
-			final TextButton buyonefood = new TextButton("buy("+restnode.getReststop().getFuelprice()+")", skin);
+			//buy food buttons
+			Label buyfood = new Label("Food:", skin);
+			buyfood.setFontScale(.5f);
+			
+			final TextButton buyonefood = new TextButton("buy("+restnode.getReststop().getFoodprice()+")", skin);
 			buyonefood.getLabel().setFontScale(.5f);
-			if(map.getPlayer().getCurrentFuel()==map.getPlayer().getShip().getMaxfuel()){
+			if(map.getPlayer().getShip().getCapacity()-map.getPlayer().getCurrentCapacity()<Player.FOOD_MASS){
 				buyonefood.setDisabled(true);
-				buyonefood.setColor(Color.BLACK);
+				buyonefood.setColor(Color.FIREBRICK);
 			}
 			buyonefood.addListener(new ClickListener(){
 				@Override
 				public void clicked(InputEvent event, float x, float y) {
-					float difference = map.getPlayer().getShip().getMaxfuel()-map.getPlayer().getCurrentFuel();
-					if(map.getPlayer().getCurrency()<restnode.getReststop().getFuelprice()||difference==0)
+					float difference = (map.getPlayer().getShip().getCapacity()-
+							map.getPlayer().getCurrentCapacity())/Player.FOOD_MASS;
+					if(map.getPlayer().getCurrency()<restnode.getReststop().getFoodprice()||difference<1)
 						return;
 					map.getPlayer().setCurrency(map.getPlayer().getCurrency()-restnode.getReststop().getFoodprice());
-					map.getPlayer().setCurrentFuel(map.getPlayer().getCurrentFuel()+1);
+					map.getPlayer().addFood();
 					updateRestBar();
 				}
 			});
-			final TextButton buyallfood = new TextButton("buyall("+(((map.getPlayer().getCurrentCapacity()-
-					map.getPlayer().getShip().getCapacity())*Player.FOOD_MASS)*restnode.getReststop().getFoodprice())+")", skin);
+			
+			final TextButton buyallfood = new TextButton("buyall("+df.format((((map.getPlayer().getShip().getCapacity()-
+					map.getPlayer().getCurrentCapacity())/Player.FOOD_MASS)*restnode.getReststop().getFoodprice()))+")", skin);
 			buyallfood.getLabel().setFontScale(.5f);
-			if(((map.getPlayer().getShip().getMaxfuel()
-					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice())<=0){
+			if(map.getPlayer().getShip().getCapacity()-map.getPlayer().getCurrentCapacity()<Player.FOOD_MASS){
 				buyallfood.setDisabled(true);
-				buyallfood.setColor(Color.BLACK);
+				buyallfood.setColor(Color.FIREBRICK);
 			}
-			buyallfuel.addListener(new ClickListener(){
+			buyallfood.addListener(new ClickListener(){
 				@Override
 				public void clicked(InputEvent event, float x, float y) {
-					float difference = map.getPlayer().getShip().getMaxfuel()-map.getPlayer().getCurrentFuel();
-					if(map.getPlayer().getCurrency()<(difference*restnode.getReststop().getFuelprice())||difference==0)return;
-					map.getPlayer().setCurrency(map.getPlayer().getCurrency()-(difference*restnode.getReststop().getFuelprice()));
-					map.getPlayer().setCurrentFuel(map.getPlayer().getCurrentFuel()+difference);
+					float difference = (map.getPlayer().getShip().getCapacity()-
+							map.getPlayer().getCurrentCapacity())/Player.FOOD_MASS;
+					if(map.getPlayer().getCurrency()<(difference*restnode.getReststop().getFoodprice())||difference<1)return;
+					map.getPlayer().setCurrency(map.getPlayer().getCurrency()-(difference*restnode.getReststop().getFoodprice()));
+					map.getPlayer().setFood(difference);
 					updateRestBar();
 				}
 			});
@@ -582,8 +593,12 @@ public class GameState implements Screen{
 			buyfoodandfuel.add(buyfuel);
 			buyfoodandfuel.add(buyonefuel);
 			buyfoodandfuel.add(buyallfuel).row();
+			buyfoodandfuel.add().pad(16).expand().row();
+			buyfoodandfuel.add(buyfood);
+			buyfoodandfuel.add(buyonefood);
+			buyfoodandfuel.add(buyallfood).row();;
 			
-			randrtab.add(buyfoodandfuel);
+			randrtab.add(buyfoodandfuel).left().expand();
 			
 			break;
 		case 1:
@@ -688,7 +703,7 @@ public class GameState implements Screen{
 		cycleinfo.setText("cycle:"+map.getTimer().getCurrentCycle()+"  timer:");
 		cycletimer.setText(""+(int)map.getTimer().getTimeLeft());
 		foodinfo.setText(""+map.getPlayer().getFood());
-		currencyinfo.setText(""+map.getPlayer().getCurrency());
+		currencyinfo.setText(""+df.format(map.getPlayer().getCurrency()));
 		
 
 		
