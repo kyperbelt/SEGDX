@@ -140,7 +140,7 @@ public class SpaceNode {
 				Vector2 destination = new Vector2(selectednodee.getX(),selectednodee.getY());
 				Vector2 start = new Vector2(state.getSpaceMap().getPlayer().getX(),state.getSpaceMap().getPlayer().getY());
 				
-				state.nodedistance.setText("distance:"+(int)Vector2.dst(start.x, start.y, destination.x, destination.y));
+				state.nodedistance.setText("("+(int)selectednodee.getX()+","+(int)selectednodee.getY()+") distance:"+(int)Vector2.dst(start.x, start.y, destination.x, destination.y));
 				SpaceMap map = state.getSpaceMap();
 				ButtonGroup<ImageButton> nodebuttons = map.getNodebuttons();
 				Array<ImageButton> buttons = nodebuttons.getButtons();

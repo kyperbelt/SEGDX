@@ -39,20 +39,33 @@ public class Assets {
 		case GAME_ASSETS:
 				manager.load(SoundManager.BOARDINGPARTY,Music.class);
 				manager.load(SoundManager.NODESELECT,Sound.class);
+				
+				//nodes
 				manager.load("map/bluenode.png",Texture.class);
 				manager.load("map/rednode.png",Texture.class);
 				manager.load("map/greennode.png",Texture.class);
 				manager.load("map/passivenode.png",Texture.class);
+				
+				//ships
 				manager.load("map/shuttle.png",Texture.class);
+				
+				//ui icons
 				manager.load("map/foodicon.png",Texture.class);
 				manager.load("map/fuelicon.png",Texture.class);
 				manager.load("map/currencyicon.png",Texture.class);
 				manager.load("map/hullicon.png",Texture.class);
+				
+				
+				//backgrounds
 				manager.load("map/m42orionnebula.png",Texture.class);
+				
+				//ore and item icons
 				manager.load("map/dridium.png",Texture.class);
 				manager.load("map/latterium.png",Texture.class);
 				manager.load("map/naquidra.png",Texture.class);
 				manager.load("map/kniptoryte.png",Texture.class);
+				manager.load("map/module.png",Texture.class);
+				
 			break;
 		case GAMEOVER_ASSETS:
 				manager.load("map/godsandidols3.png",Texture.class);

@@ -14,8 +14,10 @@ public class StarterShip extends Ship{
 		this.setMaxfuel(100);
 		this.setHull(40);
 		this.setCost(3000);
-		this.setSpeed(10);
-		this.setFuelEconomy(7);
+		this.setSpeed(4);
+		this.setFuelEconomy(8);
+		this.setImage("map/shuttle.png");
+		this.setUpgradePoints(10);
 		this.setDetectionLevel(0);
 		Sprite shipsprite = new Sprite(Assets.manager.get("map/shuttle.png",Texture.class));
 		shipsprite.setOriginCenter();

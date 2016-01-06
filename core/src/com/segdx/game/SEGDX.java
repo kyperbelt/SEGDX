@@ -21,14 +21,16 @@ import com.segdx.game.tween.SpriteAccessor;
 import com.segdx.game.tween.TableAccessor;
 
 import aurelienribon.tweenengine.Tween;
+//TODO: enemy spawns if certain amount of wealth is accumulated. 
 
 public class SEGDX extends Game {
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 600;
 	
 	@Override
 	public void create () {
+		
 		
 		//REGISTER TWEEN accessors
 		Tween.registerAccessor(Sprite.class, new SpriteAccessor());

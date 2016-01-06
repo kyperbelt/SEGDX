@@ -4,6 +4,8 @@ import java.text.DecimalFormat;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ObjectMap;
+import com.segdx.game.managers.StateManager;
+import com.segdx.game.states.GameState;
 
 public class RestStop {
 	
@@ -26,9 +28,9 @@ public class RestStop {
 	private ObjectMap<Integer, Gossip> gossip;
 	
 	public RestStop(float fuelprice,float foodprice){
-		DecimalFormat df = new DecimalFormat("##.##");
-		this.fuelprice = Float.parseFloat(df.format(fuelprice));
-		this.foodprice = Float.parseFloat(df.format(foodprice));
+		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+		this.fuelprice = Float.parseFloat(state.df.format(fuelprice));
+		this.foodprice = Float.parseFloat(state.df.format(foodprice));
 		gossip = new ObjectMap<Integer, Gossip>();
 		fuelmodifier = 1f;
 		foodmodifier = 1f;

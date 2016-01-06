@@ -30,6 +30,10 @@ public class Ship {
 	
 	private int detectionLevel;
 	
+	private String image;
+	
+	private int upgradePoints;
+	
 	
 	public float getMaxfuel() {
 		return maxfuel;
@@ -102,6 +106,18 @@ public class Ship {
 	}
 	public void setDetectionLevel(int detectionLevel) {
 		this.detectionLevel = detectionLevel;
+	}
+	public int getUpgradePoints() {
+		return upgradePoints;
+	}
+	public void setUpgradePoints(int upgradePoints) {
+		this.upgradePoints = upgradePoints;
+	}
+	public String getImage() {
+		return image;
+	}
+	public void setImage(String image) {
+		this.image = image;
 	}
 	
 

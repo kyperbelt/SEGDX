@@ -7,6 +7,6 @@ package com.segdx.game.entity;
  * @author Jonathan Camarena -kyperbelt
  *
  */
-public class Enemy {
+public class Enemy extends SpaceEntity{
 
 }

@@ -55,7 +55,7 @@ public class SpaceMap {
 		
 		stage.act(delta);
 		
-		if(SEGDX.DEBUG){
+		if(SEGDX.DEBUG||true){
 			sr.setProjectionMatrix(stage.getCamera().combined);
 			sr.begin();
 			sr.line(new Vector2(player.getX(),player.getY()), new Vector2(allnodes.get(player.getDestination()).getX(),
@@ -255,18 +255,18 @@ public class SpaceMap {
 		case 0:
 			map.setMapheight(1600);
 			map.setMapwidth(1600);
-			map.setNumberofnodes(32);
+			map.setNumberofnodes(48);
 			
 			break;
 		case 1:
 			map.setMapheight(2400);
 			map.setMapwidth(2400);
-			map.setNumberofnodes(64);
+			map.setNumberofnodes(96);
 			break;
 		case 2:
 			map.setMapheight(3200);
 			map.setMapwidth(3200);
-			map.setNumberofnodes(128);
+			map.setNumberofnodes(144);
 			break;
 		default:
 			break;
@@ -368,6 +368,7 @@ public class SpaceMap {
 					
 					if(isTradeCapable){
 						newnode.setNodeType(SpaceNode.TRADE);
+						newnode.setTradepost(new TradePost());
 						trade.add(newnode);
 					}else if(isRestCapable){
 						newnode.setNodeType(SpaceNode.REST);
