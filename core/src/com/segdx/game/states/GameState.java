@@ -1,6 +1,7 @@
 package com.segdx.game.states;
 
 import java.text.DecimalFormat;
+import java.util.Iterator;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
@@ -30,8 +32,10 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
 import com.segdx.game.entity.Player;
 import com.segdx.game.entity.Resource;
+import com.segdx.game.entity.ResourceStash;
 import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.entity.SpaceNode;
+import com.segdx.game.entity.TradePost;
 import com.segdx.game.entity.ship.ShipAbility;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.InputManager;
@@ -226,6 +230,7 @@ public class GameState implements Screen{
 				float distance = Vector2.dst(start.x, start.y, destination.x, destination.y);
 				
 				updateRestBar();
+				updateTradeBar();
 				Timeline.createSequence()
 				.beginParallel()
 					.push(Tween.to(map.getPlayer(), PlayerAccessor.POSITION, (distance/10)/map.getPlayer().getShip().getSpeed()).target(selectednode.getX(),selectednode.getY()).setCallback(new TweenCallback()
@@ -239,7 +244,7 @@ public class GameState implements Screen{
 								map.getPlayer().setCurrentNode(selectednode);
 								map.getPlayer().setDistanceTraveled(0);
 								updateRestBar();
-								
+								updateTradeBar();
 							}
 							
 						}
@@ -554,8 +559,54 @@ public class GameState implements Screen{
 		
 		//TRADE BAR -------------------------------------------------
 		
+		tradebar = new Table();
+		tradebar.setSize(uistage.getWidth()*.6f, uistage.getHeight()*.3f);
+		tradebar.setPosition(0, 0);
+		
+		tradetabs = new ButtonGroup<TextButton>(new TextButton("Resources", skin ,"toggle"),
+											   new TextButton("Modules", skin,"toggle"),
+											   new TextButton("Ships", skin,"toggle"));
+		for (int i = 0; i < tradetabs.getButtons().size; i++) {
+			tradetabs.getButtons().get(i).setColor(Color.FOREST);
+			tradetabs.getButtons().get(i).addListener(new ClickListener(){
+				@Override
+				public void clicked(InputEvent event, float x, float y) {
+					updateTradeBar();
+				}
+			});
+		}
+		tradetabs.setChecked("Resources");
+		tradetabs.setMinCheckCount(1);
+		tradetabs.setMaxCheckCount(1);
+		tradetabs.setUncheckLast(true);
+		
+		
+		oretab = new Table();
+		oretab.setBackground(defaultbackground);
+		oretab.setColor(Color.FOREST);
+		oretab.setSize(tradebar.getWidth(), tradebar.getHeight()*.8f);
+		buymodtab = new Table();
+		buymodtab.setBackground(defaultbackground);
+		buymodtab.setColor(Color.FOREST);
+		buymodtab.setSize(tradebar.getWidth(), tradebar.getHeight()*.8f);
+		buyshipstab = new Table();
+		buyshipstab.setBackground(defaultbackground);
+		buyshipstab.setColor(Color.FOREST);
+		buyshipstab.setSize(tradebar.getWidth(), tradebar.getHeight()*.8f);
+		
+		updateTradeBar();
+		
 		
 		//add all to the ui -----------------------------------------
+		
+		//setup scroll leave
+			map.getStage().addListener(new InputListener(){
+				@Override
+				public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+					uistage.setScrollFocus(null);
+					return super.touchDown(event, x, y, pointer, button);
+				}
+			});
 		uistage.addActor(shipinfobar);
 		uistage.addActor(menubar);
 		uistage.addActor(cargobar);
@@ -564,6 +615,7 @@ public class GameState implements Screen{
 		uistage.addActor(infobar);
 		uistage.addActor(travelbar);
 		uistage.addActor(restbar);
+		uistage.addActor(tradebar);
 		
 		
 		//set up game input
@@ -702,8 +754,151 @@ public class GameState implements Screen{
 	}
 	
 	public void updateTradeBar(){
+		float textscale = .5f;
+		tradebar.setVisible(true);
+		tradebar.clearChildren();
+		final Player player = map.getPlayer();
+		Table tradetabstable = new Table();tradetabstable.left();
+		tradetabstable.add(tradetabs.getButtons().get(0),tradetabs.getButtons().get(1),tradetabs.getButtons().get(2));
+		tradebar.add(tradetabstable).align(Align.topLeft).expandX().row();
+		final SpaceNode tradenode = map.getPlayer().getCurrentNode();
+		if(tradenode.getNodeType()!=SpaceNode.TRADE||map.getPlayer().isTraveling()){
+			
+			tradebar.setVisible(false);
+			return;
+		}
 		
+		final TradePost tradepost = tradenode.getTradepost();
 		
+		switch (tradetabs.getCheckedIndex()) {
+		
+		case 0:
+			oretab.clearChildren();
+			
+			//create Table to hold buy and sell resources
+			Table buysellresourcetable = new Table();
+			buysellresourcetable.left();
+			
+			
+			Iterator<Integer> ids = tradepost.getResources().keys();
+			while(ids.hasNext()){
+				TextTooltip resourcetooltip;
+				Table resourceholder = new Table();
+				TextButton buybutton = new TextButton("buy", skin);
+				TextButton sellbutton = new TextButton("sell", skin);
+				Label buyprice = new Label("", skin);
+				buyprice.setFontScale(textscale);
+				Label sellprice = new Label("",skin);
+				sellprice.setFontScale(textscale);
+				Image resourceimage;
+				//Label amountleft = new Label("",skin);
+				
+				int id = ids.next();
+				Resource resource = null;
+				if(id==ResourceStash.DRIDIUM.getId()){
+					resource = ResourceStash.DRIDIUM.clone();
+				}else if(id == ResourceStash.KNIPTORYTE.getId()){
+					resource = ResourceStash.KNIPTORYTE.clone();
+				}else if(id == ResourceStash.LATTERIUM.getId()){
+					resource = ResourceStash.LATTERIUM.clone();
+				}else if(id == ResourceStash.NAQUIDRA.getId()){
+					resource = ResourceStash.NAQUIDRA.clone();
+				}else if(id == ResourceStash.SALVAGE.getId()){
+					resource = ResourceStash.SALVAGE.clone();
+				}
+				
+				final Resource finalresource = resource;
+				Label resourcename = new Label(""+resource.getName(), skin);
+				
+				resourceimage = new Image(Assets.manager.get(resource.getImage(),Texture.class));
+				resourcetooltip = new TextTooltip(resource.getName()+"\n\n"
+						+ 						  ""+resource.getDescription()+"\n\n"
+								+ 				  "mass:"+resource.getMass()+"\n\nBase Value:"+resource.getBasevalue(), skin);
+				resourcetooltip.getActor().setFontScale(textscale);
+				resourcetooltip.setInstant(true);
+				resourceimage.addListener(resourcetooltip);
+				resourcename.addListener(resourcetooltip);
+				buyprice.setText(tradepost.getResourceBuyPrice(resource)+"/ea");
+				sellprice.setText(tradepost.getResourceSellPrice(resource)+"/ea");
+				
+				if(tradepost.getResourceBuyPrice(finalresource)>player.getCurrency()||
+						player.getShip().getCapacity()-player.getCurrentCapacity()<resource.getMass()){
+					buybutton.setDisabled(true);
+					buybutton.setColor(Color.FIREBRICK);
+				}
+				
+				buybutton.addListener(new ClickListener(){
+					@Override
+					public void clicked(InputEvent event, float x, float y) {
+						if(((TextButton)event.getListenerActor()).isDisabled())
+							return;
+						player.addResource(finalresource.clone());
+						player.setCurrency(player.getCurrency()-tradepost.getResourceBuyPrice(finalresource));
+						if(tradepost.getResourceBuyPrice(finalresource)>player.getCurrency()||
+								player.getShip().getCapacity()-player.getCurrentCapacity()<finalresource.getMass())
+						updateTradeBar();
+						updateCargo();
+						
+					}
+				});
+				
+				if(!player.containsResource(resource, 1)){
+					sellbutton.setDisabled(true);
+					sellbutton.setColor(Color.FIREBRICK);
+				}
+				
+				sellbutton.addListener(new ClickListener(){
+					@Override
+					public void clicked(InputEvent event, float x, float y) {
+						if(((TextButton)event.getListenerActor()).isDisabled())
+							return;
+						player.removeResource(finalresource.getId());
+						player.setCurrency(player.getCurrency()+tradepost.getResourceSellPrice(finalresource));
+						updateCargo();
+						if(!player.containsResource(finalresource, 1))
+						updateTradeBar();
+					}
+				});
+				
+				resourceholder.add(resourceimage).left().expand();
+				resourceholder.add(resourcename).left().expand();
+				resourceholder.add(buybutton).left().expand();
+				resourceholder.add(buyprice).left().expand();
+				resourceholder.add(sellbutton).left().expand();
+				resourceholder.add(sellprice).left().expand();
+				
+				buysellresourcetable.add(resourceholder).expand().row();
+				
+				
+			}
+			
+			
+			//create scrollpane
+			ScrollPane buysellresourcesscrollpane = new ScrollPane(buysellresourcetable);
+			
+			oretab.add(buysellresourcesscrollpane).expand().fill();
+			tradebar.add(oretab).expand().fill();
+			
+			
+			break;
+		case 1:
+			buymodtab.clearChildren();
+			Label l = new Label("no modules available...", skin);
+			buymodtab.add(l).center().expand();
+			
+			tradebar.add(buymodtab).expand().fill();
+			
+			break;
+		case 2:
+			buyshipstab.clearChildren();
+			Label l2 = new Label("no ships available....", skin);
+			buyshipstab.add(l2).center().expand();
+			tradebar.add(buyshipstab).expand().fill();
+			break;
+
+		default:
+			break;
+		}
 	}
 	
 	public void updateRestBar(){
@@ -729,7 +924,7 @@ public class GameState implements Screen{
 			
 			//buy fuel buttons
 			final TextButton buyonefuel = new TextButton("buy("+restnode.getReststop().getFuelprice()+")", skin);
-			buyonefuel.getLabel().setFontScale(.5f);
+			
 			if(map.getPlayer().getCurrentFuel()==map.getPlayer().getShip().getMaxfuel()){
 				buyonefuel.setDisabled(true);
 				buyonefuel.setColor(Color.FIREBRICK);
@@ -747,7 +942,7 @@ public class GameState implements Screen{
 			});
 			final TextButton buyallfuel = new TextButton("buyall("+df.format(((map.getPlayer().getShip().getMaxfuel()
 					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice()))+")", skin);
-			buyallfuel.getLabel().setFontScale(.5f);
+			
 			if(((map.getPlayer().getShip().getMaxfuel()
 					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice())<=0){
 				buyallfuel.setDisabled(true);
@@ -769,7 +964,7 @@ public class GameState implements Screen{
 			buyfood.setFontScale(.5f);
 			
 			final TextButton buyonefood = new TextButton("buy("+restnode.getReststop().getFoodprice()+")", skin);
-			buyonefood.getLabel().setFontScale(.5f);
+			
 			if(map.getPlayer().getShip().getCapacity()-map.getPlayer().getCurrentCapacity()<Player.FOOD_MASS){
 				buyonefood.setDisabled(true);
 				buyonefood.setColor(Color.FIREBRICK);
@@ -789,7 +984,7 @@ public class GameState implements Screen{
 			
 			final TextButton buyallfood = new TextButton("buyall("+df.format((((map.getPlayer().getShip().getCapacity()-
 					map.getPlayer().getCurrentCapacity())/Player.FOOD_MASS)*restnode.getReststop().getFoodprice()))+")", skin);
-			buyallfood.getLabel().setFontScale(.5f);
+			
 			if(map.getPlayer().getShip().getCapacity()-map.getPlayer().getCurrentCapacity()<Player.FOOD_MASS){
 				buyallfood.setDisabled(true);
 				buyallfood.setColor(Color.FIREBRICK);
@@ -867,6 +1062,7 @@ public class GameState implements Screen{
 						map.getPlayer().removeResource(r.getId());
 						updateCargo();
 						updateRestBar();
+						updateTradeBar();
 						
 					}
 				});

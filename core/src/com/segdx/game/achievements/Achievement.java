@@ -12,5 +12,59 @@ public class Achievement {
 	
 	//should like something like :
 	//public Achievement(int id,int points,String name,String descritopn)
+	
+	//PLANNED ACHIEVEMENTS
+	/*
+	 * Lost Your booty
+	 * 		-lose resources to pirates
+	 * Better Safe Than Sorry
+	 * 		-Sell your ship in the reststop you spawn at
+	 * 		-Live happily ever after with the money it acquired you(40%)
+	 * Funny but Unfortunate
+	 * 		-Sell your ship in the rest stop you spawn at
+	 * 		-Immediately get robbed after leaving the rest stop (60%)
+	 * You Can't Eat Money
+	 * 		-Lose from lack of food while at a trade post
+	 * That Was Farther Than I Thought
+	 * 		-Lose by running out of fuel
+	 * Didn't Pack A Lunch
+	 * 		-Lose By running out of Food while traveling
+	 * Uncle Shamm Wants You!
+	 * 		-Get drafted by the Empire
+	 * Maybe Some Other Time
+	 * 		-Pay of the draft
+	 * Not In a Million Years
+	 * 		-Pay off the draft 10 times
+	 * Moving Up!
+	 * 		-Accumulate 10000 currency
+	 * A True Go Getter
+	 * 		-Accumulate 50000 currency
+	 * Taste For Blood
+	 * 		-Defeat Your first enemy
+	 * You Can't Catch Me!
+	 * 		-Flee from combat
+	 * Cowards Live Forever 
+	 * 		-Flee from combat 15 times;
+	 * Died A Fool
+	 * 		-Be defeated by an enemy while being able to flee
+	 * Heart Of Gold
+	 * 		-helped someone in need
+	 * Cold Blooded
+	 * 		-Attack someone in need of help
+	 * Executioner
+	 * 		-Defeat 50 enemies
+	 * Blood Thirsty
+	 * 		-Kill 40 innocents
+	 * To Infinity And Beyond
+	 * 		-Use warp travel
+	 *Overwhelming Hunger
+	 *		-Accumulate over 100 food
+	 *Pacifist
+	 *		-survive 50 turns without engaging in combat
+	 *  
+	 *
+	 * 
+	 * 
+	 */
 
 }

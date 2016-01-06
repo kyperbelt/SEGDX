@@ -9,7 +9,7 @@ public class ResourceStash {
 			35, 2.5f, 83);
 	public static Resource LATTERIUM = new Resource(2,"map/latterium.png", "Latterium", "An additive in most superdense alloys.Very useful"
 			+ " in the construction of spacecraft", 45, 2, 77);
-	public static Resource NAQUIDRA = new Resource(3,"map/naquidra.png", "Naquidra", "A radioactive isotope with military applications", 
+	public static Resource NAQUIDRA = new Resource(3,"map/naquidra.png", "Naquidra", "A radioactive isotope with military and scientific applications.", 
 			15, 3, 105);
 	
 	public static Resource SALVAGE = new Resource(10, "map/latterium.png","Salvage", "A mixture of scraps and alloys recovered "

@@ -16,19 +16,20 @@ public class TradePost {
 	private ObjectMap<Integer, Array<Resource>> resources;
 	
 	public TradePost(){
-		resources = new ObjectMap<Integer, Array<Resource>>();
+		setResources(new ObjectMap<Integer, Array<Resource>>());
 		resources.put(ResourceStash.DRIDIUM.getId(), new Array<Resource>());
 		resources.put(ResourceStash.KNIPTORYTE.getId(), new Array<Resource>());
 		resources.put(ResourceStash.LATTERIUM.getId(), new Array<Resource>());
 		resources.put(ResourceStash.NAQUIDRA.getId(), new Array<Resource>());
 		resources.put(ResourceStash.SALVAGE.getId(), new Array<Resource>());
 		
+		
 		buymodifiers = new ObjectMap<Integer, Float>();
 		buymodifiers.put(ResourceStash.DRIDIUM.getId(), MathUtils.random(MIN, MAX));
-		buymodifiers.put(ResourceStash.KNIPTORYTE.getId(), MathUtils.random(MIN, MAX));
-		buymodifiers.put(ResourceStash.LATTERIUM.getId(), MathUtils.random(MIN, MAX));
+		buymodifiers.put(ResourceStash.KNIPTORYTE.getId(),MathUtils.random(MIN, MAX));
+		buymodifiers.put(ResourceStash.LATTERIUM.getId(),MathUtils.random(MIN, MAX));
 		buymodifiers.put(ResourceStash.NAQUIDRA.getId(), MathUtils.random(MIN, MAX));
-		buymodifiers.put(ResourceStash.SALVAGE.getId(), MathUtils.random(MIN, MAX));
+		buymodifiers.put(ResourceStash.SALVAGE.getId(),MathUtils.random(MIN, MAX));
 		
 	}
 	
@@ -46,7 +47,15 @@ public class TradePost {
 	}
 	
 	public int getResourceSellPrice(Resource resource){
-		return (int) ((resource.getBasevalue()*getModifierFor(resource))*.8f);
+		return (int) ((resource.getBasevalue()*getModifierFor(resource))*.9f);
+	}
+
+	public ObjectMap<Integer, Array<Resource>> getResources() {
+		return resources;
+	}
+
+	public void setResources(ObjectMap<Integer, Array<Resource>> resources) {
+		this.resources = resources;
 	}
 
 }

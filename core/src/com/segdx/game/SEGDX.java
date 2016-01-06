@@ -22,9 +22,10 @@ import com.segdx.game.tween.TableAccessor;
 
 import aurelienribon.tweenengine.Tween;
 //TODO: enemy spawns if certain amount of wealth is accumulated. 
+//TODO: make the resources in the haul tab stack
 
 public class SEGDX extends Game {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 600;
 	
