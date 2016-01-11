@@ -10,6 +10,7 @@ public class CameraAccessor implements TweenAccessor<OrthographicCamera>{
 	public static final int POSITION_Y = 4;
 	public static final int POSITION_X_Y = 6;
 	public static final int ROTATE = 8;
+	public static final int ZOOM = 16;
 
 	@Override
 	public int getValues(OrthographicCamera target, int type, float[] values) {
@@ -26,6 +27,9 @@ public class CameraAccessor implements TweenAccessor<OrthographicCamera>{
 			return 2;
 		case ROTATE:
 			values[0] = getCameraCurrentXYAngle(target);
+			return 1;
+		case ZOOM:
+			values[0] = target.zoom;
 			return 1;
 		default:
 			assert false;
@@ -48,6 +52,9 @@ public class CameraAccessor implements TweenAccessor<OrthographicCamera>{
 			break;
 		case ROTATE:
 			target.rotate(values[0]);
+			break;
+		case ZOOM:
+			target.zoom = values[0];
 			break;
 		default:
 			break;

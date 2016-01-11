@@ -48,6 +48,14 @@ public class Assets {
 				
 				//ships
 				manager.load("map/shuttle.png",Texture.class);
+				manager.load("map/mother2b.png",Texture.class);
+				manager.load("map/mothershipbu7.png",Texture.class);
+				manager.load("map/ship2.png",Texture.class);
+				manager.load("map/redshipr.png",Texture.class);
+				manager.load("map/spaceship1.png",Texture.class);
+				
+				//effects
+				manager.load("map/sprshield.png",Texture.class);
 				
 				//ui icons
 				manager.load("map/foodicon.png",Texture.class);

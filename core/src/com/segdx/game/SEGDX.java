@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.segdx.game.entity.Player;
+import com.segdx.game.entity.ResourceStash;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.states.GameOverState;
@@ -23,6 +24,8 @@ import com.segdx.game.tween.TableAccessor;
 import aurelienribon.tweenengine.Tween;
 //TODO: enemy spawns if certain amount of wealth is accumulated. 
 //TODO: make the resources in the haul tab stack
+//TODO: add statistics tracking
+//TODO: complete achievements
 
 public class SEGDX extends Game {
 	public static final boolean DEBUG = false;
@@ -32,6 +35,7 @@ public class SEGDX extends Game {
 	@Override
 	public void create () {
 		
+		ResourceStash.init();
 		
 		//REGISTER TWEEN accessors
 		Tween.registerAccessor(Sprite.class, new SpriteAccessor());

@@ -16,7 +16,9 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
 import com.segdx.game.entity.CycleTimer.CycleTask;
 import com.segdx.game.entity.CycleTimer.TimedTask;
+import com.segdx.game.managers.NodeEventManager;
 import com.segdx.game.managers.StateManager;
+import com.segdx.game.managers.TradePostManager;
 import com.segdx.game.states.GameState;
 
 import aurelienribon.tweenengine.TweenManager;
@@ -46,20 +48,24 @@ public class SpaceMap {
 	private int numberofnodes;
 	private TweenManager tm;
 	private CycleTimer timer;
+	private NodeEventManager nodeEventManager;
+	private TradePostManager tradePostManager;
 	
 	private Player player;
 	
 	public void render(float delta){
+		if(player.getCurrentNode().getEvent()!=null){
+			System.out.println(player.getCurrentNode().getEvent().getDescription());
+		}
 		
-		stage.draw();
-		
-		stage.act(delta);
 		
 		if(SEGDX.DEBUG||true){
 			sr.setProjectionMatrix(stage.getCamera().combined);
 			sr.begin();
-			sr.line(new Vector2(player.getX(),player.getY()), new Vector2(allnodes.get(player.getDestination()).getX(),
-					allnodes.get(player.getDestination()).getY()));
+			
+			sr.line(new Vector2(player.getOriginPosition().x,player.getOriginPosition().y), 
+					new Vector2(allnodes.get(player.getDestination()).getOriginPosition().x,
+					allnodes.get(player.getDestination()).getOriginPosition().y));
 			
 			int index = nodebuttons.getCheckedIndex();
 			if(index!=-1){
@@ -68,6 +74,11 @@ public class SpaceMap {
 			}
 			sr.end();
 		}
+		stage.draw();
+		
+		stage.act(delta);
+		
+		
 		batch.setProjectionMatrix(stage.getCamera().combined);
 		batch.begin();
 		player.getShip().getSprite().draw(batch);
@@ -287,6 +298,7 @@ public class SpaceMap {
 		}
 		map.setAllnodes(nodes);
 		map.setNodebuttons(nodebuttons);
+		
 		return map;
 	}
 	
@@ -383,9 +395,11 @@ public class SpaceMap {
 					nodes.add(newnode);
 				}
 				
-				
 			}
 		}
+					map.setTradenodes(trade);
+					map.setRestnodes(rest);
+					map.setPassivenodes(passive);
 		
 		return nodes;
 		
@@ -440,6 +454,22 @@ public class SpaceMap {
 
 	public void setTm(TweenManager tm) {
 		this.tm = tm;
+	}
+
+	public NodeEventManager getNodeEventManager() {
+		return nodeEventManager;
+	}
+
+	public void setNodeEventManager(NodeEventManager nodeEventManager) {
+		this.nodeEventManager = nodeEventManager;
+	}
+
+	public TradePostManager getTradePostManager() {
+		return tradePostManager;
+	}
+
+	public void setTradePostManager(TradePostManager tradePostManager) {
+		this.tradePostManager = tradePostManager;
 	}
 
 

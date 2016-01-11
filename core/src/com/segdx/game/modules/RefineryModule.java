@@ -1,8 +1,8 @@
 package com.segdx.game.modules;
 
+import com.segdx.game.abilities.RefineDridium;
+import com.segdx.game.abilities.ShipAbility;
 import com.segdx.game.entity.Player;
-import com.segdx.game.entity.ship.RefineDridium;
-import com.segdx.game.entity.ship.ShipAbility;
 
 public class RefineryModule extends ShipModule{
 	

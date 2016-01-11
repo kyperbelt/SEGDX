@@ -1,7 +1,6 @@
-package com.segdx.game.entity.ship;
+package com.segdx.game.abilities;
 
 import com.badlogic.gdx.math.MathUtils;
-import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.Player;
 import com.segdx.game.entity.ResourceStash;
 import com.segdx.game.entity.SpaceEntity;
@@ -32,6 +31,8 @@ public class RefineDridium extends ShipAbility{
 			player.removeResource(ResourceStash.DRIDIUM.getId());
 			player.removeResource(ResourceStash.DRIDIUM.getId());
 			startCooldown();
+			((GameState)StateManager.get().getState(StateManager.GAME)).updateRestBar();
+			((GameState)StateManager.get().getState(StateManager.GAME)).updateTradeBar();
 			
 		}else{
 			//not enough dridium

@@ -10,9 +10,9 @@ import com.badlogic.gdx.utils.Array;
  */
 public class CycleTimer {
 	
-	public static final int SLOW_CYCLE = 10;
-	public static final int NORMAL_CYCLE = 10;
-	public static final int FAST_CYCLE = 10;
+	public static final int SLOW_CYCLE = 20;
+	public static final int NORMAL_CYCLE = 75;
+	public static final int FAST_CYCLE = 45;
 	
 	private float cycle_length;
 	private float elapsed_time;
@@ -162,8 +162,9 @@ public class CycleTimer {
 			return startCycle;
 		}
 
-		public void startCycle(int startCycle) {
+		public CycleTask startCycle(int startCycle) {
 			this.startCycle = startCycle;
+			return this;
 		}
 		
 	}

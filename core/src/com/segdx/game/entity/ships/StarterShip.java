@@ -1,7 +1,8 @@
-package com.segdx.game.entity;
+package com.segdx.game.entity.ships;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.segdx.game.entity.Ship;
 import com.segdx.game.managers.Assets;
 
 public class StarterShip extends Ship{
@@ -19,7 +20,7 @@ public class StarterShip extends Ship{
 		this.setImage("map/shuttle.png");
 		this.setUpgradePoints(10);
 		this.setDetectionLevel(0);
-		Sprite shipsprite = new Sprite(Assets.manager.get("map/shuttle.png",Texture.class));
+		Sprite shipsprite = new Sprite(Assets.manager.get(getImage(),Texture.class));
 		shipsprite.setOriginCenter();
 		this.setSprite(shipsprite);
 		this.setX(0);

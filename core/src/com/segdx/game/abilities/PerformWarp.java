@@ -1,4 +1,4 @@
-package com.segdx.game.entity.ship;
+package com.segdx.game.abilities;
 
 import com.segdx.game.entity.SpaceEntity;
 

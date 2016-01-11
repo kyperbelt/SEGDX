@@ -32,7 +32,7 @@ public class Achievement {
 	 * Uncle Shamm Wants You!
 	 * 		-Get drafted by the Empire
 	 * Maybe Some Other Time
-	 * 		-Pay of the draft
+	 * 		-Pay off the draft
 	 * Not In a Million Years
 	 * 		-Pay off the draft 10 times
 	 * Moving Up!
@@ -61,7 +61,8 @@ public class Achievement {
 	 *		-Accumulate over 100 food
 	 *Pacifist
 	 *		-survive 50 turns without engaging in combat
-	 *  
+	 *Kessle Run In 11 Parsecs
+	 *		-Get ship speed up to or over 10  
 	 *
 	 * 
 	 * 

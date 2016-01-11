@@ -9,6 +9,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
@@ -28,15 +29,16 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.IntIntMap.Keys;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
+import com.segdx.game.abilities.ShipAbility;
 import com.segdx.game.entity.Player;
 import com.segdx.game.entity.Resource;
 import com.segdx.game.entity.ResourceStash;
 import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.entity.SpaceNode;
 import com.segdx.game.entity.TradePost;
-import com.segdx.game.entity.ship.ShipAbility;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.InputManager;
 import com.segdx.game.managers.SoundManager;
@@ -65,7 +67,7 @@ public class GameState implements Screen{
 	public Stage uistage;
 	private InputManager input;
 	private Drawable defaultbackground;
-	public ScrollPane resourcescroll,modulescroll,abilityscroll;
+	public ScrollPane resourcescroll,modulescroll,abilityscroll,buysellresourcesscrollpane;
 	public ButtonGroup<TextButton> resttabs,tradetabs;
 	public Table travelbar,actionbar,restbar,tradebar,infobar,shipinfobar
 				  ,menubar,cargobar,modbar,abilitybar,shipinformationcontainer,
@@ -129,6 +131,7 @@ public class GameState implements Screen{
 		background = new Sprite(Assets.manager.get("map/m42orionnebula.png",Texture.class));
 		
 		skin = Assets.manager.get("ui/uiskin.json",Skin.class);
+		skin.get("default-font", BitmapFont.class).getData().markupEnabled = true;
 		defaultbackground = new Button(skin).getBackground();
 		float textscale = .5f;
 		float padding = 8f;
@@ -233,7 +236,8 @@ public class GameState implements Screen{
 				updateTradeBar();
 				Timeline.createSequence()
 				.beginParallel()
-					.push(Tween.to(map.getPlayer(), PlayerAccessor.POSITION, (distance/10)/map.getPlayer().getShip().getSpeed()).target(selectednode.getX(),selectednode.getY()).setCallback(new TweenCallback()
+					.push(Tween.to(map.getPlayer(), PlayerAccessor.POSITION, (distance/map.getPlayer().getShip().getSpeed())/map.getPlayer().getShip().getSpeed())
+							.target(selectednode.getX()+(selectednode.getButton().getImage().getWidth()/2),selectednode.getY()+(selectednode.getButton().getImage().getHeight()/2)).setCallback(new TweenCallback()
 					{
 						
 						@Override
@@ -280,20 +284,7 @@ public class GameState implements Screen{
 		shipinfotab.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				shipinfobar.toFront();
-				
-				if(shipinfotab.isChecked()){
-					updateShipInfo();
-					shipinfotab.setText("ship>>>");
-					menutab.setVisible(false);
-					cargotab.setVisible(false);
-					Tween.to(shipinfobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-shipinfobar.getWidth()).start(tm);
-				}else{
-					shipinfotab.setText("ship<<<");
-					menutab.setVisible(true);
-					cargotab.setVisible(true);
-					Tween.to(shipinfobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
-				}
+				openCloseShipInfo();
 				
 			}
 		});
@@ -310,7 +301,6 @@ public class GameState implements Screen{
 		
 		shipinfobar.add(shipinfotabcontainer).left();
 		shipinfobar.add(shipinformationcontainer).expand().fill();
-		shipinfobar.add();
 		
 		//MENU BAR ------------------------------------------------------------------------------
 		menubar = new Table();
@@ -327,19 +317,7 @@ public class GameState implements Screen{
 		menutab.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				menubar.toFront();
-				
-				if(menutab.isChecked()){
-					menutab.setText("menu>>>");
-					shipinfotab.setVisible(false);
-					cargotab.setVisible(false);
-					Tween.to(menubar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-menubar.getWidth()).start(tm);
-				}else{
-					menutab.setText("menu<<<");
-					cargotab.setVisible(true);
-					shipinfotab.setVisible(true);
-					Tween.to(menubar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
-				}
+				openCloseMenu();
 				
 			}
 		});
@@ -373,21 +351,7 @@ public class GameState implements Screen{
 		cargotab.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				cargobar.toFront();
-				
-				if(cargotab.isChecked()){
-					updateCargo();
-					cargotab.setText("Haul>>>");
-					shipinfotab.setVisible(false);
-					menutab.setVisible(false);
-					Tween.to(cargobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-cargobar.getWidth()).start(tm);
-				}else{
-					cargotab.setText("Haul<<<");
-					shipinfotab.setVisible(true);
-					menutab.setVisible(true);
-					uistage.setScrollFocus(null);
-					Tween.to(cargobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
-				}
+				openCloseHaul();
 			}
 		});
 		cargotabcontainer.add().padBottom(cargobar.getHeight()-(cargotab.getHeight()*3.2f)).expandY().fillY().top().row();
@@ -423,23 +387,7 @@ public class GameState implements Screen{
 		modtab.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				modbar.toFront();
-				
-				if(modtab.isChecked()){
-					updateModsTab();
-					modtab.setText("Mods>>>");
-					shipinfotab.setVisible(false);
-					menutab.setVisible(false);
-					cargotab.setVisible(false);
-					Tween.to(modbar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-cargobar.getWidth()).start(tm);
-				}else{
-					modtab.setText("Mods<<<");
-					shipinfotab.setVisible(true);
-					menutab.setVisible(true);
-					cargotab.setVisible(true);
-					uistage.setScrollFocus(null);
-					Tween.to(modbar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
-				}
+				openCloseMods();
 			}
 		});
 		modtabcontainer.add().padBottom(modbar.getHeight()-(modtab.getHeight()*5.4f)).row();
@@ -476,28 +424,10 @@ public class GameState implements Screen{
 		abilitytab.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
-				abilitybar.toFront();
-				
-				if(abilitytab.isChecked()){
-					updateAbilities();
-					abilitytab.setText("Skill>>>");
-					shipinfotab.setVisible(false);
-					menutab.setVisible(false);
-					cargotab.setVisible(false);
-					modtab.setVisible(false);
-					Tween.to(abilitybar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-cargobar.getWidth()).start(tm);
-				}else{
-					abilitytab.setText("Skill<<<");
-					shipinfotab.setVisible(true);
-					menutab.setVisible(true);
-					cargotab.setVisible(true);
-					uistage.setScrollFocus(null);
-					modtab.setVisible(true);
-					Tween.to(abilitybar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
-				}
+				openCloseSkill();
 			}
 		});
-		abilitytabcontainer.add().padBottom(abilitybar.getHeight()-(abilitytab.getHeight()*7.6f)).row();
+		abilitytabcontainer.add().padBottom(abilitybar.getHeight()-(abilitytab.getHeight()*7.7f)).row();
 		abilitytabcontainer.add(abilitytab).bottom().expand().row();
 		//modtabcontainer.add();
 		
@@ -628,6 +558,134 @@ public class GameState implements Screen{
 														 input));
 	}
 	
+	public boolean closeOpenTabs(){
+		boolean tabbed = false;
+		if(shipinfotab.isChecked()){
+			shipinfotab.setChecked(false);
+			tabbed = openCloseShipInfo();
+		}
+		if(cargotab.isChecked()){
+			cargotab.setChecked(false);
+			tabbed =  openCloseHaul();
+		}
+		if(modtab.isChecked()){
+			modtab.setChecked(false);
+			tabbed =  openCloseMods();
+		}
+		if(abilitytab.isChecked()){
+			abilitytab.setChecked(false);
+			tabbed = openCloseSkill();
+		}
+	    if(menutab.isChecked()){
+			menutab.setChecked(false);
+			tabbed =  openCloseMenu();
+		}
+		return tabbed;
+			
+		
+	}
+	
+	public boolean openCloseShipInfo(){
+		shipinfobar.toFront();
+		
+		if(shipinfotab.isChecked()){
+			updateShipInfo();
+			shipinfotab.setText("ship>>>");
+			menutab.setVisible(false);
+			cargotab.setVisible(false);
+			Tween.to(shipinfobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-shipinfobar.getWidth()).start(tm);
+		}else{
+			shipinfotab.setText("ship<<<");
+			menutab.setVisible(true);
+			cargotab.setVisible(true);
+			Tween.to(shipinfobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
+		}
+		return true;
+	}
+	
+	public boolean openCloseHaul(){
+		cargobar.toFront();
+		
+		if(cargotab.isChecked()){
+			updateCargo();
+			cargotab.setText("Haul>>>");
+			shipinfotab.setVisible(false);
+			menutab.setVisible(false);
+			Tween.to(cargobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-cargobar.getWidth()).start(tm);
+		}else{
+			cargotab.setText("Haul<<<");
+			shipinfotab.setVisible(true);
+			menutab.setVisible(true);
+			uistage.setScrollFocus(null);
+			Tween.to(cargobar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
+		}
+		return true;
+	}
+	
+	public boolean openCloseMods(){
+		modbar.toFront();
+		
+		if(modtab.isChecked()){
+			updateModsTab();
+			modtab.setText("Mods>>>");
+			shipinfotab.setVisible(false);
+			menutab.setVisible(false);
+			cargotab.setVisible(false);
+			Tween.to(modbar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-cargobar.getWidth()).start(tm);
+		}else{
+			modtab.setText("Mods<<<");
+			shipinfotab.setVisible(true);
+			menutab.setVisible(true);
+			cargotab.setVisible(true);
+			uistage.setScrollFocus(null);
+			Tween.to(modbar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
+		}
+		
+		return true;
+	}
+	
+	public boolean openCloseSkill(){
+		abilitybar.toFront();
+		
+		if(abilitytab.isChecked()){
+			updateAbilities();
+			abilitytab.setText("Skill>>>");
+			shipinfotab.setVisible(false);
+			menutab.setVisible(false);
+			cargotab.setVisible(false);
+			modtab.setVisible(false);
+			Tween.to(abilitybar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-cargobar.getWidth()).start(tm);
+		}else{
+			abilitytab.setText("Skill<<<");
+			shipinfotab.setVisible(true);
+			menutab.setVisible(true);
+			cargotab.setVisible(true);
+			uistage.setScrollFocus(null);
+			modtab.setVisible(true);
+			Tween.to(abilitybar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
+		}
+		
+		return true;
+	}
+	
+	public boolean openCloseMenu(){
+		menubar.toFront();
+		
+		if(menutab.isChecked()){
+			menutab.setText("menu>>>");
+			shipinfotab.setVisible(false);
+			cargotab.setVisible(false);
+			Tween.to(menubar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-menubar.getWidth()).start(tm);
+		}else{
+			menutab.setText("menu<<<");
+			cargotab.setVisible(true);
+			shipinfotab.setVisible(true);
+			Tween.to(menubar, TableAccessor.POSITION_X, 1).target(uistage.getWidth()-(uistage.getWidth()*.05f)).start(tm);
+		}
+		
+		return true;
+	}
+	
 	public void updateAbilities(){
 		
 		Table abilityscrolltable = new Table();
@@ -755,6 +813,7 @@ public class GameState implements Screen{
 	
 	public void updateTradeBar(){
 		float textscale = .5f;
+		
 		tradebar.setVisible(true);
 		tradebar.clearChildren();
 		final Player player = map.getPlayer();
@@ -773,6 +832,10 @@ public class GameState implements Screen{
 		switch (tradetabs.getCheckedIndex()) {
 		
 		case 0:
+			float tpscroll = 0;
+			if(oretab.getChildren().size>0){
+				 tpscroll = buysellresourcesscrollpane.getScrollPercentY();
+			}
 			oretab.clearChildren();
 			
 			//create Table to hold buy and sell resources
@@ -780,7 +843,7 @@ public class GameState implements Screen{
 			buysellresourcetable.left();
 			
 			
-			Iterator<Integer> ids = tradepost.getResources().keys();
+			Keys ids = tradepost.getResources().keys();
 			while(ids.hasNext()){
 				TextTooltip resourcetooltip;
 				Table resourceholder = new Table();
@@ -794,26 +857,26 @@ public class GameState implements Screen{
 				//Label amountleft = new Label("",skin);
 				
 				int id = ids.next();
-				Resource resource = null;
-				if(id==ResourceStash.DRIDIUM.getId()){
-					resource = ResourceStash.DRIDIUM.clone();
-				}else if(id == ResourceStash.KNIPTORYTE.getId()){
-					resource = ResourceStash.KNIPTORYTE.clone();
-				}else if(id == ResourceStash.LATTERIUM.getId()){
-					resource = ResourceStash.LATTERIUM.clone();
-				}else if(id == ResourceStash.NAQUIDRA.getId()){
-					resource = ResourceStash.NAQUIDRA.clone();
-				}else if(id == ResourceStash.SALVAGE.getId()){
-					resource = ResourceStash.SALVAGE.clone();
-				}
+				Resource resource = ResourceStash.RESOURCES.get(id);
 				
 				final Resource finalresource = resource;
+				Label resourcecount = new Label(""+tradepost.getResources().get(id, 0), skin);
+				resourcecount.setFontScale(textscale);
+				boolean available = true;
+				if(tradepost.getResources().get(id, 0)==0){
+					resourcecount.setColor(Color.FIREBRICK);
+					available = false;
+				}
+				Table resourcecountholder = new Table();
+				resourcecountholder.setBackground(defaultbackground);
+				resourcecountholder.setColor(Color.LIME);
+				resourcecountholder.add(resourcecount).left().expand();
 				Label resourcename = new Label(""+resource.getName(), skin);
 				
 				resourceimage = new Image(Assets.manager.get(resource.getImage(),Texture.class));
 				resourcetooltip = new TextTooltip(resource.getName()+"\n\n"
 						+ 						  ""+resource.getDescription()+"\n\n"
-								+ 				  "mass:"+resource.getMass()+"\n\nBase Value:"+resource.getBasevalue(), skin);
+								+ 				  "mass:"+resource.getMass()+"\n\n[YELLOW]Base Value:[GREEN]"+resource.getBasevalue(), skin);
 				resourcetooltip.getActor().setFontScale(textscale);
 				resourcetooltip.setInstant(true);
 				resourceimage.addListener(resourcetooltip);
@@ -822,7 +885,7 @@ public class GameState implements Screen{
 				sellprice.setText(tradepost.getResourceSellPrice(resource)+"/ea");
 				
 				if(tradepost.getResourceBuyPrice(finalresource)>player.getCurrency()||
-						player.getShip().getCapacity()-player.getCurrentCapacity()<resource.getMass()){
+						player.getShip().getCapacity()-player.getCurrentCapacity()<resource.getMass()||!available){
 					buybutton.setDisabled(true);
 					buybutton.setColor(Color.FIREBRICK);
 				}
@@ -832,13 +895,16 @@ public class GameState implements Screen{
 					public void clicked(InputEvent event, float x, float y) {
 						if(((TextButton)event.getListenerActor()).isDisabled())
 							return;
-						player.addResource(finalresource.clone());
+						player.addResource(tradepost.getResource(finalresource));
 						player.setCurrency(player.getCurrency()-tradepost.getResourceBuyPrice(finalresource));
-						if(tradepost.getResourceBuyPrice(finalresource)>player.getCurrency()||
-								player.getShip().getCapacity()-player.getCurrentCapacity()<finalresource.getMass())
-						updateTradeBar();
-						updateCargo();
 						
+//						if(tradepost.getResourceBuyPrice(finalresource)>player.getCurrency()||
+//								player.getShip().getCapacity()-player.getCurrentCapacity()<finalresource.getMass())
+						
+						updateTradeBar();
+						
+						
+						updateCargo();
 					}
 				});
 				
@@ -852,32 +918,41 @@ public class GameState implements Screen{
 					public void clicked(InputEvent event, float x, float y) {
 						if(((TextButton)event.getListenerActor()).isDisabled())
 							return;
-						player.removeResource(finalresource.getId());
+						tradepost.addResource(player.removeResource(finalresource.getId()));
 						player.setCurrency(player.getCurrency()+tradepost.getResourceSellPrice(finalresource));
 						updateCargo();
-						if(!player.containsResource(finalresource, 1))
 						updateTradeBar();
 					}
 				});
 				
+				resourceholder.add(resourcecountholder).left().fill().expand();
 				resourceholder.add(resourceimage).left().expand();
 				resourceholder.add(resourcename).left().expand();
-				resourceholder.add(buybutton).left().expand();
-				resourceholder.add(buyprice).left().expand();
-				resourceholder.add(sellbutton).left().expand();
-				resourceholder.add(sellprice).left().expand();
+				resourceholder.add(buybutton).right().expand();
+				resourceholder.add(buyprice).right().expand();
+				resourceholder.add(sellbutton).right().expand();
+				resourceholder.add(sellprice).right().expand();
 				
-				buysellresourcetable.add(resourceholder).expand().row();
+				buysellresourcetable.add(resourceholder).right().expand().row();
 				
 				
 			}
 			
 			
 			//create scrollpane
-			ScrollPane buysellresourcesscrollpane = new ScrollPane(buysellresourcetable);
+			if(buysellresourcesscrollpane==null)
+				buysellresourcesscrollpane = new ScrollPane(buysellresourcetable,skin);
+		    buysellresourcesscrollpane.setWidget(buysellresourcetable);
+		    buysellresourcesscrollpane.setScrollPercentY(tpscroll);
+			buysellresourcesscrollpane.invalidate();
+			buysellresourcesscrollpane.setColor(Color.LIME);
+			buysellresourcesscrollpane.setScrollingDisabled(true, false);
+			//buysellresourcesscrollpane.setScrollBarPositions(true, true);
+			
 			
 			oretab.add(buysellresourcesscrollpane).expand().fill();
 			tradebar.add(oretab).expand().fill();
+			
 			
 			
 			break;
@@ -919,11 +994,15 @@ public class GameState implements Screen{
 			randrtab.clearChildren();
 			restbar.add(randrtab).expand().fill();
 			Table buyfoodandfuel = new Table();
+			buyfoodandfuel.setSize(randrtab.getWidth(), randrtab.getHeight());
+			buyfoodandfuel.left();
 			Label buyfuel = new Label("Fuel:", skin);
 			buyfuel.setFontScale(.5f);
 			
 			//buy fuel buttons
-			final TextButton buyonefuel = new TextButton("buy("+restnode.getReststop().getFuelprice()+")", skin);
+			final TextButton buyonefuel = new TextButton("buy-", skin);
+			Label onefuelprice = new Label(restnode.getReststop().getFuelprice()+"/ea", skin);
+			onefuelprice.setFontScale(.5f);
 			
 			if(map.getPlayer().getCurrentFuel()==map.getPlayer().getShip().getMaxfuel()){
 				buyonefuel.setDisabled(true);
@@ -940,8 +1019,7 @@ public class GameState implements Screen{
 					updateRestBar();
 				}
 			});
-			final TextButton buyallfuel = new TextButton("buyall("+df.format(((map.getPlayer().getShip().getMaxfuel()
-					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice()))+")", skin);
+			final TextButton buyallfuel = new TextButton("buy-", skin);
 			
 			if(((map.getPlayer().getShip().getMaxfuel()
 					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice())<=0){
@@ -958,12 +1036,15 @@ public class GameState implements Screen{
 					updateRestBar();
 				}
 			});
+			Label allfuelprice = new Label(df.format(((map.getPlayer().getShip().getMaxfuel()
+					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice()))+"/all", skin);
+			allfuelprice.setFontScale(.5f);
 			
 			//buy food buttons
 			Label buyfood = new Label("Food:", skin);
 			buyfood.setFontScale(.5f);
 			
-			final TextButton buyonefood = new TextButton("buy("+restnode.getReststop().getFoodprice()+")", skin);
+			final TextButton buyonefood = new TextButton("buy-", skin);
 			
 			if(map.getPlayer().getShip().getCapacity()-map.getPlayer().getCurrentCapacity()<Player.FOOD_MASS){
 				buyonefood.setDisabled(true);
@@ -981,9 +1062,9 @@ public class GameState implements Screen{
 					updateRestBar();
 				}
 			});
-			
-			final TextButton buyallfood = new TextButton("buyall("+df.format((((map.getPlayer().getShip().getCapacity()-
-					map.getPlayer().getCurrentCapacity())/Player.FOOD_MASS)*restnode.getReststop().getFoodprice()))+")", skin);
+			Label onefoodprice = new Label(restnode.getReststop().getFoodprice()+"/ea", skin);
+			onefoodprice.setFontScale(.5f);
+			final TextButton buyallfood = new TextButton("buy-", skin);
 			
 			if(map.getPlayer().getShip().getCapacity()-map.getPlayer().getCurrentCapacity()<Player.FOOD_MASS){
 				buyallfood.setDisabled(true);
@@ -1000,15 +1081,21 @@ public class GameState implements Screen{
 					updateRestBar();
 				}
 			});
+			Label allfoodprice = new Label(df.format((((map.getPlayer().getShip().getCapacity()-
+					map.getPlayer().getCurrentCapacity())/Player.FOOD_MASS)*restnode.getReststop().getFoodprice()))+"/all", skin);
+			allfoodprice.setFontScale(.5f);
 			
-			
-			buyfoodandfuel.add(buyfuel);
-			buyfoodandfuel.add(buyonefuel);
-			buyfoodandfuel.add(buyallfuel).row();
+			buyfoodandfuel.add(buyfuel).left().expand();
+			buyfoodandfuel.add(buyonefuel).left();
+			buyfoodandfuel.add(onefuelprice).left();
+			buyfoodandfuel.add(buyallfuel).left();
+			buyfoodandfuel.add(allfuelprice).left().expand().row();
 			buyfoodandfuel.add().pad(16).expand().row();
 			buyfoodandfuel.add(buyfood);
 			buyfoodandfuel.add(buyonefood);
-			buyfoodandfuel.add(buyallfood).row();;
+			buyfoodandfuel.add(onefoodprice);
+			buyfoodandfuel.add(buyallfood);
+			buyfoodandfuel.add(allfoodprice).row();
 			
 			randrtab.add(buyfoodandfuel).left().expand();
 			
@@ -1047,12 +1134,7 @@ public class GameState implements Screen{
 				
 				Image resicon = new Image(Assets.manager.get(r.getImage(),Texture.class));
 				resicon.addListener(tooltip);
-				itemtable.add(resicon);
-				Label itemname = new Label(r.getName(), skin);
-				itemname.addListener(tooltip);
-				itemname.setFontScale(.4f);
-				itemtable.add().pad(4);
-				itemtable.add(itemname);
+				
 				TextButton jettison = new TextButton("X", skin);
 				jettison.getLabel().setFontScale(1f);
 				jettison.setSize(64, 32);
@@ -1066,10 +1148,18 @@ public class GameState implements Screen{
 						
 					}
 				});
-				itemtable.add().pad(4);
 				itemtable.add(jettison);
+				itemtable.add(resicon);
+				Label itemname = new Label(r.getName(), skin);
+				itemname.addListener(tooltip);
+				itemname.setFontScale(.4f);
+				itemtable.add().pad(4);
+				itemtable.add(itemname);
 				
-				resourcescrolltable.add(itemtable).row();
+				itemtable.add().pad(4);
+				
+				
+				resourcescrolltable.add(itemtable).left().expand().row();
 			}
 		}
 		
@@ -1114,31 +1204,31 @@ public class GameState implements Screen{
 		
 		
 		locateship = new TextButton("((locate))", skin);
-		locateship.setScale(2f);
-		locateship.getLabel().setFontScale(textscale);
 		locateship.addListener(new ClickListener(){
 			public void clicked(InputEvent event, float x, float y) {
 				OrthographicCamera c = (OrthographicCamera) map.getStage().getCamera();
-				Tween.to(c, CameraAccessor.POSITION_X_Y, .7f).target(map.getPlayer().getX(),map.getPlayer().getY()).start(tm);
+				Timeline.createSequence().beginParallel()
+				.push(Tween.to(c, CameraAccessor.POSITION_X_Y, .7f).target(map.getPlayer().getX(),map.getPlayer().getY()))
+				.push(Tween.to(c, CameraAccessor.ZOOM, .8f).target(1f))
+				.end()
+				.start(tm);
 			}
 		});
 		
 		float padding = 8;
 		
-		shipinformationcontainer.add(shiptabimage).expand().fill().row();
-		shipinformationcontainer.add(shipname).width(shipinformationcontainer.getWidth()).row();
+		shipinformationcontainer.add(shiptabimage).center().row();
+		shipinformationcontainer.add(shipname).fillX().row();
 		shipinformationcontainer.add().pad(padding).row();
-		shipinformationcontainer.add(shipdescription).fillX().row();
+		shipinformationcontainer.add(shipdescription).left().fillX().expand().row();
 		shipinformationcontainer.add().pad(padding).row();
-		shipinformationcontainer.add(shipfueleconomy).fillX().row();;
+		shipinformationcontainer.add(shipfueleconomy).left().fillX().row();;
 		shipinformationcontainer.add().pad(padding).row();
 		shipinformationcontainer.add(shipspeed).fillX().row();
 		shipinformationcontainer.add().pad(padding).row();
 		shipinformationcontainer.add(shipcapacity).fillX().row();
 		shipinformationcontainer.add().pad(padding).row();
-		shipinformationcontainer.add(locateship).row();
-		
-		
+		shipinformationcontainer.add(locateship).left().expand().row();
 		
 	}
 	

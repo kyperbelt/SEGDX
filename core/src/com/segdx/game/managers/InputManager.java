@@ -1,5 +1,6 @@
 package com.segdx.game.managers;
 
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.input.GestureDetector.GestureListener;
@@ -10,7 +11,49 @@ public class InputManager implements InputProcessor,GestureListener{
 
 	@Override
 	public boolean keyDown(int keycode) {
-		return false;
+		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+		boolean checked = false;
+		switch (keycode) {
+		case Input.Keys.ESCAPE:
+			checked = !state.menutab.isChecked();
+			;
+			state.menutab.setChecked(!state.closeOpenTabs());
+			state.openCloseMenu();
+			
+			System.out.println("pressed");
+			break;
+		case Input.Keys.NUM_1:
+			checked = !state.abilitytab.isChecked();
+			state.closeOpenTabs();
+			state.abilitytab.setChecked(checked);
+			state.openCloseSkill();
+			
+			System.out.println("pressed");
+			break;
+		case Input.Keys.NUM_2:
+			checked = !state.modtab.isChecked();
+			state.closeOpenTabs();
+			state.modtab.setChecked(checked);
+			state.openCloseMods();
+			break;
+		case Input.Keys.NUM_3:
+			checked = !state.cargotab.isChecked();
+			state.closeOpenTabs();
+			state.cargotab.setChecked(checked);
+			state.openCloseHaul();
+			break;
+		case Input.Keys.NUM_4:
+			checked = !state.shipinfotab.isChecked();
+			state.closeOpenTabs();
+			state.shipinfotab.setChecked(checked);
+			state.openCloseShipInfo();
+			break;
+		case Input.Keys.NUM_5:
+			break;
+		default:
+			break;
+		}
+		return true;
 	}
 
 	@Override

@@ -11,8 +11,10 @@ import com.badlogic.gdx.utils.Timer.Task;
 import com.segdx.game.SEGDX;
 import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.managers.Assets;
+import com.segdx.game.managers.NodeEventManager;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
+import com.segdx.game.managers.TradePostManager;
 import com.segdx.game.tween.SpriteAccessor;
 
 import aurelienribon.tweenengine.Tween;
@@ -85,6 +87,8 @@ public class LoadState implements Screen{
 						state.setLoreEnabled(SpaceMap.intToBool(state.slore));
 						state.setMap(SpaceMap.generateSpaceMap(state.size, state.piracy, state.draft, state.difficulty));
 						StateManager.get().changeState(StateManager.GAME);
+						state.getSpaceMap().setNodeEventManager(new NodeEventManager(1, 1, 1));
+						state.getSpaceMap().setTradePostManager(new TradePostManager(state.getSpaceMap()));
 					}
 				}, LOAD_DELAY);
 				break;

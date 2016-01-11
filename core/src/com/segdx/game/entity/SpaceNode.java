@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.segdx.game.events.NodeEvent;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
@@ -43,6 +44,7 @@ public class SpaceNode {
 	
 	private RestStop reststop;
 	private TradePost tradepost;
+	private NodeEvent event;
 	
 	public SpaceNode(SpaceMap map){
 		this.map = map;
@@ -117,12 +119,17 @@ public class SpaceNode {
 		}
 	}
 	
+	public Vector2 getOriginPosition(){
+		return new Vector2(button.getX()+(button.getImage().getWidth()/2), button.getY()+(button.getImage().getHeight()/2));
+	}
+	
 	public static ImageButton createButton(final SpaceNode node){
 		ImageButton button = new ImageButton(getButtonStyle(node));
 		button.setX(node.getX());
 		button.setY(node.getY());
-		button.setSize(32, 32);
+		button.setSize(48, 48);
 		button.getImage().setScale(.5f);
+		button.getImage().setOrigin(Align.center);
 		button.setOrigin(Align.center);
 		button.setBounds(button.getX(), button.getY(), button.getWidth(), button.getHeight());
 		button.addListener(new ClickListener(){
@@ -241,6 +248,14 @@ public class SpaceNode {
 	public static RestStop newRestStop(){
 		return new RestStop(MathUtils.random(RestStop.FUEL_COST_MIN, RestStop.FUEL_COST_MAX),
 				MathUtils.random(RestStop.FOOD_COST_MIN,RestStop.FOOD_COST_MAX));
+	}
+
+	public NodeEvent getEvent() {
+		return event;
+	}
+
+	public void setEvent(NodeEvent event) {
+		this.event = event;
 	}
 	
 

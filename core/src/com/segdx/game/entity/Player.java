@@ -1,7 +1,10 @@
 package com.segdx.game.entity;
 
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.segdx.game.entity.ship.ShipAbility;
+import com.segdx.game.abilities.ShipAbility;
+import com.segdx.game.entity.ships.StarterShip;
+import com.segdx.game.entity.ships.TestShip;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.modules.EngineBoosters;
@@ -39,7 +42,7 @@ public class Player extends SpaceEntity{
 		resources = new Array<Resource>();
 		modules = new Array<ShipModule>();
 		setAbilities(new Array<ShipAbility>());
-		ship = new StarterShip();
+		ship = new TestShip();
 		
 		
 		food = 0;
@@ -47,7 +50,7 @@ public class Player extends SpaceEntity{
 		setCurrentFuel(ship.getMaxfuel());
 		setCurrentHull(ship.getHull());
 		setResources(new Array<Resource>());
-		setCurrency(1000);
+		setCurrency(100000);
 		setDistanceTraveled(0);
 		
 		
@@ -70,6 +73,10 @@ public class Player extends SpaceEntity{
 		//TEST MODULES
 		installNewModule(new RefineryModule());
 		installNewModule(new EngineBoosters());
+	}
+	
+	public Vector2 getOriginPosition(){
+		return new Vector2(getX()+(getShip().getSprite().getWidth()/2), getY()+(getShip().getSprite().getHeight()/2));
 	}
 	
 	public int getUpgradePointsUsed(){
@@ -135,11 +142,11 @@ public class Player extends SpaceEntity{
 	}
 	
 	public void setX(float x){
-		ship.setX(x);
+		ship.setX(x-(ship.getSprite().getWidth()/2));
 	}
 	
 	public void setY(float y){
-		ship.setY(y);;
+		ship.setY(y-(ship.getSprite().getHeight()/2));;
 	}
 	
 	public Ship getShip(){

@@ -11,8 +11,8 @@ public class PlayerAccessor implements TweenAccessor<Player> {
 	public int getValues(Player target, int type, float[] values) {
 		switch (type) {
 		case POSITION:
-				values[0] = target.getX();
-				values[1] = target.getY();
+				values[0] = target.getOriginPosition().x;
+				values[1] = target.getOriginPosition().y;
 			return 2;
 
 		default:
