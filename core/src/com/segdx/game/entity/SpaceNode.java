@@ -46,8 +46,11 @@ public class SpaceNode {
 	private TradePost tradepost;
 	private NodeEvent event;
 	
+	private Array<Object> loot;
+	
 	public SpaceNode(SpaceMap map){
 		this.map = map;
+		this.loot = new Array<Object>();
 	}
 	
 	public ImageButton getButton() {
@@ -178,6 +181,35 @@ public class SpaceNode {
 						else if(node.getNodeType()==SpaceNode.DANGER)
 							state.selectednodeinfo.setText(GENERIC_DANGER);
 					break;
+				case Ship.SOME_DETECTION:
+						
+						if(node.getNodeType()==SpaceNode.NEUTRAL&&node.getEvent()!=null)
+							state.selectednodeinfo.setText(node.getEvent().getGenericNodeDesc());
+						else if(node.getNodeType()==SpaceNode.NEUTRAL)
+							state.selectednodeinfo.setText(GENERIC_PASSIVE);
+						else if(node.getNodeType()==SpaceNode.TRADE)
+							state.selectednodeinfo.setText(GENERIC_TRADE);
+						else if(node.getNodeType()==SpaceNode.REST)
+							state.selectednodeinfo.setText(GENERIC_REST);
+						else if(node.getNodeType()==SpaceNode.DANGER)
+							state.selectednodeinfo.setText(GENERIC_DANGER);
+					break;
+				case Ship.FULL_DETECTION:
+						if(node.getNodeType()==SpaceNode.NEUTRAL&&node.getEvent()!=null)
+							state.selectednodeinfo.setText(node.getEvent().getDescription());
+						else if(node.getNodeType()==SpaceNode.NEUTRAL)
+							state.selectednodeinfo.setText(GENERIC_PASSIVE);
+						else if(node.getNodeType()==SpaceNode.TRADE)
+							state.selectednodeinfo.setText(node.getTradepost().getResources().get(ResourceStash.KNIPTORYTE.getId(), 0)+" :[FOREST]Kniptoryte[]: "+node.getTradepost().getResourceBuyPrice(ResourceStash.KNIPTORYTE)+"/ea"
+									+ "\n"+node.getTradepost().getResources().get(ResourceStash.DRIDIUM.getId(), 0)+" :[FOREST]Dridium[]: "+node.getTradepost().getResourceBuyPrice(ResourceStash.DRIDIUM)+"/ea"
+									+"\n"+node.getTradepost().getResources().get(ResourceStash.LATTERIUM.getId(), 0)+" :[FOREST]Latterium[]: "+node.getTradepost().getResourceBuyPrice(ResourceStash.LATTERIUM)+"/ea"
+											+ "\n"+node.getTradepost().getResources().get(ResourceStash.NAQUIDRA.getId(), 0)+" :[FOREST]Naquidra[]: "+node.getTradepost().getResourceBuyPrice(ResourceStash.NAQUIDRA)+"/ea"
+													+ "\n"+node.getTradepost().getResources().get(ResourceStash.SALVAGE.getId(), 0)+" :[FOREST]Salvage[]: "+node.getTradepost().getResourceBuyPrice(ResourceStash.SALVAGE)+"/ea");
+						else if(node.getNodeType()==SpaceNode.REST)
+							state.selectednodeinfo.setText(GENERIC_REST);
+						else if(node.getNodeType()==SpaceNode.DANGER)
+							state.selectednodeinfo.setText(GENERIC_DANGER);
+					break;
 
 				default:
 					break;
@@ -256,6 +288,14 @@ public class SpaceNode {
 
 	public void setEvent(NodeEvent event) {
 		this.event = event;
+	}
+
+	public Array<Object> getLoot() {
+		return loot;
+	}
+
+	public void setLoot(Array<Object> loot) {
+		this.loot = loot;
 	}
 	
 

@@ -3,12 +3,14 @@ package com.segdx.game.entity;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.segdx.game.abilities.ShipAbility;
-import com.segdx.game.entity.ships.StarterShip;
 import com.segdx.game.entity.ships.TestShip;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.modules.EngineBoosters;
+import com.segdx.game.modules.FuelReserves;
+import com.segdx.game.modules.MiningModule;
 import com.segdx.game.modules.RefineryModule;
+import com.segdx.game.modules.ScannerModule;
 import com.segdx.game.modules.ShipModule;
 import com.segdx.game.states.GameState;
 
@@ -73,6 +75,9 @@ public class Player extends SpaceEntity{
 		//TEST MODULES
 		installNewModule(new RefineryModule());
 		installNewModule(new EngineBoosters());
+		installNewModule(new MiningModule(1));
+		installNewModule(new ScannerModule(2));
+		installNewModule(new FuelReserves(0));
 	}
 	
 	public Vector2 getOriginPosition(){
@@ -98,6 +103,10 @@ public class Player extends SpaceEntity{
 			//TODO:If module could not be installed do something here
 			System.out.println("failed to install "+module.getName());
 		}
+	}
+	
+	public float getMissingHull(){
+		return ship.getHull()-getCurrentHull();
 	}
 	
 	public void removeModule(ShipModule module){
@@ -330,6 +339,12 @@ public class Player extends SpaceEntity{
 		if(currentEnemy==null)
 			return false;
 		else return true;
+	}
+	
+	public boolean canAddResource(Resource r){
+		if(getShip().getCapacity()-getCurrentCapacity()>=r.getMass())
+			return true;
+		return false;
 	}
 
 	public Array<ShipAbility> getAbilities() {

@@ -50,7 +50,7 @@ public class NodeEventManager {
 			public void onCycle() {
 				createNewEvents();
 			}
-		}).repeat().setRepeatEvery(2);
+		}).repeat().setRepeatEvery(1);
 		
 		//createUpdateTask
 		state.getSpaceMap().getTimer().addTimedTask(new TimedTask() {
@@ -79,12 +79,26 @@ public class NodeEventManager {
 		
 	}
 	
+	//change the event at a node
+	public void changeNodeEvent(NodeEvent e,SpaceNode node){
+		e.setId(node.getEvent().getId());
+		node.getEvent().removeNodeEvent();
+		node.setEvent(e);
+		events.put(e.getId(), e);
+		((GameState)StateManager.get().getState(StateManager.GAME)).updateActionbar();
+		((GameState)StateManager.get().getState(StateManager.GAME)).updateAbilities();
+	}
+	
 	public void createNewEvents(){
 		Array<Integer> remove = new Array<Integer>();
 		
 		for (int i = 0; i < eventlessnodes.size; i++) {
 			if(generateRandomeEvent(eventlessnodes.get(i))){
 				remove.add(eventlessnodes.get(i).getEvent().getId());
+				if(eventlessnodes.get(i).getMap().getPlayer().getCurrentNode().getIndex()==
+						eventlessnodes.get(i).getIndex())
+					((GameState)StateManager.get().getState(StateManager.GAME)).updateActionbar();
+				((GameState)StateManager.get().getState(StateManager.GAME)).updateAbilities();
 				nodeswithevents.add(eventlessnodes.removeIndex(i));
 			}
 		}
@@ -97,6 +111,7 @@ public class NodeEventManager {
 		switch (eventtype) {
 		case NodeEvent.RESOURCE:
 			ResourceEvent e = new ResourceEvent(node);
+			e.setType(eventtype);
 			node.setEvent(e);
 			int id = events.size;
 			while(events.containsKey(id)){

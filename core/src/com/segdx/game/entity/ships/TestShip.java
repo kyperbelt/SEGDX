@@ -14,10 +14,12 @@ public class TestShip extends Ship{
 		this.setMaxfuel(200);
 		this.setDetectionLevel(Ship.NO_DETECTION);
 		this.setHull(100);
-		this.setImage("map/spaceship1.png");
+		this.setImage("map/redshipr.png");
 		this.setName("Test Ship");
 		this.setCost(3000);
 		this.setSprite(new Sprite(Assets.manager.get(this.getImage(),Texture.class)));
+		this.getSprite().setOriginCenter();
+		this.getSprite().flip(false, true);
 		this.setFuelEconomy(20);
 		this.setDescription("Test Ship");
 	}

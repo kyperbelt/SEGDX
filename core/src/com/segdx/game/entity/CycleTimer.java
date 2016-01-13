@@ -18,6 +18,8 @@ public class CycleTimer {
 	private float elapsed_time;
 	private int cycle_number;
 	
+	private boolean paused;
+	
 	private Array<CycleTask> cycletasks;
 	private Array<TimedTask> timedtasks;
 	
@@ -28,6 +30,14 @@ public class CycleTimer {
 		elapsed_time = 0;
 		cycle_number = 0;
 		
+	}
+	
+	public boolean isPaused(){
+		return paused;
+	}
+	
+	public void setPaused(boolean pause){
+		this.paused = pause;
 	}
 	
 	public CycleTask addCycleTask(CycleTask task){
@@ -53,6 +63,8 @@ public class CycleTimer {
 	}
 	
 	public void update(float delta){
+		if(paused)
+			return;
 		elapsed_time+=delta;
 		
 		if(cycle_length<elapsed_time){

@@ -9,35 +9,32 @@ public class RefineryModule extends ShipModule{
 	private ShipAbility refinedridium;
 	
 	public RefineryModule() {
-		refinedridium = new RefineDridium();
-		refinedridium.setParentModule(this);
+		
+		this.setLevel(getRandomLevel());
 		this.setCost(2);
-		this.setBaseValue(500);
+		this.setBaseValue(350);
 		this.setName("Dridium Refinery");
-		this.setDesc("Gives you the ability to refine Dridium into usable fuel.");
+		
+		this.setDesc("Gives you the ability to refine Dridium into usable fuel. Higher tiers allow you to refine more [FOREST]Dridium[]");
+		refinedridium = new RefineDridium(this.getLevel());
+		refinedridium.setParentModule(this);
 	}
 
 	@Override
 	public boolean installModule(Player player) {
-		if(player.getUpgradePointsAvailable()>=this.getCost()){
-			int id = player.getModules().size;
-			while(player.containsModuleId(id)){
-				id++;
-			}
-			this.setId(id);
+		if(this.canInstall(player)){
+			this.setId(this.createID(player));
 			player.getAbilities().add(refinedridium);
 			return true;
+		}else{
+			wasUnableToInstallDialog();
 		}
 		return false;
 	}
 
 	@Override
 	public ShipModule removeModule(Player player) {
-		for (int i = 0; i < player.getAbilities().size; i++) {
-			if(player.getAbilities().get(i).getParentModule().getId()==this.getId()){
-				player.getAbilities().removeIndex(i);
-			}
-		}
+		removeModuleAbilities(player);
 		return this;
 	}
 

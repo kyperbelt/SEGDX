@@ -1,6 +1,7 @@
 package com.segdx.game.abilities;
 
 import com.segdx.game.entity.SpaceEntity;
+import com.segdx.game.states.GameState;
 
 public class PowerShields extends ShipAbility{
 
@@ -13,5 +14,11 @@ public class PowerShields extends ShipAbility{
 		
 		return false;
 	}
+
+	@Override
+	public void afterCooldown(GameState state) {
+	}
+
+
 
 }

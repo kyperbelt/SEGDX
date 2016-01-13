@@ -13,7 +13,7 @@ public class TradePostManager {
 	
 	public static final int SHIP_MAX = 2;
 	public static final int MODULE_MAX = 4;
-	public static final int  RESOURCE_MAX = 20;
+	public static final int  RESOURCE_MAX = 15;
 
 	private Array<TradePost> tradeposts;
 	
@@ -73,11 +73,11 @@ public class TradePostManager {
 				if(mod==1f)
 					continue;
 				else if(mod>1&&mod<2)
-					tradeposts.get(i).addResource(r, MathUtils.round(MathUtils.random(1, 10)));
+					tradeposts.get(i).addResource(r, MathUtils.round(MathUtils.random(1, RESOURCE_MAX*.5f)));
 				else if(mod>2&&mod<4)
-					tradeposts.get(i).addResource(r, MathUtils.round(MathUtils.random(3, 15)));
+					tradeposts.get(i).addResource(r, MathUtils.round(MathUtils.random(3, RESOURCE_MAX*.8f)));
 				else if(mod>4&&mod<=5)
-					tradeposts.get(i).addResource(r, MathUtils.round(MathUtils.random(6, 20)));
+					tradeposts.get(i).addResource(r, MathUtils.round(MathUtils.random(6, RESOURCE_MAX)));
 			}
 		}
 		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);

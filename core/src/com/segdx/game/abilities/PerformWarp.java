@@ -1,6 +1,7 @@
 package com.segdx.game.abilities;
 
 import com.segdx.game.entity.SpaceEntity;
+import com.segdx.game.states.GameState;
 
 public class PerformWarp extends ShipAbility{
 	//TODO: Long cooldown with a naquadria requirement
@@ -16,6 +17,8 @@ public class PerformWarp extends ShipAbility{
 	public boolean requirementsMet(SpaceEntity target) {
 		
 		return false;
+	}
+	public void afterCooldown(GameState state) {
 	}
 
 }

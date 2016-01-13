@@ -121,7 +121,7 @@ public class InputManager implements InputProcessor,GestureListener{
 	public boolean pan(float x, float y, float deltaX, float deltaY) {
 		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
 		OrthographicCamera cam = state.getSpaceMap().getCam();
-		cam.position.set(cam.position.x - deltaX, cam.position.y+deltaY, 0);
+		cam.position.set(cam.position.x - deltaX*cam.zoom, cam.position.y+deltaY*cam.zoom, 0);
 		return false;
 	}
 
@@ -146,7 +146,7 @@ public class InputManager implements InputProcessor,GestureListener{
 	public void zoom(float zoom){
 		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
 		OrthographicCamera cam = state.getSpaceMap().getCam();
-		cam.zoom += zoom*(cam.zoom*.05f);
+		cam.zoom += zoom*(cam.zoom*.1);
 		if(cam.zoom > 3f)
 			cam.zoom = 3f;
 		if(cam.zoom < .9f)

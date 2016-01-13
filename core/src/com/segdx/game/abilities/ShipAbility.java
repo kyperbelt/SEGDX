@@ -1,5 +1,10 @@
 package com.segdx.game.abilities;
 
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.SpaceEntity;
 import com.segdx.game.managers.StateManager;
@@ -20,19 +25,21 @@ public abstract class ShipAbility {
 	private String desc;
 	private ShipModule parentModule;
 	private int id;
-	private int cooldown;
+	protected int cooldown;
 	private int cctimer = 0;
 	private boolean enabled;
 	private boolean onCooldown;
 	private boolean combatCappable;
 	private boolean outOfCombat;
 	private boolean playerUsed;
+	private int level;
 	
 	public abstract void performAbility(SpaceEntity target);
 	public abstract boolean requirementsMet(SpaceEntity target);
+	public abstract void afterCooldown(GameState state);
 
 	public String getName() {
-		return name;
+		return name+" "+level;
 	}
 
 	public void setName(String name) {
@@ -56,7 +63,7 @@ public abstract class ShipAbility {
 	}
 	
 	public int getCooldownLeft(){
-		return cooldown-cctimer;
+		return getCooldown()-cctimer;
 	}
 	
 	public void startCooldown(){
@@ -69,8 +76,11 @@ public abstract class ShipAbility {
 				cctimer++;
 				System.out.println(getCooldownLeft());
 				state.updateAbilities();
-				if(cctimer>=cooldown){
+				
+				if(cctimer>=getCooldown()){
 					cctimer = 0;
+					state.updateActionbar();
+					afterCooldown(state);
 					setOnCooldown(false);
 					state.updateAbilities();
 					
@@ -78,7 +88,7 @@ public abstract class ShipAbility {
 				
 				
 			}
-		}).repeat(3);
+		}).repeat(this.getCooldown());
 	}
 	
 	public boolean hasParentModule(){
@@ -122,7 +132,7 @@ public abstract class ShipAbility {
 	}
 
 	public int getCooldown() {
-		return cooldown;
+		return MathUtils.round(cooldown*(getLevel()*.5f));
 	}
 
 	public void setCooldown(int cooldown) {
@@ -139,6 +149,26 @@ public abstract class ShipAbility {
 	}
 	public void setOnCooldown(boolean onCooldown) {
 		this.onCooldown = onCooldown;
+	}
+	public int getLevel() {
+		return level;
+	}
+	public void setLevel(int level) {
+		this.level = level;
+	}
+	
+	public static Dialog showMessage(String title,String content,Skin skin){
+		Dialog d = new Dialog(title,skin);
+		d.setSize(200, 200);
+		d.getTitleLabel().setFontScale(.7f);
+		Label l = new Label(content, skin);
+		l.setFontScale(.5f);
+		l.setWrap(true);
+		d.getContentTable().add(l).center().expand().fill();
+		d.button("OK",true);
+		((TextButton)d.getButtonTable().getChildren().get(0)).getLabel().setFontScale(.7f);
+		
+		return d;
 	}
 
 }

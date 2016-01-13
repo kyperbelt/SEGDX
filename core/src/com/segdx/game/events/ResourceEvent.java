@@ -25,13 +25,21 @@ public class ResourceEvent extends NodeEvent{
 	
 	private int startCycle;
 	
+	private boolean requiresMining;
+	
 	private Array<SpaceNode> tradenodes;
 	
 	public ResourceEvent(SpaceNode node) {
 		SpaceMap map = node.getMap();
 		resource = ResourceStash.randomID();
-		System.out.println("created a "+ResourceStash.RESOURCES.get(resource).getName()+" event node");
-		resourcesAvailable = MathUtils.round(MathUtils.random(3, 20));
+		int resourcesmax = 14;
+		setRequiresMining(true);
+		this.setGenericDescs(GENERIC_DESCRIPTIONS);
+		if(resource==ResourceStash.SALVAGE.getId()){
+			resourcesmax = 4;
+			setRequiresMining(false);
+		}
+		resourcesAvailable = MathUtils.round(MathUtils.random(2, resourcesmax));
 		this.setName("");
 		tradenodes = new Array<SpaceNode>();
 		startCycle = map.getTimer().getCurrentCycle();
@@ -39,6 +47,7 @@ public class ResourceEvent extends NodeEvent{
 		this.setShouldRemove(false);
 		this.setDescription(this.generateDescription());
 		this.setParentnode(node);
+		this.setLogEntries(new Array<String>());
 	}
 	
 	public Resource fetchResource(){
@@ -93,8 +102,10 @@ public class ResourceEvent extends NodeEvent{
 			p = tradenodes.get(0).getMap().getPlayer();
 		for (int i = 0; i < tradenodes.size; i++) {
 			tradenodes.get(i).getTradepost().setModifierFor(ResourceStash.RESOURCES.get(resource), MathUtils.random(TradePost.MIN, TradePost.MAX));
-			if(tradenodes.get(i).getIndex()==p.getCurrentNode().getIndex())
+			if(tradenodes.get(i).getIndex()==p.getCurrentNode().getIndex()){
 				((GameState)StateManager.get().getState(StateManager.GAME)).updateTradeBar();
+				((GameState)StateManager.get().getState(StateManager.GAME)).updateAbilities();
+			}
 		}
 	}
 	
@@ -107,14 +118,23 @@ public class ResourceEvent extends NodeEvent{
 			}else if(this.getResourcesAvailable() < 10){
 				desc+="deposit ";
 			}
-			desc+="of "+ResourceStash.RESOURCES.get(resource).getName()+" in the area.";
+			desc+="of [FOREST]"+ResourceStash.RESOURCES.get(resource).getName()+"[] in the area.";
 		}else{
-			desc+="wreckage in the vicinity, maybe you could get make off with some salvage.";
+			
+			desc+="wreckage in the vicinity, maybe you could get make off with some [FOREST]Salvage[].";
 		}
 		
 		
 		
 		return desc;
+	}
+
+	public boolean requiresMining() {
+		return requiresMining;
+	}
+
+	public void setRequiresMining(boolean requiresMining) {
+		this.requiresMining = requiresMining;
 	}
 
 }

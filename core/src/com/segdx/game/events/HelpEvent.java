@@ -11,6 +11,7 @@ public class HelpEvent extends NodeEvent{
 	};
 
 	public HelpEvent() {
+		this.setGenericDescs(GENERIC_DESCRIPTIONS);
 		// TODO Auto-generated constructor stub
 	}
 	

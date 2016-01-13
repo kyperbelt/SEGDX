@@ -5,6 +5,7 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.segdx.game.entity.Player;
@@ -54,6 +55,9 @@ public class SEGDX extends Game {
 		//load loadingscreen assets
 		Assets.loadBlock(Assets.LOAD_ASSETS);
 		Assets.manager.finishLoading();
+		Pixmap pm = new Pixmap(Gdx.files.internal("ui/pointer.png"));
+		Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, (int) (pm.getHeight()*.2)));
+		pm.dispose();
 		//set intro assets to load queue
 		Assets.loadBlock(Assets.INTRO_ASSETS);
 		//change state to load state

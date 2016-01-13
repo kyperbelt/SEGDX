@@ -12,6 +12,7 @@ public class CombatEvent extends NodeEvent{
 	
 	
 	public CombatEvent() {
+		this.setGenericDescs(GENERIC_DESCRIPTIONS);
 		
 	}
 

@@ -10,11 +10,11 @@ import com.segdx.game.states.GameState;
 
 public class RestStop {
 	
-	public static final float FUEL_COST_MIN = 1.5f;
-	public static final float FUEL_COST_MAX = 3.0f;
+	public static final float FUEL_COST_MIN = 1f;
+	public static final float FUEL_COST_MAX = 5f;
 	
-	public static final float FOOD_COST_MIN = .5f;
-	public static final float FOOD_COST_MAX = 2.0f;
+	public static final float FOOD_COST_MIN = 1;
+	public static final float FOOD_COST_MAX = 10;
 	
 	private float fuelprice;
 	
@@ -24,14 +24,17 @@ public class RestStop {
 	
 	private float fuelmodifier;
 	
+	private float hullrepairprice;
+	
 	private NodeEvent event;
 	
 	private ObjectMap<Integer, Gossip> gossip;
 	
 	public RestStop(float fuelprice,float foodprice){
 		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
-		this.fuelprice = Float.parseFloat(state.df.format(fuelprice));
-		this.foodprice = Float.parseFloat(state.df.format(foodprice));
+		this.fuelprice = MathUtils.round(fuelprice);
+		this.foodprice = MathUtils.round(foodprice);
+		this.setHullrepairprice(MathUtils.round(MathUtils.random(5, 20)));
 		gossip = new ObjectMap<Integer, Gossip>();
 		fuelmodifier = 1f;
 		foodmodifier = 1f;
@@ -83,5 +86,13 @@ public class RestStop {
 
 	public void setGossip(ObjectMap<Integer, Gossip> gossip) {
 		this.gossip = gossip;
+	}
+
+	public float getHullrepairprice() {
+		return hullrepairprice;
+	}
+
+	public void setHullrepairprice(float hullrepairprice) {
+		this.hullrepairprice = hullrepairprice;
 	}
 }
