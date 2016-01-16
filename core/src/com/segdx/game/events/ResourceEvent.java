@@ -23,8 +23,6 @@ public class ResourceEvent extends NodeEvent{
 	
 	private int resourcesAvailable;
 	
-	private int startCycle;
-	
 	private boolean requiresMining;
 	
 	private Array<SpaceNode> tradenodes;
@@ -42,12 +40,14 @@ public class ResourceEvent extends NodeEvent{
 		resourcesAvailable = MathUtils.round(MathUtils.random(2, resourcesmax));
 		this.setName("");
 		tradenodes = new Array<SpaceNode>();
-		startCycle = map.getTimer().getCurrentCycle();
-		this.setCycleDuration(MathUtils.round(MathUtils.random(1, 4)));
+		this.setStartCycle(map.getTimer().getCurrentCycle());
+		
+		//dura
+		this.setCycleDuration(getRandomInt(1, 4));
 		this.setShouldRemove(false);
 		this.setDescription(this.generateDescription());
 		this.setParentnode(node);
-		this.setLogEntries(new Array<String>());
+		this.getParentnode().addEntry(NodeEvent.HELP_LOG_ENTRY, "Resource Event initiated.");
 	}
 	
 	public Resource fetchResource(){
@@ -57,8 +57,9 @@ public class ResourceEvent extends NodeEvent{
 
 	@Override
 	public void update() {
-		if(resourcesAvailable<=0 ||(getParentnode().getMap().getTimer().getCurrentCycle()-startCycle)>=getCycleDuration())
+		if(resourcesAvailable<=0 ||!hasCycles())
 			setShouldRemove(true);
+		
 	}
 
 	@Override
@@ -97,15 +98,18 @@ public class ResourceEvent extends NodeEvent{
 
 	@Override
 	public void removeNodeEvent() {
-		Player p = null;
+		Player p = ((GameState)StateManager.get().getState(StateManager.GAME)).getSpaceMap().getPlayer();
+		
 		if(tradenodes.size > 0)
 			p = tradenodes.get(0).getMap().getPlayer();
+		
 		for (int i = 0; i < tradenodes.size; i++) {
 			tradenodes.get(i).getTradepost().setModifierFor(ResourceStash.RESOURCES.get(resource), MathUtils.random(TradePost.MIN, TradePost.MAX));
-			if(tradenodes.get(i).getIndex()==p.getCurrentNode().getIndex()){
-				((GameState)StateManager.get().getState(StateManager.GAME)).updateTradeBar();
-				((GameState)StateManager.get().getState(StateManager.GAME)).updateAbilities();
-			}
+			
+		}
+		if(getParentnode().getIndex()==p.getCurrentNode().getIndex()){
+			((GameState)StateManager.get().getState(StateManager.GAME)).updateTradeBar();
+			((GameState)StateManager.get().getState(StateManager.GAME)).updateAbilities();
 		}
 	}
 	

@@ -27,7 +27,7 @@ public class IntroState implements Screen{
 	@Override
 	public void show() {
 		batch = new SpriteBatch();
-		kyperbeltlogo = new Sprite(Assets.manager.get("kyperbeltlogo.png",Texture.class));
+		kyperbeltlogo = new Sprite(Assets.manager.get("ui/kyperbeltlogo.png",Texture.class));
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		kyperbeltlogo.setOriginCenter();
 		kyperbeltlogo.setAlpha(0);

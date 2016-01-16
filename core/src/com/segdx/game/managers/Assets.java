@@ -4,7 +4,6 @@ import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.SkinLoader;
 import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
@@ -16,23 +15,28 @@ public class Assets {
 	public static final int GAME_ASSETS = 3;
 	public static final int GAMEOVER_ASSETS = 4;
 	
-	public static final AssetManager manager = new AssetManager();
+	public static AssetManager manager;
+	
+	public static void create(){
+		manager = new AssetManager();
+	}
 	public static int currentload =-1;
 	public static void loadBlock(int blockid){
 		currentload = blockid;
 		switch (blockid) {
 		case LOAD_ASSETS:
-				manager.load("loading.png",Texture.class);
+				manager.load("ui/loading.png",Texture.class);
+				manager.load("ui/achievement.png",Texture.class);
 			break;
 		case INTRO_ASSETS:
 				manager.load(SoundManager.BLINDSHIFT,Music.class);
 				manager.load(SoundManager.STARLIGHT,Music.class);
 				manager.load(SoundManager.OPTIONPRESSED,Sound.class);
-				manager.load("kyperbeltlogo.png",Texture.class);
-				manager.load("poweredbylibgdx.png",Texture.class);
+				manager.load("ui/kyperbeltlogo.png",Texture.class);
+				manager.load("ui/poweredbylibgdx.png",Texture.class);
 			break;
 		case MENU_ASSETS:
-				manager.load("title.png",Texture.class);
+				manager.load("ui/title.png",Texture.class);
 				Assets.manager.load("ui/uiskin.atlas", TextureAtlas.class);
 		        Assets.manager.load("ui/uiskin.json", Skin.class, new SkinLoader.SkinParameter("ui/uiskin.atlas"));
 		        
@@ -40,6 +44,11 @@ public class Assets {
 		case GAME_ASSETS:
 				manager.load(SoundManager.BOARDINGPARTY,Music.class);
 				manager.load(SoundManager.NODESELECT,Sound.class);
+				
+				manager.load(SoundManager.WRONGCHOICE,Sound.class);
+				manager.load(SoundManager.EXPLOSION,Sound.class);
+				manager.load(SoundManager.SELECT2,Sound.class);
+				manager.load(SoundManager.DAMAGE,Sound.class);
 				
 				//nodes
 				manager.load("map/bluenode.png",Texture.class);
@@ -54,6 +63,9 @@ public class Assets {
 				manager.load("map/ship2.png",Texture.class);
 				manager.load("map/redshipr.png",Texture.class);
 				manager.load("map/spaceship1.png",Texture.class);
+				manager.load("map/largeblueship.png",Texture.class);
+				manager.load("map/ship8.png",Texture.class);
+				manager.load("map/ship1.png",Texture.class);
 				
 				//effects
 				manager.load("map/sprshield.png",Texture.class);
@@ -63,6 +75,9 @@ public class Assets {
 				manager.load("map/fuelicon.png",Texture.class);
 				manager.load("map/currencyicon.png",Texture.class);
 				manager.load("map/hullicon.png",Texture.class);
+				manager.load("map/shieldicon.png",Texture.class);
+				manager.load("map/healicon.png",Texture.class);
+				manager.load("map/damageicon.png",Texture.class);
 				
 				
 				//backgrounds

@@ -33,7 +33,7 @@ public class LoadState implements Screen{
 	public void show() {
 		paused = false;
 		batch = new SpriteBatch();
-		loading = new Sprite(Assets.manager.get("loading.png", Texture.class));
+		loading = new Sprite(Assets.manager.get("ui/loading.png", Texture.class));
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		cam.setToOrtho(false);
 		tm = new TweenManager();

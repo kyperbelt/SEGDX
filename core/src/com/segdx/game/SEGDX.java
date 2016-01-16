@@ -8,9 +8,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.esotericsoftware.kryo.Kryo;
+import com.segdx.game.achievements.Achievement;
+import com.segdx.game.achievements.AchievementManager;
+import com.segdx.game.achievements.Stats;
 import com.segdx.game.entity.Player;
 import com.segdx.game.entity.ResourceStash;
 import com.segdx.game.managers.Assets;
+import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.states.GameOverState;
 import com.segdx.game.states.GameState;
@@ -29,14 +34,24 @@ import aurelienribon.tweenengine.Tween;
 //TODO: complete achievements
 
 public class SEGDX extends Game {
-	public static final boolean DEBUG = false;
+	public static final boolean DEBUG = true;
 	public static final int WIDTH = 800;
 	public static final int HEIGHT = 600;
 	
+	public float vol;
+	public Kryo kryo;
 	@Override
 	public void create () {
 		
 		ResourceStash.init();
+		Assets.create();
+	    kryo = new Kryo();
+		kryo.register(Stats.class);
+		kryo.register(AchievementManager.class);
+		kryo.register(Achievement.class);
+		
+		Stats.init(Stats.load(kryo));
+		AchievementManager.init(AchievementManager.load(kryo));
 		
 		//REGISTER TWEEN accessors
 		Tween.registerAccessor(Sprite.class, new SpriteAccessor());
@@ -54,7 +69,9 @@ public class SEGDX extends Game {
 		
 		//load loadingscreen assets
 		Assets.loadBlock(Assets.LOAD_ASSETS);
-		Assets.manager.finishLoading();
+		while(!Assets.manager.update()){
+			
+		}
 		Pixmap pm = new Pixmap(Gdx.files.internal("ui/pointer.png"));
 		Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 0, (int) (pm.getHeight()*.2)));
 		pm.dispose();
@@ -69,6 +86,26 @@ public class SEGDX extends Game {
 	public static void clear(){
 		Gdx.gl.glClearColor(0, 0, 0, 1 );
 	    Gdx.gl.glClear( GL20.GL_COLOR_BUFFER_BIT | GL20.GL_DEPTH_BUFFER_BIT );
+	}
+	
+	@Override
+	public void pause() {
+		vol = SoundManager.get().getVolume();
+		SoundManager.get().setVolume(0);
+		super.pause();
+	}
+	
+	@Override
+	public void resume() {
+		SoundManager.get().setVolume(vol);
+		super.resume();
+	}
+	
+	@Override
+	public void dispose() {
+		Stats.save(kryo);
+		AchievementManager.save(kryo);
+		super.dispose();
 	}
 
 }

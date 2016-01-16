@@ -3,6 +3,7 @@ package com.segdx.game.entity.ships;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.segdx.game.entity.Ship;
+import com.segdx.game.events.NodeEvent;
 import com.segdx.game.managers.Assets;
 
 public class TestShip extends Ship{
@@ -20,6 +21,7 @@ public class TestShip extends Ship{
 		this.setSprite(new Sprite(Assets.manager.get(this.getImage(),Texture.class)));
 		this.getSprite().setOriginCenter();
 		this.getSprite().flip(false, true);
+		this.setVersion(NodeEvent.getRandomInt(1, 3));
 		this.setFuelEconomy(20);
 		this.setDescription("Test Ship");
 	}

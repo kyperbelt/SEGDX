@@ -17,6 +17,8 @@ public class MiningModule extends ShipModule{
 		this.setBaseValue(300);
 		this.setCost(3);
 		this.setLevel(getRandomLevel());
+		if(level>0)
+			this.setLevel(level);
 		extract = new ExtractResource(this.getLevel());
 		extract.setParentModule(this);
 		this.setName("Mining Module");

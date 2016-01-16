@@ -6,6 +6,7 @@ import com.segdx.game.entity.CycleTimer.CycleTask;
 import com.segdx.game.entity.Resource;
 import com.segdx.game.entity.ResourceStash;
 import com.segdx.game.entity.SpaceMap;
+import com.segdx.game.entity.SpaceNode;
 import com.segdx.game.entity.TradePost;
 import com.segdx.game.states.GameState;
 
@@ -65,7 +66,6 @@ public class TradePostManager {
 	}
 	
 	public void resupplyTradePosts(){
-		System.out.println("resuplying");
 		for (int i = 0; i < tradeposts.size; i++) {
 			for (int j = 0; j < ResourceStash.RESOURCE_IDS.length; j++) {
 				Resource r = ResourceStash.RESOURCES.get(ResourceStash.RESOURCE_IDS[j]);
@@ -81,7 +81,8 @@ public class TradePostManager {
 			}
 		}
 		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
-		state.updateTradeBar();
+		if(state.getSpaceMap().getPlayer().getCurrentNode().getNodeType()==SpaceNode.TRADE)
+			state.updateTradeBar();
 		
 	}
 	

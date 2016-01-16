@@ -1,6 +1,11 @@
 package com.segdx.game.entity;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.segdx.game.states.GameState;
 
 public class Ship {
 	
@@ -31,6 +36,8 @@ public class Ship {
 	private int detectionLevel;
 	
 	private String image;
+	
+	private int version;
 	
 	private int upgradePoints;
 	
@@ -72,13 +79,13 @@ public class Ship {
 		this.sprite = sprite;
 	}
 	public String getName() {
-		return name;
+		return name+" v"+getVersion()*10;
 	}
 	public void setName(String name) {
 		this.name = name;
 	}
 	public int getCost() {
-		return cost;
+		return cost*version;
 	}
 	public void setCost(int cost) {
 		this.cost = cost;
@@ -100,6 +107,7 @@ public class Ship {
 	}
 	public void setFuelEconomy(float fuelEconomy) {
 		this.fuelEconomy = fuelEconomy;
+		
 	}
 	public int getDetectionLevel() {
 		return detectionLevel;
@@ -108,7 +116,7 @@ public class Ship {
 		this.detectionLevel = detectionLevel;
 	}
 	public int getUpgradePoints() {
-		return upgradePoints;
+		return (int) (upgradePoints+(upgradePoints*getVersion()));
 	}
 	public void setUpgradePoints(int upgradePoints) {
 		this.upgradePoints = upgradePoints;
@@ -118,6 +126,43 @@ public class Ship {
 	}
 	public void setImage(String image) {
 		this.image = image;
+	}
+	public float getVersion() {
+		return  (version*.1f);
+	}
+	public void setVersion(int version) {
+		this.version = version;
+	}
+	
+	public static Table getshipTable(GameState state,Ship s){
+		Table t = new Table();
+		Table info = new Table();
+		Image im = new Image(s.getSprite());
+		Label name = new Label(""+s.getName(), state.skin);
+		name.setFontScale(.8f);
+		Label description = new Label(""+s.getDescription()+"\n\n"+
+					"Hull:"+s.getHull()+"\n"+
+				"Upgrade Points:"+s.getUpgradePoints()+"\n"+
+					"Fuel Econ:"+s.getFuelEconomy()
+				+ "Speed:"+s.getSpeed()+"\n"
+						+ "Capacity:"+s.getCapacity(), state.skin);
+		description.setFontScale(.5f);
+		description.setWrap(true);
+		info.add(name).left().expand().fillX().row();
+		info.add(description).left().expand().fillX().row();
+		Table buytable = new Table();
+		Label cost = new Label("$"+s.getCost(), state.skin);
+		cost.setFontScale(.5f);
+		TextButton buy = new TextButton("Buy", state.skin);
+		buy.getLabel().setFontScale(.8f);
+		buytable.add().left().expand().fill();
+		buytable.add(cost).expand();
+		buytable.add(buy).expand();
+		
+		t.add(im).left().expand().fill();
+		t.add().left().expand().fill().row();
+		t.add().left().expand().fillX();
+		return t;
 	}
 	
 

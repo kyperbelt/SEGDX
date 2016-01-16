@@ -10,6 +10,9 @@ package com.segdx.game.achievements;
  */
 public class Achievement {
 	
+	public static final int STAT_ACHIEVEMENT = 0;
+	public static final int GAMEPLAY_ACHIEMENT =1;
+	
 	//should like something like :
 	//public Achievement(int id,int points,String name,String descritopn)
 	
@@ -67,5 +70,27 @@ public class Achievement {
 	 * 
 	 * 
 	 */
+	
+	//name of this achieve
+	public String name;
+	//desc of this achieve
+	public String desc;
+	//id of this achieve
+	public int id;
+	//points this achieve is worth
+	public int points;
+	//is this achieve complete
+	public boolean achieved;
+	
+	public Achievement(){
+		
+	}
+	
+	public Achievement(String name,String desc,int id,int points){
+		this.name = name;
+		this.desc = desc;
+		this.id = id;
+		this.points = points;
+	}
 
 }

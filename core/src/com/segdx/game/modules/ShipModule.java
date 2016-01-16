@@ -7,6 +7,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.segdx.game.entity.Player;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.states.GameState;
+import com.sun.corba.se.spi.orbutil.fsm.State;
 
 /**
  * Ship modules used to upgrade your ship stats or add
@@ -69,7 +70,7 @@ public abstract class ShipModule {
 	}
 
 	public int getCost() {
-		return cost*level;
+		return (int) (cost*(level*.8f));
 	}
 
 	public void setCost(int cost) {
@@ -109,7 +110,10 @@ public abstract class ShipModule {
 	}
 	
 	public void wasUnableToInstallDialog(){
+		
 		GameState state = ((GameState)StateManager.get().getState(StateManager.GAME));
+		if(state.skin==null)
+			return;
 		Dialog d = new Dialog("Install fail      ", state.skin);
 		d.getTitleLabel().setFontScale(.7f);
 		Label l = new Label("You were unable to install the module. Maybe you do not have enough upgrade points or"

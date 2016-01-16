@@ -1,22 +1,35 @@
 package com.segdx.game.entity;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Circle;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.Touchable;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
-import com.segdx.game.entity.CycleTimer.CycleTask;
 import com.segdx.game.entity.CycleTimer.TimedTask;
+import com.segdx.game.entity.enemies.Enemy;
+import com.segdx.game.events.CombatEvent;
+import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.NodeEventManager;
+import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.managers.TradePostManager;
 import com.segdx.game.states.GameState;
@@ -51,37 +64,46 @@ public class SpaceMap {
 	private NodeEventManager nodeEventManager;
 	private TradePostManager tradePostManager;
 	
+	private Array<Table> enemyframes;
+	
 	private Player player;
 	
 	public void render(float delta){
-		if(player.getCurrentNode().getEvent()!=null){
-			System.out.println(player.getCurrentNode().getEvent().getDescription());
-		}
 		
 		
 		if(SEGDX.DEBUG||true){
 			sr.setProjectionMatrix(stage.getCamera().combined);
 			sr.begin();
 			
+			sr.setColor(Color.LIME);
 			sr.line(new Vector2(player.getOriginPosition().x,player.getOriginPosition().y), 
 					new Vector2(allnodes.get(player.getDestination()).getOriginPosition().x,
 					allnodes.get(player.getDestination()).getOriginPosition().y));
 			
 			int index = nodebuttons.getCheckedIndex();
-			if(index!=-1){
+			if(index!=-1&&!player.isIncombat()){
 				Circle effectradius = allnodes.get(index).getEffectradius();
 				sr.circle(effectradius.x, effectradius.y, effectradius.radius);
+			}else if(player.isIncombat()&&player.getCurrentEnemy()!=null){
+				Rectangle selection = new Rectangle(player.getCurrentEnemy().getRect());
+				sr.setColor(Color.RED);
+				sr.rect(selection.x, selection.y, selection.width, selection.height);
 			}
+			
 			sr.end();
 		}
-		stage.draw();
 		
-		stage.act(delta);
+			stage.draw();
+			
+			stage.act(delta);
 		
 		
 		batch.setProjectionMatrix(stage.getCamera().combined);
 		batch.begin();
 		player.getShip().getSprite().draw(batch);
+		if(player.isIncombat()&&enemyframes==null){
+			createEnemyFrames(((CombatEvent)player.getCurrentNode().getEvent()).getEnemies());
+		}
 		batch.end();
 		cam.update();
 		timer.update(delta);
@@ -101,6 +123,61 @@ public class SpaceMap {
 				}
 	}
 	
+	public void animateHeal(SpaceEntity e){
+		
+	}
+	
+	public void animateDamageTaken(SpaceEntity e){
+		
+	}
+	
+	public void createEnemyFrames(final Array<Enemy> enemies) {
+		if(enemyframes!=null)
+			deleteEnemyFrames();
+		enemyframes = new Array<Table>();
+		GameState state = ((GameState)StateManager.get().getState(StateManager.GAME));
+		for (int i = 0; i < enemies.size; i++) {
+			Table t = new Table();
+			t.setPosition(enemies.get(i).getX(), enemies.get(i).getY());
+			t.setWidth(enemies.get(i).getShip().getSprite().getWidth());
+			t.setHeight(enemies.get(i).getShip().getSprite().getHeight()+40);
+			final int ii = i;
+			Image healthicon = new Image(Assets.manager.get("map/hullicon.png",Texture.class));
+			Image shieldicon = new Image(Assets.manager.get("map/shieldicon.png",Texture.class));
+			Label health = new Label(""+enemies.get(i).getCurrentHull(),state.skin);
+			health.setFontScale(.5f);
+			Label shield = new Label(""+enemies.get(i).getCurrentShield(),state.skin);
+			shield.setFontScale(.5f);
+			ImageButton shipbutton = new ImageButton(new Image(enemies.get(i).getShip().getSprite().getTexture()).getDrawable());
+			shipbutton.addListener(new ClickListener(){
+				@Override
+				public void clicked(InputEvent event, float x, float y) {
+					player.setCurrentEnemy(enemies.get(ii));
+					SoundManager.get().playSound(SoundManager.NODESELECT);
+				}
+			});
+			t.add(shieldicon).left().expand();
+			t.add(shield).left().expand().row();
+			t.add(healthicon).left().expand();
+			t.add(health).left().expand().row();
+			t.add(shipbutton).left().expand();
+			
+			enemyframes.add(t);
+			stage.addActor(t);
+			
+		}	
+		
+	}
+	
+	public void deleteEnemyFrames(){
+		if(enemyframes==null)
+			return;
+		for (int i = 0; i < enemyframes.size; i++) {
+			enemyframes.get(i).remove();
+		}
+		enemyframes = null;
+	}
+
 	public SpaceMap(){
 		sr = new ShapeRenderer();
 		sr.setAutoShapeType(true);
@@ -111,6 +188,18 @@ public class SpaceMap {
 		
 	}
 	
+	public void disableNodes(){
+		for (int i = 0; i < allnodes.size; i++) {
+			allnodes.get(i).getButton().setVisible(false);
+		}
+	}
+	
+	
+	public void enableNodes(){
+		for (int i = 0; i < allnodes.size; i++) {
+			allnodes.get(i).getButton().setVisible(true);
+		}
+	}
 	
 	
 	public OrthographicCamera getCam(){return cam;}
@@ -406,14 +495,7 @@ public class SpaceMap {
 	}
 	
 	public static void addCycleTasks(final CycleTimer timer){
-		timer.addCycleTask(new CycleTask() {
 			
-			@Override
-			public void onCycle() {
-				System.out.println("cycle passed bro. its now :"+timer.getCurrentCycle());
-				
-			}
-		}).repeat().startCycle(1);;		
 	}
 	
 	public static void addTimedTasks(final CycleTimer timer){
@@ -429,15 +511,6 @@ public class SpaceMap {
 			}
 		}).setSleep(5).repeat();
 		
-		//fps counter task for testing :)
-		timer.addTimedTask(new TimedTask() {
-			
-			@Override
-			public void onExecute() {
-
-				System.out.println(""+Gdx.graphics.getFramesPerSecond());
-			}
-		}).setSleep(15).repeat();
 		
 	}
 	

@@ -12,6 +12,10 @@ public class SoundManager {
 	
 	public static final String OPTIONPRESSED = "audio/optionpressed2.wav";
 	public static final String NODESELECT = "audio/nodeselect.wav";
+	public static final String SELECT2 = "audio/select2.wav";
+	public static final String WRONGCHOICE = "audio/tradebuy.wav";
+	public static final String EXPLOSION = "audio/explosion.wav";
+	public static final String DAMAGE = "audio/damage.wav";
 	
 	private static SoundManager manager;
 	
@@ -22,11 +26,12 @@ public class SoundManager {
 		return manager;
 	}
 	
-	private float volume = .01f;
+	private float volume = .6f;
 	private Array<String> music;
 	private Array<String> sounds;
 	private int currentmusicindex;
 	private Music currentmusic;
+	private boolean inplaylist;
 	private SoundManager(){
 		music  = new Array<String>();
 		sounds = new Array<String>();
@@ -38,22 +43,25 @@ public class SoundManager {
 	}
 	
 	public void playSound(String sound){
-		Assets.manager.get(sound,Sound.class).play(volume);
+		Assets.manager.get(sound,Sound.class).play(volume*.6f);
 	}
 	
 	public void playMusic(String music){
+		inplaylist = false;
 		if(currentmusic!=null){
 			currentmusic.stop();
 		}
 		Music m = Assets.manager.get(music,Music.class);
-		m.setVolume(getVolume());
+		m.setVolume(getVolume()*.4f);
 		currentmusic = m;
-		m.setLooping(true);
 		m.play();
+		m.setLooping(true);
+		
 		
 	}
 	
 	public void playMusicList(){
+		inplaylist = true;
 		if(currentmusic!=null){
 			currentmusic.stop();
 		}
@@ -87,9 +95,15 @@ public class SoundManager {
 	public float getVolume() {
 		return volume;
 	}
-
+	
+	public boolean isInPlayList(){
+		return inplaylist;
+	}
+	
 	public void setVolume(float volume) {
 		this.volume = volume;
+		if(currentmusic!=null)
+			currentmusic.setVolume(volume*.7f);
 	}
 
 }

@@ -13,14 +13,16 @@ import com.segdx.game.states.GameState;
 
 /**
  * abilities that the ship can have
+ * 
  * @author Jonathan Camarena -kyperbelt
  *
  */
 public abstract class ShipAbility {
-	
-	//TODO: make base ship ability class and then extend it into individual ability types
-	//abstract class performAbility(Target)
-	
+
+	// TODO: make base ship ability class and then extend it into individual
+	// ability types
+	// abstract class performAbility(Target)
+
 	private String name;
 	private String desc;
 	private ShipModule parentModule;
@@ -31,15 +33,18 @@ public abstract class ShipAbility {
 	private boolean onCooldown;
 	private boolean combatCappable;
 	private boolean outOfCombat;
+	private boolean attack;
 	private boolean playerUsed;
 	private int level;
-	
+
 	public abstract void performAbility(SpaceEntity target);
+
 	public abstract boolean requirementsMet(SpaceEntity target);
+
 	public abstract void afterCooldown(GameState state);
 
 	public String getName() {
-		return name+" "+level;
+		return name + " " + level;
 	}
 
 	public void setName(String name) {
@@ -49,8 +54,8 @@ public abstract class ShipAbility {
 	public String getDesc() {
 		return desc;
 	}
-	
-	public boolean hasCooldown(){
+
+	public boolean hasCooldown() {
 		return (cooldown > 0);
 	}
 
@@ -61,38 +66,43 @@ public abstract class ShipAbility {
 	public int getId() {
 		return id;
 	}
-	
-	public int getCooldownLeft(){
-		return getCooldown()-cctimer;
+
+	public int getCooldownLeft() {
+		return getCooldown() - cctimer;
 	}
-	
-	public void startCooldown(){
+
+	public void startCooldown() {
 		setOnCooldown(true);
 		final GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
 		state.getSpaceMap().getTimer().addTimedTask(new TimedTask() {
-			
+
 			@Override
 			public void onExecute() {
 				cctimer++;
-				System.out.println(getCooldownLeft());
-				state.updateAbilities();
-				
-				if(cctimer>=getCooldown()){
-					cctimer = 0;
+				if (getParentModule() != null) {
+
+					state.updateAbilities();
 					state.updateActionbar();
+				}
+
+				if (cctimer >= getCooldown()) {
+					cctimer = 0;
+
 					afterCooldown(state);
 					setOnCooldown(false);
-					state.updateAbilities();
-					
+					if (getParentModule() != null) {
+						state.updateAbilities();
+						state.updateActionbar();
+					}
+
 				}
-				
-				
+
 			}
 		}).repeat(this.getCooldown());
 	}
-	
-	public boolean hasParentModule(){
-		return (parentModule!=null);
+
+	public boolean hasParentModule() {
+		return (parentModule != null);
 	}
 
 	public void setId(int id) {
@@ -132,43 +142,57 @@ public abstract class ShipAbility {
 	}
 
 	public int getCooldown() {
-		return MathUtils.round(cooldown*(getLevel()*.5f));
+		return MathUtils.round(cooldown * (getLevel()));
 	}
 
 	public void setCooldown(int cooldown) {
 		this.cooldown = cooldown;
 	}
+
 	public boolean isEnabled() {
 		return enabled;
 	}
+
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
+
 	public boolean isOnCooldown() {
 		return onCooldown;
 	}
+
 	public void setOnCooldown(boolean onCooldown) {
 		this.onCooldown = onCooldown;
 	}
+
 	public int getLevel() {
 		return level;
 	}
+
 	public void setLevel(int level) {
 		this.level = level;
 	}
-	
-	public static Dialog showMessage(String title,String content,Skin skin){
-		Dialog d = new Dialog(title,skin);
+
+	public static Dialog showMessage(String title, String content, Skin skin) {
+		Dialog d = new Dialog(title, skin);
 		d.setSize(200, 200);
 		d.getTitleLabel().setFontScale(.7f);
 		Label l = new Label(content, skin);
 		l.setFontScale(.5f);
 		l.setWrap(true);
 		d.getContentTable().add(l).center().expand().fill();
-		d.button("OK",true);
-		((TextButton)d.getButtonTable().getChildren().get(0)).getLabel().setFontScale(.7f);
-		
+		d.button("OK", true);
+		((TextButton) d.getButtonTable().getChildren().get(0)).getLabel().setFontScale(.7f);
+
 		return d;
+	}
+
+	public boolean isAttack() {
+		return attack;
+	}
+
+	public void setAttack(boolean attack) {
+		this.attack = attack;
 	}
 
 }

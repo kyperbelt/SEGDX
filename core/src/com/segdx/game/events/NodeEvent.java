@@ -1,8 +1,15 @@
 package com.segdx.game.events;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Array;
 import com.segdx.game.entity.SpaceNode;
+import com.segdx.game.managers.StateManager;
+import com.segdx.game.states.GameState;
 
 public abstract class NodeEvent {
 	
@@ -31,7 +38,8 @@ public abstract class NodeEvent {
 	
 	private int type;
 	
-	private Array<String> logEntries;
+	private int startCycle;
+	
 	
 	public abstract void update();
 	public abstract void createGossip(Array<SpaceNode> nearbyrestnodes);
@@ -81,31 +89,24 @@ public abstract class NodeEvent {
 	public void setShouldRemove(boolean shouldRemove) {
 		this.shouldRemove = shouldRemove;
 	}
-	public Array<String> getLogEntries() {
-		return logEntries;
-	}
-	public void setLogEntries(Array<String> logEntries) {
-		this.logEntries = logEntries;
+	
+	public void setStartCycle(int startCycle){
+		this.startCycle = startCycle;
 	}
 	
-	public void addEntry(int type, String entry){
-		String entrypre = "";
-		switch (type) {
-		case RESOURCE_LOG_ENTRY:
-			entrypre+="[GREEN]"+entry+"[GREEN]";
-			break;
-		case HELP_LOG_ENTRY:
-			entrypre+="[YELLOW]"+entry+"[YELLOW]";
-			break;
-		case COMBAT_LOG_ENTRY:
-			entrypre+="[RED]"+entry+"[RED]";
-			break;
-		default:
-			break;
-		}
-		
-		logEntries.add(entrypre);
+	public boolean hasCycles(){
+		return (getParentnode().getMap().getTimer().getCurrentCycle()-startCycle)<getCycleDuration();
 	}
+	
+	public int getStartCycle(){
+		return startCycle;
+	}
+	
+	public static int getRandomInt(int start, int end){
+		return MathUtils.round(MathUtils.random(start, end));
+	}
+	
+	
 	public int getType() {
 		return type;
 	}
@@ -121,5 +122,6 @@ public abstract class NodeEvent {
 		int index = MathUtils.round(MathUtils.random(0, genericdescs.length-1));
 		return genericdescs[index];
 	}
+	
 	
 }

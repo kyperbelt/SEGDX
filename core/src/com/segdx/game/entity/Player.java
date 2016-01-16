@@ -2,15 +2,29 @@ package com.segdx.game.entity;
 
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.segdx.game.abilities.ExtractResource;
 import com.segdx.game.abilities.ShipAbility;
+import com.segdx.game.achievements.Achievement;
+import com.segdx.game.achievements.AchievementManager;
+import com.segdx.game.entity.enemies.Enemy;
+import com.segdx.game.entity.ships.EnterpriseShip;
+import com.segdx.game.entity.ships.GuillotineShip;
+import com.segdx.game.entity.ships.InterceptorShip;
+import com.segdx.game.entity.ships.MauraderShip;
+import com.segdx.game.entity.ships.RaiderShip;
+import com.segdx.game.entity.ships.SentinelShip;
 import com.segdx.game.entity.ships.TestShip;
+import com.segdx.game.events.NodeEvent;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.modules.EngineBoosters;
+import com.segdx.game.modules.ExtraHaul;
 import com.segdx.game.modules.FuelReserves;
 import com.segdx.game.modules.MiningModule;
+import com.segdx.game.modules.RailGun;
 import com.segdx.game.modules.RefineryModule;
 import com.segdx.game.modules.ScannerModule;
+import com.segdx.game.modules.ShieldGenerator;
 import com.segdx.game.modules.ShipModule;
 import com.segdx.game.states.GameState;
 
@@ -27,6 +41,8 @@ public class Player extends SpaceEntity{
 	
 	private float distanceTraveled;
 	
+	private boolean travelDisabled;
+	
 	private float currency;
 	
 	private boolean incombat;
@@ -40,11 +56,15 @@ public class Player extends SpaceEntity{
 	
 	private Array<Resource> resources;
 	
+	private GameState state;
+	
+	
 	public Player(){
+		state = (GameState) StateManager.get().getState(StateManager.GAME);
 		resources = new Array<Resource>();
 		modules = new Array<ShipModule>();
 		setAbilities(new Array<ShipAbility>());
-		ship = new TestShip();
+		ship = new EnterpriseShip(5);
 		
 		
 		food = 0;
@@ -67,17 +87,24 @@ public class Player extends SpaceEntity{
 		addResource(ResourceStash.LATTERIUM.clone());
 		addResource(ResourceStash.LATTERIUM.clone());
 		
-		addResource(ResourceStash.KNIPTORYTE.clone());
-		addResource(ResourceStash.KNIPTORYTE.clone());
-		addResource(ResourceStash.KNIPTORYTE.clone());
-		addResource(ResourceStash.KNIPTORYTE.clone());
+		addResource(ResourceStash.SALVAGE.clone());
+		addResource(ResourceStash.SALVAGE.clone());
+		addResource(ResourceStash.SALVAGE.clone());
+		addResource(ResourceStash.SALVAGE.clone());
+		
+		addResource(ResourceStash.SALVAGE.clone());
 		
 		//TEST MODULES
 		installNewModule(new RefineryModule());
 		installNewModule(new EngineBoosters());
 		installNewModule(new MiningModule(1));
-		installNewModule(new ScannerModule(2));
+		installNewModule(new ScannerModule(1));
 		installNewModule(new FuelReserves(0));
+		installNewModule(new ExtraHaul(10));
+		installNewModule(new ShieldGenerator(4));
+		installNewModule(new ShieldGenerator(4));
+		installNewModule(new RailGun(2));
+		installNewModule(new RailGun(2));
 	}
 	
 	public Vector2 getOriginPosition(){
@@ -90,6 +117,16 @@ public class Player extends SpaceEntity{
 			used+=modules.get(i).getCost();
 		}
 		return used;
+	}
+	
+	public boolean containsModuleClass(ShipModule m){
+		for (int i = 0; i < modules.size; i++) {
+			if(modules.get(i).getClass().getName().equals(m.getClass().getName())){
+				return true;
+			}
+			
+		}
+		return false;
 	}
 	
 	public Array<ShipModule> getModules(){
@@ -122,9 +159,7 @@ public class Player extends SpaceEntity{
 		return ship.getUpgradePoints()-getUpgradePointsUsed();
 	}
 	
-	public float getX(){
-		return ship.getX();
-	}
+	
 	
 	public boolean containsModuleId(int id){
 		for (int i = 0; i < modules.size; i++) {
@@ -134,9 +169,7 @@ public class Player extends SpaceEntity{
 		return false;
 	}
 	
-	public float getY(){
-		return ship.getY();
-	}
+	
 	
 	public void setFood(float food){
 		this.food+= food;
@@ -150,13 +183,7 @@ public class Player extends SpaceEntity{
 				}
 	}
 	
-	public void setX(float x){
-		ship.setX(x-(ship.getSprite().getWidth()/2));
-	}
 	
-	public void setY(float y){
-		ship.setY(y-(ship.getSprite().getHeight()/2));;
-	}
 	
 	public Ship getShip(){
 		return ship;
@@ -225,6 +252,15 @@ public class Player extends SpaceEntity{
 
 	public void setCurrentHull(float currentHull) {
 		this.currentHull = currentHull;
+		if(this.currentHull<0){
+			GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+			GameOver.setCurrentGameOver(new GameOver(GameOver.OUT_OF_HP,this,state.difficulty,state.size));
+			Assets.loadBlock(Assets.GAMEOVER_ASSETS);
+			StateManager.get().changeState(StateManager.LOAD);
+			
+		}else if(this.currentHull > ship.getHull()){
+			this.currentHull = ship.getHull();
+		}
 	}
 
 	public float getFood() {
@@ -247,7 +283,7 @@ public class Player extends SpaceEntity{
 		
 		//if you run out of food produce a game over
 		if(getFood()<0){
-			GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+			
 			GameOver.setCurrentGameOver(new GameOver(GameOver.OUT_OF_FOOD,this,state.difficulty,state.size));
 			Assets.loadBlock(Assets.GAMEOVER_ASSETS);
 			StateManager.get().changeState(StateManager.LOAD);
@@ -305,9 +341,26 @@ public class Player extends SpaceEntity{
 	public boolean isIncombat() {
 		return incombat;
 	}
+	
+	@Override
+	public boolean inflictDamage(float damage, boolean isEnergy) {
+		getCurrentNode().addEntry(NodeEvent.COMBAT_LOG_ENTRY, "You were hit for "+damage+" "+(isEnergy ? "energy":"physical")+" damage");
+		return super.inflictDamage(damage, isEnergy);
+	}
 
 	public void setIncombat(boolean incombat) {
 		this.incombat = incombat;
+		if(this.incombat){
+			getCurrentNode().getMap().disableNodes();
+			getCurrentNode().addEntry(NodeEvent.HELP_LOG_ENTRY, "You have enterd combat.");
+			AchievementManager.get().grantAchievement("Enter Combat!", Achievement.GAMEPLAY_ACHIEMENT, state.uistage,state.tm);
+		}
+		else{ 
+			getCurrentNode().getMap().enableNodes();
+			currentEnemy = null;
+			getCurrentNode().getMap().deleteEnemyFrames();
+			getCurrentNode().addEntry(NodeEvent.HELP_LOG_ENTRY, "You have left combat.");
+		}
 	}
 	
 	/**
@@ -353,6 +406,32 @@ public class Player extends SpaceEntity{
 
 	public void setAbilities(Array<ShipAbility> abilities) {
 		this.abilities = abilities;
+	}
+
+	public boolean isTravelDisabled() {
+		return travelDisabled;
+	}
+	
+	public boolean isMining(){
+		for (int i = 0; i < abilities.size; i++) {
+			if(abilities.get(i) instanceof ExtractResource){
+				ExtractResource e = (ExtractResource) abilities.get(i);
+				if(e.isOnCooldown())
+					return true;
+			}
+		}
+		return false;
+	}
+
+	public void setTravelDisabled(boolean travelDisabled) {
+		this.travelDisabled = travelDisabled;
+		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
+		if(this.isTravelDisabled()){
+			state.travelbar.setVisible(false);
+		}else if(!isMining()){
+			state.travelbar.setVisible(true);
+		}
+		
 	}
 
 }

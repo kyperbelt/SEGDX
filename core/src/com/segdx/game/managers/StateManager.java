@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.segdx.game.SEGDX;
+import com.segdx.game.states.GameState;
 import com.segdx.game.states.LoadState;
 
 public class StateManager {
@@ -42,6 +43,10 @@ public class StateManager {
 		if(states.containsKey(statename))
 			return;
 		states.put(statename, state);
+	}
+	
+	public GameState getGameState(){
+		return (GameState) getState(GAME);
 	}
 	
 	public void changeState(String state){

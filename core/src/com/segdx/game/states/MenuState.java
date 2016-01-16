@@ -53,7 +53,7 @@ public class MenuState implements Screen{
 		tm = new TweenManager();
 		cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
 		cam.setToOrtho(false);
-		titlesprite = new Sprite(Assets.manager.get("title.png",Texture.class));
+		titlesprite = new Sprite(Assets.manager.get("ui/title.png",Texture.class));
 		titlesprite.setOriginCenter();
 		skin = Assets.manager.get("ui/uiskin.json",Skin.class);
 		//initiate stage with my own camera

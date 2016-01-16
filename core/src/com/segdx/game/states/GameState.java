@@ -1,7 +1,6 @@
 package com.segdx.game.states;
 
-import java.text.DecimalFormat;
-
+import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.Screen;
@@ -12,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -22,9 +22,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextTooltip;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.utils.Align;
@@ -33,6 +35,10 @@ import com.badlogic.gdx.utils.IntIntMap.Keys;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
 import com.segdx.game.abilities.ShipAbility;
+import com.segdx.game.achievements.Achievement;
+import com.segdx.game.achievements.AchievementManager;
+import com.segdx.game.achievements.Stats;
+import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.Player;
 import com.segdx.game.entity.Resource;
 import com.segdx.game.entity.ResourceStash;
@@ -40,6 +46,7 @@ import com.segdx.game.entity.Ship;
 import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.entity.SpaceNode;
 import com.segdx.game.entity.TradePost;
+import com.segdx.game.events.CombatEvent;
 import com.segdx.game.events.NodeEvent;
 import com.segdx.game.events.ResourceEvent;
 import com.segdx.game.managers.Assets;
@@ -70,7 +77,7 @@ public class GameState implements Screen{
 	private boolean lore;
 	public Stage uistage;
 	private InputManager input;
-	private Drawable defaultbackground;
+	public Drawable defaultbackground;
 	public Dialog informationdialog,exitdialog;
 	public ScrollPane resourcescroll,modulescroll,abilityscroll,buysellresourcesscrollpane;
 	public ButtonGroup<TextButton> resttabs,tradetabs,actiontabs,fightabs,resourcetabs;
@@ -95,7 +102,7 @@ public class GameState implements Screen{
 						;
 						
 	public Label hullinfo,fuelinfo,foodinfo,cycleinfo,currencyinfo,cycletimer,
-				 nodedistance,
+				 nodedistance,shieldinfo,
 				 //a small description of the selected node
 				//some variables may affect the detail.
 				 selectednodeinfo,
@@ -109,17 +116,15 @@ public class GameState implements Screen{
 				 upgradepoints,
 				 abilitieslabel;
 	
-	public Image foodicon,fuelicon,hullicon,currencyicon,timericon,shiptabimage;
+	public Image foodicon,fuelicon,hullicon,currencyicon,timericon,shiptabimage,shieldicon;
 	private OrthographicCamera cam;
-	private TweenManager tm;
+	public TweenManager tm;
 	
 	public int size;
 	public int piracy;
 	public int draft;
 	public int slore;
 	public int difficulty;
-	
-	public static DecimalFormat df = new DecimalFormat("##.##");
 	
 	@Override
 	public void show() {
@@ -162,6 +167,18 @@ public class GameState implements Screen{
 		currencyicon = new Image(Assets.manager.get("map/currencyicon.png",Texture.class));
 		currencyinfo = new Label(""+map.getPlayer().getCurrency(), skin);
 		currencyinfo.setFontScale(textscale);
+		
+		
+		Table shieldsTable = new Table();
+		shieldsTable.setWidth(80);
+		shieldsTable.setHeight(30);
+		shieldicon = new Image(Assets.manager.get("map/shieldicon.png",Texture.class));
+		shieldinfo = new Label(""+map.getPlayer().getCurrentShield(), skin);
+		shieldinfo.setFontScale(textscale);
+		shieldsTable.add(shieldicon).left().expand();
+		shieldsTable.add(shieldinfo).left().expand();
+		
+		
 		
 		infobarleft.add(foodicon).left();
 		infobarleft.add(foodinfo);
@@ -242,6 +259,7 @@ public class GameState implements Screen{
 				updateRestBar();
 				updateTradeBar();
 				updateActionbar();
+				AchievementManager.get().grantAchievement("To Infinity And Beyond", Achievement.GAMEPLAY_ACHIEMENT, uistage, tm);
 				Timeline.createSequence()
 				.beginParallel()
 					.push(Tween.to(map.getPlayer(), PlayerAccessor.POSITION, (distance/map.getPlayer().getShip().getSpeed())/map.getPlayer().getShip().getSpeed())
@@ -364,14 +382,39 @@ public class GameState implements Screen{
 		menubaroptions.setSize(shipinfobar.getWidth()*.8f, shipinfobar.getHeight());
 		menubaroptions.setColor(Color.FIREBRICK);
 		
+		Label volumelabel = new Label("Volume:", skin);
+		volumelabel.setFontScale(textscale);
+		
+		final Slider volumeslider = new Slider(0, 1, .05f, false, skin);
+		volumeslider.setValue(SoundManager.get().getVolume());
+		volumeslider.addListener(new ChangeListener() {
+			public void changed(ChangeEvent event, Actor actor) {
+				SoundManager.get().setVolume(volumeslider.getValue());
+			}
+		});
+		
+		final TextButton fullscreenbutton = new TextButton("fullscreen", skin, "toggle");
+		fullscreenbutton.setChecked(Gdx.graphics.isFullscreen());
+		fullscreenbutton.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				Gdx.graphics.setDisplayMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), fullscreenbutton.isChecked());
+			}
+		});
+		
 		TextButton quitgame = new TextButton("Quit", skin);
-		quitgame.getLabel().setFontScale(textscale);
+		quitgame.getLabel().setFontScale(.8f);
 		quitgame.addListener(new ClickListener(){
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				exitdialog.show(uistage);
 			}
 		});
+		menubaroptions.add(volumelabel).left().expand().row();
+		menubaroptions.add(volumeslider).left().expand().fill().row();
+		if(Gdx.app.getType() != ApplicationType.Android)
+			menubaroptions.add(fullscreenbutton).left().expand().fill().row();
+		menubaroptions.add().pad(padding).expand().fill().row();
 		menubaroptions.add(quitgame).row();
 		
 		menubar.add(menubartabcontainer).left();
@@ -585,9 +628,9 @@ public class GameState implements Screen{
 				}
 			});
 		}
-		actiontabs.getButtons().get(0).setColor(Color.BROWN);
-		actiontabs.getButtons().get(1).setColor(Color.RED);
-		actiontabs.getButtons().get(2).setColor(Color.GOLD);
+		actiontabs.getButtons().get(0).setColor(Color.DARK_GRAY);
+		actiontabs.getButtons().get(1).setColor(Color.DARK_GRAY);
+		actiontabs.getButtons().get(2).setColor(Color.DARK_GRAY);
 		actiontabs.getButtons().get(3).setColor(Color.DARK_GRAY);
 		
 		actiontabs.setChecked("Event");
@@ -636,6 +679,12 @@ public class GameState implements Screen{
 		uistage.addActor(actionbar);
 		
 		
+		Vector2 pos = hullicon.localToStageCoordinates(new Vector2(hullicon.getX(),hullicon.getY()));
+		shieldsTable.setPosition(pos.x+(uistage.getWidth()*.27f), pos.y-(uistage.getHeight()*.04f));
+		shieldsTable.setBackground(defaultbackground);
+		shieldsTable.setColor(Color.DARK_GRAY);
+		uistage.addActor(shieldsTable);
+		shieldsTable.toBack();
 		//set up game input
 		input = new InputManager();
 		
@@ -659,7 +708,7 @@ public class GameState implements Screen{
 		actionbar.add(actionbartabstable).align(Align.topLeft).expandX().row();
 		final SpaceNode passivenode = map.getPlayer().getCurrentNode();
 		if(passivenode.getNodeType()!=SpaceNode.NEUTRAL||map.getPlayer().isTraveling()){
-			System.out.println("rekt");
+			
 			actionbar.setVisible(false);
 			return;
 		}
@@ -753,6 +802,75 @@ public class GameState implements Screen{
 			case NodeEvent.HELP:
 				break;
 			case NodeEvent.COMBAT:
+					final CombatEvent ce = (CombatEvent) event;
+					
+					TextButton flee = new TextButton("Flee  ", skin);
+					flee.getLabel().setFontScale(.7f);
+					flee.addListener(new ClickListener(){
+						public void clicked(InputEvent evezsnt, float x, float y) {
+							player.setCurrentFuel(player.getCurrentFuel()-(player.getShip().getMaxfuel()*.09f));
+							if(ce.attemptFlee(player.getShip().getSpeed())){
+								ce.setShouldRemove(true);
+								player.setIncombat(false);
+								ShipAbility.showMessage("Success       ", "They will remember this as the day you Captain <Copyrighted name> escaped!", skin).show(uistage);
+								updateActionbar();
+								Stats.get().increment("times fled", 1);
+							}else{
+								ShipAbility.showMessage("Failure        ", "You almost got away! but you were not fast enough....", skin).show(uistage);
+								player.setIncombat(true);
+								actiontabs.setChecked("Combat");
+								updateActionbar();
+								
+							}
+							
+						};
+					});
+					TextButton fight = new TextButton("Fight!",skin);
+					fight.getLabel().setFontScale(.7f);
+					fight.addListener(new ClickListener(){
+						public void clicked(InputEvent event, float x, float y) {
+							player.setIncombat(true);
+							actiontabs.setChecked("Combat");
+							updateActionbar();
+							
+						}
+					});
+					TextButton coerce = new TextButton("Bribe", skin);
+					coerce.getLabel().setFontScale(.7f);
+					coerce.addListener(new ClickListener(){
+						public void clicked(InputEvent a, float x, float y) {
+							player.setCurrency(player.getCurrency()-(player.getCurrency()*.08f));
+						
+							if(ce.attemptCoerce()){
+								event.setShouldRemove(true);
+								ShipAbility.showMessage("Succes!          ", ce.getSuccesscoerce(), skin).show(uistage);
+								player.setIncombat(false);
+								Stats.get().increment("succesful bribes", 1);
+							}else{
+								player.setIncombat(true);
+								ShipAbility.showMessage("Failure!         ",ce.getFailcoerce(), skin).show(uistage);
+								actiontabs.setChecked("Combat");
+								Stats.get().increment("failed bribes", 1);
+							}
+							updateActionbar();
+						};
+					});
+					
+					
+					//add specific actions 
+					switch (((CombatEvent)event).getCombatType()) {
+					case CombatEvent.PIRATE_AMBUSH:
+						
+						break;
+					case CombatEvent.BESERKER_ATTACK:
+						break;
+
+					default:
+						break;
+					}
+					actionstable.add(flee).left().expand();
+					actionstable.add(coerce).left().expand();
+					actionstable.add(fight).left().expand().row();;
 				break;
 			default:
 				break;
@@ -768,10 +886,94 @@ public class GameState implements Screen{
 			actionbar.add(infotab).expand().fill();
 			break;
 		case 1:
-			combattab.clearChildren();
-			Label l = new Label("you are not in combat", skin);
-			combattab.add(l).center().expand();
+			 
 			
+			
+			if(!player.isIncombat()){
+				combattab.clearChildren();
+				Label l = new Label("you are not in combat", skin);
+				combattab.add(l).center().expand();
+			}else{
+				float scroll1 = 0;
+				float scroll2 = 0;;
+				if(combattab.getChildren().size>1){
+				 scroll1= ((ScrollPane)combattab.getChildren().get(0)).getScrollPercentY();
+				 scroll2= ((ScrollPane)combattab.getChildren().get(1)).getScrollPercentY();
+				}
+				combattab.clearChildren();
+				Table aatable = new Table();
+				Table datable = new Table();
+				Array<ShipAbility> abs = player.getAbilities();
+				for (int i = 0; i < abs.size; i++) {
+					final ShipAbility a = abs.get(i);
+					if(a.isCombatCappable()){
+						Table abholder = new Table();
+						abholder.setBackground(defaultbackground);
+						abholder.setColor(Color.NAVY);
+						Table abnametable = new Table();
+						Table abbuttontable = new Table();
+						Label abname = new Label(a.getName(), skin);
+						abname.setFontScale(textscale);
+						final TextButton abusebutton = new TextButton("use", skin);
+						if(!a.requirementsMet(player)||a.isOnCooldown()){
+							abusebutton.setDisabled(true);
+							abusebutton.setColor(Color.FIREBRICK);
+							if(a.isOnCooldown())
+								abusebutton.setText(""+a.getCooldownLeft());
+						}
+						abusebutton.getLabel().setFontScale(.9f);
+						TextTooltip abtp = new TextTooltip(a.getDesc(), skin);
+						abtp.setInstant(true);
+						abtp.getActor().setFontScale(textscale);
+						abusebutton.addListener(abtp);
+						abusebutton.addListener(new ClickListener(){
+							public void clicked(InputEvent event, float x, float y) {
+								if(abusebutton.isDisabled()){
+									SoundManager.get().playSound(SoundManager.WRONGCHOICE);
+									return;
+								}
+								if(a.isAttack()&&player.getCurrentEnemy()!=null)
+									a.performAbility(player.getCurrentEnemy());
+								else{
+									a.performAbility(player);
+								}
+								abusebutton.setDisabled(true);
+								abusebutton.setColor(Color.FIREBRICK);
+								
+								
+							};
+						});
+						abnametable.add(abname).left().expand();
+						abbuttontable.add(abusebutton).right().expand();
+						abholder.add(abnametable).left().expand();
+						abholder.add(abbuttontable).right().expand();
+						
+						//is an attack skill
+						if(a.isAttack()){
+							aatable.add(abholder).expand().fillX().row();
+					
+						//is a defensive or misc skill	
+						}else{
+							datable.add(abholder).expand().fillX().row();
+						}
+					}
+					
+					
+				}
+				ScrollPane aascroll = new ScrollPane(aatable,skin);
+				aascroll.layout();
+				aascroll.setScrollPercentY(scroll1);
+				aascroll.setColor(Color.RED);
+					
+				ScrollPane dascroll = new ScrollPane(datable, skin);
+				dascroll.layout();
+				dascroll.setScrollPercentY(scroll2);
+				dascroll.setColor(Color.FOREST);
+					
+				combattab.add(aascroll).left().expand().fill();
+				combattab.add(dascroll).right().expand().fill();		
+				
+			}
 			actionbar.add(combattab).expand().fill();
 			
 			break;
@@ -864,8 +1066,7 @@ public class GameState implements Screen{
 			break;
 		case 3:
 			logtab.clearChildren();
-			Label l3 = new Label("log is empty", skin);
-			logtab.add(l3).center().expand();
+				logtab.add(passivenode.getLogPane(skin)).left().expand().fill();
 			actionbar.add(logtab).expand().fill();
 			break;
 		default:
@@ -1002,7 +1203,6 @@ public class GameState implements Screen{
 	}
 	
 	public void updateAbilities(){
-		
 		Table abilityscrolltable = new Table();
 		Array<ShipAbility> abilities = map.getPlayer().getAbilities();
 		if(abilities.size==0){
@@ -1204,7 +1404,7 @@ public class GameState implements Screen{
 				sellprice.setText(tradepost.getResourceSellPrice(resource)+"/ea");
 				
 				if(tradepost.getResourceBuyPrice(finalresource)>player.getCurrency()||
-						player.canAddResource(resource)||!available){
+						!player.canAddResource(resource)||!available){
 					buybutton.setDisabled(true);
 					buybutton.setColor(Color.FIREBRICK);
 				}
@@ -1214,6 +1414,7 @@ public class GameState implements Screen{
 					public void clicked(InputEvent event, float x, float y) {
 						if(((TextButton)event.getListenerActor()).isDisabled())
 							return;
+						AchievementManager.get().grantAchievement("Spend Money to Make Money", Achievement.GAMEPLAY_ACHIEMENT, uistage, tm);
 						player.addResource(tradepost.getResource(finalresource));
 						player.setCurrency(player.getCurrency()-tradepost.getResourceBuyPrice(finalresource));
 						
@@ -1237,6 +1438,7 @@ public class GameState implements Screen{
 					public void clicked(InputEvent event, float x, float y) {
 						if(((TextButton)event.getListenerActor()).isDisabled())
 							return;
+						AchievementManager.get().grantAchievement("Getting Rid of Some Junk", Achievement.GAMEPLAY_ACHIEMENT, uistage, tm);
 						tradepost.addResource(player.removeResource(finalresource.getId()));
 						player.setCurrency(player.getCurrency()+tradepost.getResourceSellPrice(finalresource));
 						updateCargo();
@@ -1336,6 +1538,7 @@ public class GameState implements Screen{
 					map.getPlayer().setCurrency(map.getPlayer().getCurrency()-restnode.getReststop().getFuelprice());
 					map.getPlayer().setCurrentFuel(map.getPlayer().getCurrentFuel()+1);
 					updateRestBar();
+					AchievementManager.get().grantAchievement("REFUELING", Achievement.GAMEPLAY_ACHIEMENT, uistage, tm);
 				}
 			});
 			final TextButton buyallfuel = new TextButton("buy-", skin);
@@ -1353,10 +1556,12 @@ public class GameState implements Screen{
 					map.getPlayer().setCurrency(map.getPlayer().getCurrency()-(difference*restnode.getReststop().getFuelprice()));
 					map.getPlayer().setCurrentFuel(map.getPlayer().getCurrentFuel()+difference);
 					updateRestBar();
+					AchievementManager.get().grantAchievement("REFUELING", Achievement.GAMEPLAY_ACHIEMENT, uistage, tm);
+					
 				}
 			});
-			Label allfuelprice = new Label(df.format(((map.getPlayer().getShip().getMaxfuel()
-					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice()))+"/all", skin);
+			Label allfuelprice = new Label((int)((map.getPlayer().getShip().getMaxfuel()
+					-map.getPlayer().getCurrentFuel())*restnode.getReststop().getFuelprice())+"/all", skin);
 			allfuelprice.setFontScale(.5f);
 			
 			//buy food buttons
@@ -1379,6 +1584,7 @@ public class GameState implements Screen{
 					map.getPlayer().setCurrency(map.getPlayer().getCurrency()-restnode.getReststop().getFoodprice());
 					map.getPlayer().addFood();
 					updateRestBar();
+					AchievementManager.get().grantAchievement("A Mans Gotta Eat", Achievement.GAMEPLAY_ACHIEMENT, uistage, tm);
 				}
 			});
 			Label onefoodprice = new Label(restnode.getReststop().getFoodprice()+"/ea", skin);
@@ -1398,9 +1604,10 @@ public class GameState implements Screen{
 					map.getPlayer().setCurrency(map.getPlayer().getCurrency()-(difference*restnode.getReststop().getFoodprice()));
 					map.getPlayer().setFood(difference);
 					updateRestBar();
+					AchievementManager.get().grantAchievement("A Mans Gotta Eat", Achievement.GAMEPLAY_ACHIEMENT, uistage, tm);
 				}
 			});
-			Label allfoodprice = new Label(df.format((((map.getPlayer().getShip().getCapacity()-
+			Label allfoodprice = new Label((int)((((map.getPlayer().getShip().getCapacity()-
 					map.getPlayer().getCurrentCapacity())/Player.FOOD_MASS)*restnode.getReststop().getFoodprice()))+"/all", skin);
 			allfoodprice.setFontScale(.5f);
 			
@@ -1420,17 +1627,20 @@ public class GameState implements Screen{
 			Label repairhulllabel = new Label(":Repair Hull", skin);
 			repairhulllabel.setFontScale(.5f);
 			
-			TextButton repair = new TextButton(""+map.getPlayer().getMissingHull()*restnode.getReststop().getHullrepairprice(), skin);
-			if(map.getPlayer().getMissingHull()>0&&map.getPlayer().getMissingHull()*restnode.getReststop().getHullrepairprice()<=map.getPlayer().getCurrency()){
+			final TextButton repair = new TextButton(""+map.getPlayer().getMissingHull()*restnode.getReststop().getHullrepairprice(), skin);
+			if(!(map.getPlayer().getMissingHull()>0&&map.getPlayer().getMissingHull()*restnode.getReststop().getHullrepairprice()<=map.getPlayer().getCurrency())){
 				repair.setDisabled(true);
 				repair.setColor(Color.FIREBRICK);
 			}
 			repair.addListener(new ClickListener(){
 				@Override
 				public void clicked(InputEvent event, float x, float y) {
+					if(repair.isDisabled())
+						return;
 					map.getPlayer().setCurrency(map.getPlayer().getCurrency()-
 							map.getPlayer().getMissingHull()*restnode.getReststop().getHullrepairprice());
 					map.getPlayer().setCurrentHull(map.getPlayer().getShip().getHull());
+					hullinfo.setText( map.getPlayer().getCurrentHull()+"/"+map.getPlayer().getShip().getHull());
 					updateRestBar();
 				}
 			});
@@ -1587,9 +1797,13 @@ public class GameState implements Screen{
 		SEGDX.clear();
 		uistage.act(delta);
 		uistage.getBatch().setProjectionMatrix(uistage.getCamera().combined);
-		uistage.getBatch().begin();
-		background.draw(uistage.getBatch());
-		uistage.getBatch().end();
+		
+		if(!getSpaceMap().getPlayer().isIncombat()){
+			uistage.getBatch().begin();
+			background.draw(uistage.getBatch());
+			uistage.getBatch().end();
+		}
+		
 		map.render(delta);
 		
 		uistage.draw();
@@ -1601,7 +1815,7 @@ public class GameState implements Screen{
 		cycleinfo.setText("cycle:"+map.getTimer().getCurrentCycle()+"  timer:");
 		cycletimer.setText(""+(int)map.getTimer().getTimeLeft());
 		foodinfo.setText(""+map.getPlayer().getFood());
-		currencyinfo.setText(""+df.format(map.getPlayer().getCurrency()));
+		currencyinfo.setText(""+(int)(map.getPlayer().getCurrency()));
 		
 
 		
