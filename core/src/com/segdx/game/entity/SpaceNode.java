@@ -385,8 +385,8 @@ public class SpaceNode {
 		this.tradepost = tradepost;
 	}
 
-	public static RestStop newRestStop() {
-		return new RestStop(MathUtils.random(RestStop.FUEL_COST_MIN, RestStop.FUEL_COST_MAX),
+	public RestStop newRestStop() {
+		return new RestStop(this,MathUtils.random(RestStop.FUEL_COST_MIN, RestStop.FUEL_COST_MAX),
 				MathUtils.random(RestStop.FOOD_COST_MIN, RestStop.FOOD_COST_MAX));
 	}
 

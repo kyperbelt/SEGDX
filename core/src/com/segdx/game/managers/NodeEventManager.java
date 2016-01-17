@@ -96,6 +96,7 @@ public class NodeEventManager {
 				remove.add(eventlessnodes.get(i).getEvent().getId());
 				if(eventlessnodes.get(i).getMap().getPlayer().getCurrentNode().getIndex()==
 						eventlessnodes.get(i).getIndex()){
+					StateManager.get().getGameState().actiontabs.setChecked("Event");
 					((GameState)StateManager.get().getState(StateManager.GAME)).updateActionbar();
 				((GameState)StateManager.get().getState(StateManager.GAME)).updateAbilities();
 				}
@@ -106,12 +107,14 @@ public class NodeEventManager {
 	}
 	
 	public boolean generateRandomeEvent(SpaceNode node){
-		int eventtype = MathUtils.round(MathUtils.random(0, 2));
+		int eventtype = MathUtils.round(MathUtils.random(0, 3));
 		
 		Circle circle = null;
 		int id = events.size;
 		Array<SpaceNode> nearbytradenodes = null;
 		switch (eventtype) {
+		case 0:
+		case NodeEvent.HELP:
 		case NodeEvent.RESOURCE:
 			ResourceEvent e = new ResourceEvent(node);
 			e.setType(eventtype);
@@ -131,8 +134,7 @@ public class NodeEventManager {
 			}
 			e.applyEconomics(nearbytradenodes);
 			return true;
-		case NodeEvent.HELP:
-			return false;
+		
 		case NodeEvent.COMBAT:
 			CombatEvent c = new CombatEvent(node);
 			c.setType(eventtype);

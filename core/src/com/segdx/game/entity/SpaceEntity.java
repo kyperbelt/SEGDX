@@ -61,6 +61,8 @@ public class SpaceEntity {
 
 	public void setCurrentShield(float shield) {
 		this.currentShield = shield;
+		if(this.getCurrentShield()<0)
+			this.setCurrentShield(0);
 	}
 
 	public float getX() {
@@ -84,7 +86,7 @@ public class SpaceEntity {
 		SoundManager.get().playSound(SoundManager.DAMAGE);
 		if (hasShield()) {
 			if (isEnergy) {
-				setCurrentShield((getCurrentShield() - (damage * 2)));
+				setCurrentShield((getCurrentShield() - (damage * 4)));
 			} else {
 				setCurrentShield(getCurrentShield() - (damage * .5f));
 			}
@@ -102,6 +104,19 @@ public class SpaceEntity {
 		} else
 			return false;
 	}
+	
+	public void repairDamage(float repair){
+		this.setCurrentHull(getCurrentHull()+repair);
+		visualizeRepair(StateManager.get().getGameState(), StateManager.get().getGameState().getSpaceMap().getStage(), this);
+		if(this.getCurrentHull()>this.getShip().getHull()){
+			this.setCurrentHull(this.getShip().getHull());
+			if(this instanceof Enemy){
+				((Enemy)this).getParentCombatEvent().removeDeadEntities();
+			}
+		}else{
+			
+		}
+	}
 
 	public void poweronShields(GameState state, Stage stage, final SpaceEntity e) {
 		Enemy ee = null;
@@ -109,7 +124,7 @@ public class SpaceEntity {
 			ee = (Enemy) e;
 		final Enemy eee = ee;
 		shieldimage = new Image(Assets.manager.get("map/sprshield.png", Texture.class));
-		shieldimage.setSize(e.getShip().getSprite().getWidth(), e.getShip().getSprite().getHeight());
+		shieldimage.setSize(e.getShip().getSprite().getHeight(), e.getShip().getSprite().getHeight());
 		shieldimage.setPosition(e.getX(), e.getY());
 		stage.addActor(shieldimage);
 		state.getSpaceMap().createEnemyFrames(
@@ -129,6 +144,7 @@ public class SpaceEntity {
 		TweenManager tm = state.getSpaceMap().getTm();
 		final Table table = new Table();
 		table.setSize(16, 16);
+		System.out.println("healed");
 		Image icon = new Image(Assets.manager.get("map/healicon.png", Texture.class));
 		table.add(icon).fill();
 		int rand = NodeEvent.getRandomInt(-10, 10);
@@ -151,7 +167,6 @@ public class SpaceEntity {
 		TweenManager tm = state.getSpaceMap().getTm();
 		final Table table = new Table();
 		table.setSize(16, 16);
-		System.out.println("damaged");
 		Image icon = new Image(Assets.manager.get("map/damageicon.png", Texture.class));
 		table.add(icon).expand().fill();
 		int rand = NodeEvent.getRandomInt(-10, 20);

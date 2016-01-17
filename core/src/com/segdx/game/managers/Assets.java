@@ -77,6 +77,7 @@ public class Assets {
 				manager.load("map/hullicon.png",Texture.class);
 				manager.load("map/shieldicon.png",Texture.class);
 				manager.load("map/healicon.png",Texture.class);
+				manager.load("map/disabledicon.png",Texture.class);
 				manager.load("map/damageicon.png",Texture.class);
 				
 				

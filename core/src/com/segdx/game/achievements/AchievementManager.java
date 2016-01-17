@@ -95,11 +95,11 @@ public class AchievementManager {
 		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("To Infinity And Beyond", "Travel for the very first time", 4, 5));
 		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("Spend Money to Make Money", "Buy somethign at a trading post", 5, 5));
 		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("Getting Rid of Some Junk", "Sell something at a trading post", 6, 5));
-		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("REFUELING", "buy fuel at a Rest Stop for the first time", 0, 5));
-		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("A Mans Gotta Eat", "Buy food at a Rest Stop for the first time", 0, 5));
+		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("REFUELING", "buy fuel at a Rest Stop for the first time", 7, 5));
+		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("A Mans Gotta Eat", "Buy food at a Rest Stop for the first time", 8, 5));
 		
 		//work
-		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("Test", "this is a test achievement", 0, 10));
+		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("A Collectors Desire", "complete work: A Collectors Desire. Sell your fathers ship.", 9, 20));
 		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("Test", "this is a test achievement", 0, 10));
 		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("Test", "this is a test achievement", 0, 10));
 		addAchievement(Achievement.GAMEPLAY_ACHIEMENT, new Achievement("Test", "this is a test achievement", 0, 10));

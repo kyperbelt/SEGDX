@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
@@ -51,6 +52,7 @@ import com.segdx.game.events.NodeEvent;
 import com.segdx.game.events.ResourceEvent;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.InputManager;
+import com.segdx.game.managers.NodeEventManager;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.modules.ShipModule;
@@ -764,7 +766,7 @@ public class GameState implements Screen{
 						@Override
 						public void clicked(InputEvent eevent, float x, float y) {
 							//TODO: replace this with random generated number
-							if(true){
+							if(MathUtils.randomBoolean(.7f)){
 							informationdialog.getButtonTable().clearChildren();
 							informationdialog.getContentTable().clearChildren();
 							
@@ -788,6 +790,8 @@ public class GameState implements Screen{
 								}
 								
 							});
+							}else{
+								ShipAbility.showMessage("Nothing was found.", " You searched but nothing that you could use was here.", skin).show(uistage);
 							}
 							//TODO:else if it was a trap and you were ambushed! do some code here
 							//--------------------------------------------
@@ -907,67 +911,129 @@ public class GameState implements Screen{
 				for (int i = 0; i < abs.size; i++) {
 					final ShipAbility a = abs.get(i);
 					if(a.isCombatCappable()){
-						Table abholder = new Table();
-						abholder.setBackground(defaultbackground);
-						abholder.setColor(Color.NAVY);
-						Table abnametable = new Table();
-						Table abbuttontable = new Table();
-						Label abname = new Label(a.getName(), skin);
-						abname.setFontScale(textscale);
-						final TextButton abusebutton = new TextButton("use", skin);
-						if(!a.requirementsMet(player)||a.isOnCooldown()){
-							abusebutton.setDisabled(true);
-							abusebutton.setColor(Color.FIREBRICK);
-							if(a.isOnCooldown())
-								abusebutton.setText(""+a.getCooldownLeft());
-						}
-						abusebutton.getLabel().setFontScale(.9f);
-						TextTooltip abtp = new TextTooltip(a.getDesc(), skin);
-						abtp.setInstant(true);
-						abtp.getActor().setFontScale(textscale);
-						abusebutton.addListener(abtp);
-						abusebutton.addListener(new ClickListener(){
-							public void clicked(InputEvent event, float x, float y) {
-								if(abusebutton.isDisabled()){
-									SoundManager.get().playSound(SoundManager.WRONGCHOICE);
-									return;
-								}
-								if(a.isAttack()&&player.getCurrentEnemy()!=null)
-									a.performAbility(player.getCurrentEnemy());
-								else{
-									a.performAbility(player);
-								}
+						if(!a.isOnCooldown()&&a.requirementsMet(player)){
+							Table abholder = new Table();
+							abholder.setBackground(defaultbackground);
+							abholder.setColor(Color.NAVY);
+							Table abnametable = new Table();
+							Table abbuttontable = new Table();
+							Label abname = new Label(a.getName(), skin);
+							abname.setFontScale(textscale);
+							final TextButton abusebutton = new TextButton("use", skin);
+							if(!a.requirementsMet(player)||a.isOnCooldown()){
 								abusebutton.setDisabled(true);
 								abusebutton.setColor(Color.FIREBRICK);
-								
-								
-							};
-						});
-						abnametable.add(abname).left().expand();
-						abbuttontable.add(abusebutton).right().expand();
-						abholder.add(abnametable).left().expand();
-						abholder.add(abbuttontable).right().expand();
+								if(a.isOnCooldown())
+									abusebutton.setText(""+a.getCooldownLeft());
+							}
+							abusebutton.getLabel().setFontScale(.9f);
+							TextTooltip abtp = new TextTooltip(a.getDesc(), skin);
+							abtp.setInstant(false);
+							//abtp.setAlways(true);
+							abtp.getActor().setFontScale(textscale);
+							abusebutton.addListener(abtp);
+							abusebutton.addListener(new ClickListener(){
+								public void clicked(InputEvent event, float x, float y) {
+									if(abusebutton.isDisabled()){
+										SoundManager.get().playSound(SoundManager.WRONGCHOICE);
+										return;
+									}
+									if(a.isAttack()&&player.getCurrentEnemy()!=null)
+										a.performAbility(player.getCurrentEnemy());
+									else{
+										a.performAbility(player);
+									}
+									abusebutton.setDisabled(true);
+									abusebutton.setColor(Color.FIREBRICK);
+									
+									
+								};
+							});
+							abnametable.add(abname).left().expand();
+							abbuttontable.add(abusebutton).right().expand();
+							abholder.add(abnametable).left().expand();
+							abholder.add(abbuttontable).right().expand();
+							
+							//is an attack skill
+							if(a.isAttack()){
+								aatable.add(abholder).expand().fillX().row();
 						
-						//is an attack skill
-						if(a.isAttack()){
-							aatable.add(abholder).expand().fillX().row();
-					
-						//is a defensive or misc skill	
-						}else{
-							datable.add(abholder).expand().fillX().row();
+							//is a defensive or misc skill	
+							}else{
+								datable.add(abholder).expand().fillX().row();
+							}
 						}
 					}
 					
 					
 				}
+				for (int i = 0; i < abs.size; i++) {
+					final ShipAbility a = abs.get(i);
+					if(a.isCombatCappable()){
+						if(a.isOnCooldown()||!a.requirementsMet(player)){
+							Table abholder = new Table();
+							abholder.setBackground(defaultbackground);
+							abholder.setColor(Color.NAVY);
+							Table abnametable = new Table();
+							Table abbuttontable = new Table();
+							Label abname = new Label(a.getName(), skin);
+							abname.setFontScale(textscale);
+							final TextButton abusebutton = new TextButton("use", skin);
+							if(!a.requirementsMet(player)||a.isOnCooldown()){
+								abusebutton.setDisabled(true);
+								abusebutton.setColor(Color.FIREBRICK);
+								if(a.isOnCooldown())
+									abusebutton.setText(""+a.getCooldownLeft());
+							}
+							abusebutton.getLabel().setFontScale(.9f);
+							TextTooltip abtp = new TextTooltip(a.getDesc(), skin);
+							abtp.setInstant(false);
+							//abtp.setAlways(true);
+							abtp.getActor().setFontScale(textscale);
+							abusebutton.addListener(abtp);
+							abusebutton.addListener(new ClickListener(){
+								public void clicked(InputEvent event, float x, float y) {
+									if(abusebutton.isDisabled()){
+										SoundManager.get().playSound(SoundManager.WRONGCHOICE);
+										return;
+									}
+									if(a.isAttack()&&player.getCurrentEnemy()!=null)
+										a.performAbility(player.getCurrentEnemy());
+									else{
+										a.performAbility(player);
+									}
+									abusebutton.setDisabled(true);
+									abusebutton.setColor(Color.FIREBRICK);
+									
+									
+								};
+							});
+							abnametable.add(abname).left().expand();
+							abbuttontable.add(abusebutton).right().expand();
+							abholder.add(abnametable).left().expand();
+							abholder.add(abbuttontable).right().expand();
+							
+							//is an attack skill
+							if(a.isAttack()){
+								aatable.add(abholder).expand().fillX().row();
+						
+							//is a defensive or misc skill	
+							}else{
+								datable.add(abholder).expand().fillX().row();
+							}
+						}
+					}
+				}
 				ScrollPane aascroll = new ScrollPane(aatable,skin);
 				aascroll.layout();
 				aascroll.setScrollPercentY(scroll1);
+				aascroll.setScrollingDisabled(true, false);
 				aascroll.setColor(Color.RED);
 					
 				ScrollPane dascroll = new ScrollPane(datable, skin);
 				dascroll.layout();
 				dascroll.setScrollPercentY(scroll2);
+				dascroll.setScrollingDisabled(true, false);
 				dascroll.setColor(Color.FOREST);
 					
 				combattab.add(aascroll).left().expand().fill();
@@ -1023,12 +1089,30 @@ public class GameState implements Screen{
 						});
 				
 					}else if(o instanceof ShipModule){
-						ShipModule m = (ShipModule) o;
+						final ShipModule m = (ShipModule) o;
 						tooltip.getActor().setText(""+m.getDesc()+"\n\n Upgrade Cost:"+
 													m.getCost());
 						lootimage = new Image(Assets.manager.get(ShipModule.ICON,Texture.class));
 						lootname.setText(m.getName());
 						collect.getLabel().setText("INSTALL");
+						collect.addListener(new ClickListener(){
+							@Override
+							public void clicked(InputEvent event, float x, float y) {
+								if(player.getUpgradePointsAvailable()<m.getCost()){
+									ShipAbility.showMessage("Not Enough Points!       ", ""
+											+ "You do not have enough upgrade points available to install"
+											+ "this module. If you would like to install it please uninstall"
+											+ "other modules until you have "+m.getCost()+" available",skin).show(StateManager.get().getGameState().uistage);
+									return;
+								}
+								if(m.canInstall(player)){
+									player.installNewModule((ShipModule)passivenode.getLoot().removeIndex(index));
+									updateActionbar();
+								}else{
+									m.wasUnableToInstallDialog();
+								}
+							}
+						});
 						
 					}else if(o instanceof Ship){
 						Ship s = (Ship) o;
@@ -1231,8 +1315,8 @@ public class GameState implements Screen{
 				TextButton useability = new TextButton("use", skin);
 				useability.getLabel().setFontScale(1f);
 				useability.setSize(64, 32);
-				if(!ability.requirementsMet(map.getPlayer())){
-					if(ability.isOnCooldown())
+				if(!ability.requirementsMet(map.getPlayer())||!ability.isOutOfCombat()){
+					if(ability.isOnCooldown()&&ability.isOutOfCombat())
 						useability.setText(" "+ability.getCooldownLeft());
 					useability.setDisabled(true);
 					useability.setColor(Color.FIREBRICK);
@@ -1249,7 +1333,48 @@ public class GameState implements Screen{
 				abilitytable.add().pad(4);
 				abilitytable.add(useability);
 				
-				abilityscrolltable.add(abilitytable).row();
+				abilityscrolltable.add(abilitytable).left().expand().row();
+			}
+			for (int i = 0; i < abilities.size; i++) {
+				final ShipAbility ability = abilities.get(i);
+				if(ability.isOutOfCombat())
+					continue;
+				TextTooltip tooltip = new TextTooltip(ability.getDesc(), skin);
+				tooltip.getActor().setFontScale(.4f);
+				tooltip.setInstant(true);
+				Table abilitytable = new Table();
+				abilitytable.setBackground(defaultbackground);
+				abilitytable.setColor(Color.NAVY);
+				
+				
+				Label abilityname = new Label(ability.getName(), skin);
+				abilityname.addListener(tooltip);
+				abilityname.setFontScaleY(.7f);
+				abilityname.setFontScaleX(.3f);
+				abilitytable.add().pad(4);
+				abilitytable.add(abilityname);
+				TextButton useability = new TextButton("use", skin);
+				useability.getLabel().setFontScale(1f);
+				useability.setSize(64, 32);
+				if(!ability.requirementsMet(map.getPlayer())||!ability.isOutOfCombat()){
+					if(ability.isOnCooldown()&&ability.isOutOfCombat())
+						useability.setText(" "+ability.getCooldownLeft());
+					useability.setDisabled(true);
+					useability.setColor(Color.FIREBRICK);
+				}else{
+					useability.addListener(new ClickListener(){
+						@Override
+						public void clicked(InputEvent event, float x, float y) {
+							ability.performAbility(map.getPlayer());
+							updateAbilities();
+							
+						}
+					});
+				}
+				abilitytable.add().pad(4);
+				abilitytable.add(useability);
+				
+				abilityscrolltable.add(abilitytable).left().expand().row();
 			}
 		}
 		
@@ -1479,16 +1604,24 @@ public class GameState implements Screen{
 			break;
 		case 1:
 			buymodtab.clearChildren();
-			Label l = new Label("no modules available...", skin);
-			buymodtab.add(l).center().expand();
-			
+			if(tradepost.getModules().size==0){
+				Label l = new Label("no modules available...", skin);
+				buymodtab.add(l).center().expand();
+			}else{
+				buymodtab.add(tradepost.getModulesTable()).expand().fill();
+			}
 			tradebar.add(buymodtab).expand().fill();
 			
 			break;
 		case 2:
 			buyshipstab.clearChildren();
-			Label l2 = new Label("no ships available....", skin);
-			buyshipstab.add(l2).center().expand();
+			if(tradepost.getShip()==null){
+				Label l2 = new Label("no ships available....", skin);
+				buyshipstab.add(l2).center().expand();
+			}else {
+				buyshipstab.add(Ship.getshipTable(this, tradepost.getShip())).center().expand().fill();
+				
+			}
 			tradebar.add(buyshipstab).expand().fill();
 			break;
 
@@ -1654,6 +1787,14 @@ public class GameState implements Screen{
 			restbar.add(gossiptab).expand().fill();
 			break;
 		case 2:
+			missiontab.clearChildren();
+			if(restnode.getReststop().getWork()==null){
+				Label llll = new Label("there is no work at this Rest Stop.", skin);
+				missiontab.add(llll).expand();
+			}else{
+				System.out.println("sup");
+				missiontab.add(restnode.getReststop().getWork().getWorkTable(this)).expand().fill();
+			}
 			restbar.add(missiontab).expand().fill();
 			break;
 

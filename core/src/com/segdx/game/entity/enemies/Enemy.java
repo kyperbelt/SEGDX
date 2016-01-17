@@ -23,11 +23,16 @@ public abstract class Enemy extends SpaceEntity{
 	private NodeEvent parentevent;
 	private boolean remove;
 	protected GameState state =  (GameState) StateManager.get().getState(StateManager.GAME);;
+	private boolean disabled;
 	
 	public abstract void update(SpaceEntity Target);
 	
 	public Array<ShipAbility> getAbilities() {
 		return abilities;
+	}
+	
+	public CombatEvent getParentCombatEvent(){
+		return (CombatEvent) this.getParentevent();
 	}
 	
 	public boolean shouldRemove(){
@@ -74,6 +79,14 @@ public abstract class Enemy extends SpaceEntity{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public boolean isDisabled() {
+		return disabled;
+	}
+
+	public void setDisabled(boolean disabled) {
+		this.disabled = disabled;
 	}
 
 }

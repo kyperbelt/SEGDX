@@ -1,12 +1,11 @@
 package com.segdx.game.entity;
 
-import java.text.DecimalFormat;
-
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.ObjectMap;
 import com.segdx.game.events.NodeEvent;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.states.GameState;
+import com.segdx.game.work.Work;
 
 public class RestStop {
 	
@@ -28,9 +27,14 @@ public class RestStop {
 	
 	private NodeEvent event;
 	
+	private Work work;
+	
+	private SpaceNode parent;
+	
 	private ObjectMap<Integer, Gossip> gossip;
 	
-	public RestStop(float fuelprice,float foodprice){
+	public RestStop(SpaceNode parent,float fuelprice,float foodprice){
+		this.parent = parent;
 		GameState state = (GameState) StateManager.get().getState(StateManager.GAME);
 		this.fuelprice = MathUtils.round(fuelprice);
 		this.foodprice = MathUtils.round(foodprice);
@@ -94,5 +98,21 @@ public class RestStop {
 
 	public void setHullrepairprice(float hullrepairprice) {
 		this.hullrepairprice = hullrepairprice;
+	}
+
+	public Work getWork() {
+		return work;
+	}
+
+	public void setWork(Work work) {
+		this.work = work;
+	}
+
+	public SpaceNode getParent() {
+		return parent;
+	}
+
+	public void setParent(SpaceNode parent) {
+		this.parent = parent;
 	}
 }

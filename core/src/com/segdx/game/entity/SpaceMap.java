@@ -28,11 +28,14 @@ import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.enemies.Enemy;
 import com.segdx.game.events.CombatEvent;
 import com.segdx.game.managers.Assets;
+import com.segdx.game.managers.Draft;
 import com.segdx.game.managers.NodeEventManager;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.managers.TradePostManager;
+import com.segdx.game.managers.WorkManager;
 import com.segdx.game.states.GameState;
+import com.segdx.game.work.CollectorsDesire;
 
 import aurelienribon.tweenengine.TweenManager;
 /**
@@ -46,7 +49,7 @@ public class SpaceMap {
 	
 	private int difficulty;
 	private boolean piracy;
-	private boolean draft;
+	private boolean isdraft;
 	private OrthographicCamera cam;
 	private Stage stage;
 	private ShapeRenderer sr;
@@ -62,6 +65,8 @@ public class SpaceMap {
 	private TweenManager tm;
 	private CycleTimer timer;
 	private NodeEventManager nodeEventManager;
+	private Draft draft;
+	private WorkManager workManager;
 	private TradePostManager tradePostManager;
 	
 	private Array<Table> enemyframes;
@@ -92,7 +97,12 @@ public class SpaceMap {
 			
 			sr.end();
 		}
-		
+		if(player.isIncombat()){
+			batch.begin();
+			player.getShip().getSprite().draw(batch);
+			batch.end();
+		}
+			
 			stage.draw();
 			
 			stage.act(delta);
@@ -100,9 +110,11 @@ public class SpaceMap {
 		
 		batch.setProjectionMatrix(stage.getCamera().combined);
 		batch.begin();
-		player.getShip().getSprite().draw(batch);
+		
 		if(player.isIncombat()&&enemyframes==null){
 			createEnemyFrames(((CombatEvent)player.getCurrentNode().getEvent()).getEnemies());
+		}else if(!player.isIncombat()){
+			player.getShip().getSprite().draw(batch);
 		}
 		batch.end();
 		cam.update();
@@ -156,11 +168,16 @@ public class SpaceMap {
 					SoundManager.get().playSound(SoundManager.NODESELECT);
 				}
 			});
+			Image disable = new Image(Assets.manager.get("map/disabledicon.png",Texture.class));
+			
 			t.add(shieldicon).left().expand();
 			t.add(shield).left().expand().row();
 			t.add(healthicon).left().expand();
 			t.add(health).left().expand().row();
-			t.add(shipbutton).left().expand();
+			if(enemies.get(i).isDisabled())
+				t.add(disable).left().expand().row();
+			t.add(shipbutton).left().expand().row();;
+			
 			
 			enemyframes.add(t);
 			stage.addActor(t);
@@ -221,7 +238,7 @@ public class SpaceMap {
 	}
 
 	public boolean isDraft() {
-		return draft;
+		return isdraft;
 	}
 
 	public Stage getStage() {
@@ -233,7 +250,7 @@ public class SpaceMap {
 	}
 
 	public void setDraft(boolean draft) {
-		this.draft = draft;
+		this.isdraft = draft;
 	}
 
 	public Player getPlayer() {
@@ -328,7 +345,7 @@ public class SpaceMap {
 		SpaceMap map = null;
 		map = new SpaceMap();
 		map.piracy = intToBool(piracy);
-		map.draft = intToBool(draft);
+		map.isdraft = intToBool(draft);
 		map.difficulty = difficulty;
 		map.setPlayer(new Player());
 		map.setTimer(new CycleTimer());
@@ -417,7 +434,8 @@ public class SpaceMap {
 		node.setY(MathUtils.random(map.getMapheight()-10)+10);
 		node.setEffectradius(new Circle(new Vector2(node.getX(), node.getY()), MathUtils.random(effectradiusmax)+effectradiusmin));
 		node.setNodeType(SpaceNode.REST);
-		node.setReststop(SpaceNode.newRestStop());
+		node.setReststop(node.newRestStop());
+		node.getReststop().setWork(new CollectorsDesire());
 		nodes.add(node);
 		rest.add(node);
 		map.getCam().position.set(node.getX(), node.getY(), 0);
@@ -473,7 +491,7 @@ public class SpaceMap {
 						trade.add(newnode);
 					}else if(isRestCapable){
 						newnode.setNodeType(SpaceNode.REST);
-						newnode.setReststop(SpaceNode.newRestStop());
+						newnode.setReststop(newnode.newRestStop());
 						rest.add(newnode);
 					}else {
 						newnode.setNodeType(SpaceNode.NEUTRAL);
@@ -543,6 +561,22 @@ public class SpaceMap {
 
 	public void setTradePostManager(TradePostManager tradePostManager) {
 		this.tradePostManager = tradePostManager;
+	}
+
+	public Draft getDraft() {
+		return draft;
+	}
+
+	public void setDraft(Draft draft) {
+		this.draft = draft;
+	}
+
+	public WorkManager getWorkManager() {
+		return workManager;
+	}
+
+	public void setWorkManager(WorkManager workManager) {
+		this.workManager = workManager;
 	}
 
 

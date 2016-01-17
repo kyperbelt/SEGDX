@@ -13,9 +13,9 @@ import com.segdx.game.states.GameState;
 
 public abstract class NodeEvent {
 	
-	public static final int RESOURCE = 0;
-	public static final int HELP = 1;
-	public static final int COMBAT = 2;
+	public static final int RESOURCE = 1;
+	public static final int HELP = 2;
+	public static final int COMBAT = 3;
 	
 	public static final int RESOURCE_LOG_ENTRY = 32;
 	public static final int HELP_LOG_ENTRY = 64;

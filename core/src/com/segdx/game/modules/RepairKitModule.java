@@ -1,25 +1,26 @@
 package com.segdx.game.modules;
 
-import com.segdx.game.abilities.DeployRepairDrones;
+import com.segdx.game.abilities.PatchUp;
+import com.segdx.game.abilities.PowerShields;
 import com.segdx.game.abilities.ShipAbility;
 import com.segdx.game.entity.Player;
 
-public class RepairDrones extends ShipModule{
-
+public class RepairKitModule extends ShipModule {
+	
 	private ShipAbility ability;
 	
-	public RepairDrones(int level) {
-		this.setBaseValue(600);
-		this.setCost(5);
+	public RepairKitModule(int level) {
+		this.setBaseValue(400);
+		this.setCost(2);
 		this.setLevel(getRandomLevel());
 		if(level>0)
 			this.setLevel(level);
-		ability = new DeployRepairDrones(this.getLevel());
+		ability = new PatchUp(this.getLevel());
 		ability.setParentModule(this);
-		this.setName("Repair Drones");
-		this.setDesc("A Repair Drone module ablt to hold and deploy drones to repair your ship.");
+		this.setName("Repair Kit");
+		this.setDesc("A repair kit useful for patching up your ship when you are not near a Rest Post.");
 	}
-	
+
 	@Override
 	public boolean installModule(Player player) {
 		if(canInstall(player)){
@@ -35,6 +36,7 @@ public class RepairDrones extends ShipModule{
 	@Override
 	public ShipModule removeModule(Player player) {
 		removeModuleAbilities(player);
-		return null;
+		return this;
 	}
+
 }

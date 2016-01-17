@@ -1,25 +1,24 @@
 package com.segdx.game.modules;
 
-import com.segdx.game.abilities.DeployRepairDrones;
+import com.segdx.game.abilities.Emp;
 import com.segdx.game.abilities.ShipAbility;
 import com.segdx.game.entity.Player;
 
-public class RepairDrones extends ShipModule{
+public class MPGModule extends ShipModule {
 
-	private ShipAbility ability;
+	ShipAbility ability;
 	
-	public RepairDrones(int level) {
-		this.setBaseValue(600);
+	public MPGModule(int level) {
+		this.setBaseValue(890);
 		this.setCost(5);
 		this.setLevel(getRandomLevel());
 		if(level>0)
 			this.setLevel(level);
-		ability = new DeployRepairDrones(this.getLevel());
+		ability = new Emp(this.getLevel());
 		ability.setParentModule(this);
-		this.setName("Repair Drones");
-		this.setDesc("A Repair Drone module ablt to hold and deploy drones to repair your ship.");
+		this.setName("MPG");
+		this.setDesc("Magnetic Pulse Generator \n Allows you to generate magnetic pulses to disable enemy ships.");
 	}
-	
 	@Override
 	public boolean installModule(Player player) {
 		if(canInstall(player)){
@@ -35,6 +34,7 @@ public class RepairDrones extends ShipModule{
 	@Override
 	public ShipModule removeModule(Player player) {
 		removeModuleAbilities(player);
-		return null;
+		return this;
 	}
+
 }

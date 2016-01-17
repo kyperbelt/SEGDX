@@ -3,38 +3,38 @@ package com.segdx.game.entity.enemies;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.segdx.game.abilities.FireEnergyCannon;
-import com.segdx.game.abilities.PatchUp;
-import com.segdx.game.abilities.PowerShields;
 import com.segdx.game.abilities.ShipAbility;
 import com.segdx.game.abilities.ShootRailGun;
+import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.SpaceEntity;
 import com.segdx.game.entity.ships.GuillotineShip;
-import com.segdx.game.events.CombatEvent;
-import com.segdx.game.events.NodeEvent;
+import com.segdx.game.entity.ships.InterceptorShip;
+import com.segdx.game.managers.StateManager;
 
-public class Berserker extends Enemy {
-
+public class SbaScout extends Enemy{
 	int level;
-	
-	public Berserker(int level) {
+	boolean canflee;
+	public SbaScout(int level) {
+		canflee = true;
 		this.level = level;
 		this.setAbilities(new Array<ShipAbility>());
-		this.setShip(new GuillotineShip(level));
+		this.setShip(new InterceptorShip(level));
 		this.setCurrentShield(0);
 		this.setCurrentHull(getShip().getHull());
-		this.setName("Beserker");
-		this.getAbilities().add(new ShootRailGun(level));
-		this.getAbilities().add(new ShootRailGun(level));
-		this.getAbilities().add(new FireEnergyCannon(level));
-		this.getAbilities().add(new FireEnergyCannon(level));
-		this.getAbilities().add(new FireEnergyCannon(level));
-		this.getAbilities().add(new FireEnergyCannon(level));
-		
+		this.setName("SBA Scout");
+		this.getAbilities().add(new ShootRailGun(1));
+		this.getAbilities().add(new ShootRailGun(1));
+		this.getAbilities().add(new ShootRailGun(1));
 	}
+	
 	@Override
 	public void update(SpaceEntity target) {
+		
 		if(this.isDisabled())
 			return;
+		if(canflee)
+			flee();
+		
 		for (int i = 0; i < getAbilities().size; i++) {
 			ShipAbility a = getAbilities().get(i);
 			if(a instanceof ShootRailGun){
@@ -52,6 +52,27 @@ public class Berserker extends Enemy {
 								a.performAbility(target);
 				}
 			}
+		}
+	}
+	
+	public void flee(){
+		canflee = false;
+		System.out.println("tried to flee");
+		if(MathUtils.randomBoolean(.7f)){
+			this.getParentCombatEvent().getParentnode().getMap().getTimer().addTimedTask(
+					new TimedTask() {
+						
+						@Override
+						public void onExecute() {
+							canflee = true;
+						}
+					}).repeat(1).setSleep(2);
+		}else{
+			this.remove();
+			this.getParentCombatEvent().setLoot(new Array<Object>());
+			this.getParentCombatEvent().removeDeadEntities();
+			ShipAbility.showMessage("Fled             ", "The scout fled. Maybe you could figure out a way to disable him.", StateManager.get().getGameState().skin).show(
+					StateManager.get().getGameState().uistage);
 		}
 	}
 

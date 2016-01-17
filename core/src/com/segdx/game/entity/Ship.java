@@ -1,10 +1,15 @@
 package com.segdx.game.entity;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.segdx.game.abilities.ShipAbility;
 import com.segdx.game.states.GameState;
 
 public class Ship {
@@ -134,34 +139,65 @@ public class Ship {
 		this.version = version;
 	}
 	
-	public static Table getshipTable(GameState state,Ship s){
+	public static Table getshipTable(final GameState state,final Ship s){
 		Table t = new Table();
+		Table tt = new Table();
 		Table info = new Table();
 		Image im = new Image(s.getSprite());
 		Label name = new Label(""+s.getName(), state.skin);
 		name.setFontScale(.8f);
-		Label description = new Label(""+s.getDescription()+"\n\n"+
-					"Hull:"+s.getHull()+"\n"+
+		Label description = new Label("Hull:"+s.getHull()+"\n"+
 				"Upgrade Points:"+s.getUpgradePoints()+"\n"+
-					"Fuel Econ:"+s.getFuelEconomy()
-				+ "Speed:"+s.getSpeed()+"\n"
-						+ "Capacity:"+s.getCapacity(), state.skin);
-		description.setFontScale(.5f);
+				"Fuel Econ:"+s.getFuelEconomy()
+			+ "\nSpeed:"+s.getSpeed()+"\n"
+					+ "Capacity:"+s.getCapacity()+"\n"
+							+ "Description:\n"+s.getDescription()
+					, state.skin);
+		description.setFontScale(.4f);
 		description.setWrap(true);
 		info.add(name).left().expand().fillX().row();
-		info.add(description).left().expand().fillX().row();
+		
 		Table buytable = new Table();
 		Label cost = new Label("$"+s.getCost(), state.skin);
 		cost.setFontScale(.5f);
 		TextButton buy = new TextButton("Buy", state.skin);
 		buy.getLabel().setFontScale(.8f);
+		buy.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				Player p = state.getSpaceMap().getPlayer();
+				if(s.getCost()>p.getCurrency()){
+					ShipAbility.showMessage("Not enough funds        ", "You need more currency to purchase this ship", state.skin).show(state.uistage);
+					return;
+				}
+				
+				if(p.getUpgradePointsUsed()>s.getUpgradePoints()){
+					ShipAbility.showMessage("Failed                  ", ""
+							+ "This ship has less upgradepoints available then you are currently using."
+							+ "please uninstall modules from the mods tab until you are using less than "+s.getUpgradePoints()+"points", state.skin).show(state.uistage);
+					return;
+				}
+				
+				p.setCurrency(p.getCurrency()-s.getCost());
+				((TradePost)p.getCurrentNode().getTradepost()).setShip(null);
+				state.updateTradeBar();
+				s.setX(p.getX());
+				s.setY(p.getY());
+				p.setShip(s);
+			}
+		});
+			
+		
 		buytable.add().left().expand().fill();
 		buytable.add(cost).expand();
 		buytable.add(buy).expand();
 		
+		ScrollPane pane = new ScrollPane(description, state.skin);
+		pane.setColor(Color.FOREST);
+		info.add(pane).left().expand().fillX().row();
 		t.add(im).left().expand().fill();
-		t.add().left().expand().fill().row();
-		t.add().left().expand().fillX();
+		t.add(info).left().expand().fill().row();
+		t.add(buytable).left().expand().fillX();
 		return t;
 	}
 	

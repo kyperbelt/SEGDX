@@ -15,41 +15,46 @@ import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.states.GameState;
 
-public class ShootRailGun extends ShipAbility{
+public class FireEnergyCannon extends ShipAbility {
 	
-	public float damage = 3;
-	private float perc = .05f;
-
-	public ShootRailGun(int level) {
+	float damage = 1;
+	float fuelcost = 1;
+	public FireEnergyCannon(int level) {
 		this.setLevel(NodeEvent.getRandomInt(1, 5));
 		if(level > 0)
 			this.setLevel(level);
-		this.setName("Shoot RG");
-		this.setCooldown(3);
+		this.setName("Fire ENERGY C. ");
+		this.setCooldown(10);
 		this.setCombatCappable(true);
 		this.setEnabled(true);
-		this.setDesc("Shoot your rail gun,must have some Salvage in your haul. \n\nChance to expend the resource "+(level*perc)*100+"%");
+		this.setDesc("Fire your energy cannon  to inflict "+damage*level+" damage tothe enemy. x4 agasint shielded foes. Costs "+
+		fuelcost*level+" fuel to use");
 		this.setOutOfCombat(false);
 		this.setPlayerUsed(true);
 		this.setAttack(true);
-		
 	}
+	
+	@Override
+	public int getCooldown() {
+		
+		return (super.getCooldown()/this.getLevel())+this.getLevel();
+	}
+
 	@Override
 	public void performAbility(SpaceEntity target) {
 		Player p = null;
 		GameState state = ((GameState)StateManager.get().getState(StateManager.GAME));
 		if(getParentModule()!=null){
 			 p = state.getSpaceMap().getPlayer();
-			if(MathUtils.randomBoolean(this.getLevel()*perc)){
-				p.removeResource(ResourceStash.SALVAGE.getId());
+				p.setCurrentFuel(p.getCurrentFuel()-(fuelcost*this.getLevel()));
 				state.updateCargo();
-			}
+			
 			if(p.getCurrentEnemy()==null)
 				return;
 			p.getCurrentNode().getMap().createEnemyFrames(((CombatEvent)p.getCurrentNode().getEvent()).getEnemies());
 		}
 		if(target!=null){
-			if(target.inflictDamage(damage+(this.getLevel()*2), false)){
+			if(target.inflictDamage(damage*getLevel(), true)){
 				SoundManager.get().playSound(SoundManager.EXPLOSION);
 				
 				if(target instanceof Enemy){
@@ -74,23 +79,12 @@ public class ShootRailGun extends ShipAbility{
 			}
 			this.startCooldown();
 		}
-		
 	}
-	
-	@Override
-	public int getCooldown() {
-		
-		return (int) ((super.getCooldown()/getLevel())+(getLevel()*.5f));
-	}
-	
 
 	@Override
 	public boolean requirementsMet(SpaceEntity target) {
-			Player p = (Player) target;
-		if(p.containsResource(ResourceStash.SALVAGE, 1)){
-			return true;
-		}
-		return false;
+
+		return true;
 	}
 
 	@Override

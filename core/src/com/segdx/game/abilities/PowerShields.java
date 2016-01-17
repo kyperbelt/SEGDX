@@ -1,16 +1,12 @@
 package com.segdx.game.abilities;
 
-import com.badlogic.gdx.graphics.Texture;
+
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.Player;
 import com.segdx.game.entity.ResourceStash;
 import com.segdx.game.entity.SpaceEntity;
 import com.segdx.game.events.CombatEvent;
 import com.segdx.game.events.NodeEvent;
-import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.states.GameState;
 
@@ -24,7 +20,7 @@ public class PowerShields extends ShipAbility{
 	
 	public PowerShields(int level) {
 		shields = 10;
-		perc = .05f;
+		perc = .08f;
 		this.setLevel(NodeEvent.getRandomInt(1, 5));
 		if(level > 0)
 			this.setLevel(level);

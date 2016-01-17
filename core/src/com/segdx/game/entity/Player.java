@@ -8,21 +8,20 @@ import com.segdx.game.achievements.Achievement;
 import com.segdx.game.achievements.AchievementManager;
 import com.segdx.game.entity.enemies.Enemy;
 import com.segdx.game.entity.ships.EnterpriseShip;
-import com.segdx.game.entity.ships.GuillotineShip;
-import com.segdx.game.entity.ships.InterceptorShip;
-import com.segdx.game.entity.ships.MauraderShip;
-import com.segdx.game.entity.ships.RaiderShip;
-import com.segdx.game.entity.ships.SentinelShip;
-import com.segdx.game.entity.ships.TestShip;
+import com.segdx.game.events.CombatEvent;
 import com.segdx.game.events.NodeEvent;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
+import com.segdx.game.modules.EnergyCannon;
 import com.segdx.game.modules.EngineBoosters;
 import com.segdx.game.modules.ExtraHaul;
 import com.segdx.game.modules.FuelReserves;
+import com.segdx.game.modules.MPGModule;
 import com.segdx.game.modules.MiningModule;
 import com.segdx.game.modules.RailGun;
 import com.segdx.game.modules.RefineryModule;
+import com.segdx.game.modules.RepairDrones;
+import com.segdx.game.modules.RepairKitModule;
 import com.segdx.game.modules.ScannerModule;
 import com.segdx.game.modules.ShieldGenerator;
 import com.segdx.game.modules.ShipModule;
@@ -79,8 +78,8 @@ public class Player extends SpaceEntity{
 		//TEST RESOURCES
 		addResource(ResourceStash.DRIDIUM.clone());
 		addResource(ResourceStash.DRIDIUM.clone());
-		addResource(ResourceStash.DRIDIUM.clone());
-		addResource(ResourceStash.DRIDIUM.clone());
+		addResource(ResourceStash.NAQUIDRA.clone());
+		addResource(ResourceStash.NAQUIDRA.clone());
 		
 		addResource(ResourceStash.LATTERIUM.clone());
 		addResource(ResourceStash.LATTERIUM.clone());
@@ -101,14 +100,24 @@ public class Player extends SpaceEntity{
 		installNewModule(new ScannerModule(1));
 		installNewModule(new FuelReserves(0));
 		installNewModule(new ExtraHaul(10));
+		installNewModule(new EnergyCannon(0));
 		installNewModule(new ShieldGenerator(4));
 		installNewModule(new ShieldGenerator(4));
 		installNewModule(new RailGun(2));
 		installNewModule(new RailGun(2));
+		installNewModule(new RepairKitModule(1));
+		installNewModule(new RepairDrones(1));
+		installNewModule(new MPGModule(2));
 	}
 	
 	public Vector2 getOriginPosition(){
 		return new Vector2(getX()+(getShip().getSprite().getWidth()/2), getY()+(getShip().getSprite().getHeight()/2));
+	}
+	
+	@Override
+	public void repairDamage(float repair) {
+		state.hullinfo.setText(getCurrentHull()+"/"+getShip().getHull());
+		super.repairDamage(repair);
 	}
 	
 	public int getUpgradePointsUsed(){
@@ -351,6 +360,8 @@ public class Player extends SpaceEntity{
 	public void setIncombat(boolean incombat) {
 		this.incombat = incombat;
 		if(this.incombat){
+			this.setCurrentEnemy(((CombatEvent)this.getCurrentNode().getEvent()).getEnemies().first());
+			getCurrentNode().getMap().createEnemyFrames(((CombatEvent)getCurrentNode().getEvent()).getEnemies());
 			getCurrentNode().getMap().disableNodes();
 			getCurrentNode().addEntry(NodeEvent.HELP_LOG_ENTRY, "You have enterd combat.");
 			AchievementManager.get().grantAchievement("Enter Combat!", Achievement.GAMEPLAY_ACHIEMENT, state.uistage,state.tm);

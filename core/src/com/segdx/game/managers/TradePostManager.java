@@ -2,12 +2,17 @@ package com.segdx.game.managers;
 
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
+import com.segdx.game.entity.CycleTimer;
 import com.segdx.game.entity.CycleTimer.CycleTask;
 import com.segdx.game.entity.Resource;
 import com.segdx.game.entity.ResourceStash;
 import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.entity.SpaceNode;
 import com.segdx.game.entity.TradePost;
+import com.segdx.game.entity.ships.ShipStash;
+import com.segdx.game.events.NodeEvent;
+import com.segdx.game.modules.ModuleStash;
+import com.segdx.game.modules.ShipModule;
 import com.segdx.game.states.GameState;
 
 public class TradePostManager {
@@ -62,7 +67,7 @@ public class TradePostManager {
 				shipShipment();
 			}
 			
-		}).repeat().setRepeatEvery(4);
+		}).repeat().setRepeatEvery(3);
 	}
 	
 	public void resupplyTradePosts(){
@@ -91,10 +96,46 @@ public class TradePostManager {
 	}
 	
 	public void moduleShipment(){
+		CycleTimer t = StateManager.get().getGameState().getSpaceMap().getTimer();
+		for (int i = 0; i < tradeposts.size; i++) {
+			if(MathUtils.randomBoolean(.5f)){
+				int modmaxlvl = 0;
+				if(t.getCurrentCycle()/10>6){
+					modmaxlvl = 5;
+				}else{
+					modmaxlvl = t.getCurrentCycle()/10;
+				}
+				
+				
+				int amount = NodeEvent.getRandomInt(1, 3);
+				Array<ShipModule> newmodules  = new Array<ShipModule>();
+				for (int j = 0; j < amount ;j++) {
+					int module = NodeEvent.getRandomInt(0, 11);
+					int level = NodeEvent.getRandomInt(1, 1+modmaxlvl);
+					newmodules.add(ModuleStash.getModule(module, level));
+					
+				}
+				tradeposts.get(i).setModules(newmodules);
+			}
+		}
 		
 	}
 	
 	public void shipShipment(){
+		for (int i = 0; i < tradeposts.size; i++) {
+			if(MathUtils.randomBoolean(.5f)){
+				CycleTimer t = StateManager.get().getGameState().getSpaceMap().getTimer();
+				int shipmaxversion = 0;
+				if(t.getCurrentCycle()/10>6){
+					shipmaxversion = 5;
+				}else{
+					shipmaxversion = t.getCurrentCycle()/10;
+				}
+				int type = NodeEvent.getRandomInt(0, 8);
+				int version = NodeEvent.getRandomInt(1, 1+shipmaxversion);
+				tradeposts.get(i).setShip(ShipStash.getShip(type, version));
+			}
+		}
 		
 	}
 }

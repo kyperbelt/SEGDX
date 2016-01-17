@@ -6,6 +6,7 @@ import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.enemies.Enemy;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
+import com.segdx.game.modules.ModuleStash;
 import com.segdx.game.states.GameState;
 import com.segdx.game.entity.EnemyStash;
 import com.segdx.game.entity.Player;
@@ -16,12 +17,13 @@ public class CombatEvent extends NodeEvent{
 	
 	public static final int PIRATE_AMBUSH = 0;
 	public static final int BESERKER_ATTACK= 1;
-	public static final int EMPIRE_BULLY_FORCE  = 2;
-	public static final int REBEL_INSURGENCY = 3;
-	public static final int SBA_SCOUT = 4;
-	public static final int SBA_ATTACK_FORCE = 5;
-	public static final int LONE_PIRATE = 6;
-	public static final int BESERKER_FLOCK = 7;
+	public static final int EMPIRE_BULLY_FORCE  = 22;
+	public static final int SBA_SCOUT = 3;
+	public static final int REBEL_INSURGENCY = 23;
+	
+	public static final int SBA_ATTACK_FORCE = 10;
+	public static final int LONE_PIRATE = 2;
+	public static final int BESERKER_FLOCK = 5;
 	
 	public static final int ENEMY_CAP = 3;
 	
@@ -42,14 +44,17 @@ public class CombatEvent extends NodeEvent{
 	
 	private Array<SpaceNode> nodes;
 	
+	private Array<Object> loot;
+	
 	public CombatEvent(SpaceNode node) {
+		loot = new Array<Object>();
 		enemies = new Array<Enemy>();
 		nodes = new Array<SpaceNode>();
 		this.setGenericDescs(GENERIC_DESCRIPTIONS);
 		this.setCycleDuration(NodeEvent.getRandomInt(3, 6));
 		this.setStartCycle(node.getMap().getTimer().getCurrentCycle());
 		this.setParentnode(node);
-		combatType = PIRATE_AMBUSH;
+		combatType = NodeEvent.getRandomInt(0, 3);
 		setCoercion(0);
 		this.setDescription(this.generateDesc());
 		this.getParentnode().addEntry(NodeEvent.HELP_LOG_ENTRY, "Combat Event initiated.");
@@ -59,11 +64,15 @@ public class CombatEvent extends NodeEvent{
 	}
 	
 	public void removeDeadEntities(){
+		removeEnemies();
+		getParentnode().getMap().createEnemyFrames(enemies);
+	}
+	
+	public void removeEnemies(){
 		for (int i = 0; i < enemies.size; i++) {
 			if(enemies.get(i).shouldRemove())
 				enemies.removeIndex(i);
 		}
-		getParentnode().getMap().createEnemyFrames(enemies);
 	}
 
 	@Override
@@ -75,11 +84,16 @@ public class CombatEvent extends NodeEvent{
 			if(!getParentnode().getMap().getPlayer().isTravelDisabled()&&!getParentnode().getMap()
 					.getPlayer().isTraveling())
 				getParentnode().getMap().getPlayer().setTravelDisabled(true);
+
+				
 			if(SoundManager.get().isInPlayList())
 				SoundManager.get().playMusic(SoundManager.BOARDINGPARTY);
 			for (int i = 0; i < enemies.size; i++) {
-				if(getParentnode().getMap().getPlayer().isIncombat())
+				if(getParentnode().getMap().getPlayer().isIncombat()){
+					
 					enemies.get(i).update(getParentnode().getMap().getPlayer());
+					
+				}
 			}
 		}	
 	}
@@ -116,10 +130,18 @@ public class CombatEvent extends NodeEvent{
 		if(getParentnode().getIndex()==p.getCurrentNode().getIndex()){
 			
 			p.setIncombat(false);
+			p.getCurrentNode().getMap().createEnemyFrames(new Array<Enemy>());
+			p.setCurrentEnemy(null);
 			p.setTravelDisabled(false);
 			((GameState)StateManager.get().getState(StateManager.GAME)).updateActionbar();
 			((GameState)StateManager.get().getState(StateManager.GAME)).updateAbilities();
 			SoundManager.get().playMusicList();
+			
+			if(enemies.size==0){
+				this.getParentnode().getLoot().addAll(loot);
+				StateManager.get().getGameState().actiontabs.setChecked("Loot");
+				StateManager.get().getGameState().updateActionbar();
+			}
 		}
 	}
 	
@@ -139,6 +161,11 @@ public class CombatEvent extends NodeEvent{
 				setSuccesscoerce("The pirates have accepted your terms! Phew.. that was a close one.");
 				setFailcoerce("They are not satisfied with what you offered and have begun their attack!");
 				
+				loot.add(ResourceStash.RESOURCES.get(ResourceStash.randomID()).clone());
+				loot.add(ResourceStash.RESOURCES.get(ResourceStash.randomID()).clone());
+				loot.add(ResourceStash.RESOURCES.get(ResourceStash.randomID()).clone());
+				loot.add(ResourceStash.RESOURCES.get(ResourceStash.randomID()).clone());
+				
 			break;
 		case BESERKER_ATTACK:
 			enemies.add(EnemyStash.get().getNewEnemy(EnemyStash.BERSERKER));
@@ -146,6 +173,10 @@ public class CombatEvent extends NodeEvent{
 			setCoercion(0);
 			setSuccesscoerce("nope");
 			setFailcoerce("You really need to start reading man! You cant reason with these monsters...");
+			loot.add(ResourceStash.RESOURCES.get(ResourceStash.randomID()).clone());
+			loot.add(ResourceStash.RESOURCES.get(ResourceStash.randomID()).clone());
+			if(MathUtils.randomBoolean(.06f))
+				loot.add(ModuleStash.getModule(ModuleStash.ENERGYCANNON, 6));
 			break;
 		case EMPIRE_BULLY_FORCE:
 			for (int i = 0; i < ENEMY_CAP; i++) {
@@ -155,6 +186,10 @@ public class CombatEvent extends NodeEvent{
 			setSuccesscoerce("Looks like they were just having a bad day. Good thing that didnt escalate.");
 			setFailcoerce("You just managed to anger them! Way to go!");
 			desc+=" is a small force of Empire jerks looking for trouble. Maybe they need to be taught a lesson.";
+			loot.add(ResourceStash.RESOURCES.get(ResourceStash.randomID()).clone());
+			loot.add(ResourceStash.RESOURCES.get(ResourceStash.randomID()).clone());
+			if(MathUtils.randomBoolean(.09f))
+				loot.add(ModuleStash.getModule(ModuleStash.RAILGUN, 5));
 			break;
 		case SBA_ATTACK_FORCE:
 			for (int i = 0; i < ENEMY_CAP; i++) {
@@ -171,6 +206,8 @@ public class CombatEvent extends NodeEvent{
 			setFailcoerce("Looks like the scout thinks he stands a chance... ");
 			enemies.add(EnemyStash.get().getNewEnemy(EnemyStash.SBA_SCOUT));
 			desc="You spot an SBA scout. He doesnt seem to be interested in conflict, But letting him go might bring more unwanted SBA affiliates.";
+			if(MathUtils.randomBoolean(.2f))
+				loot.add(ModuleStash.getModule(ModuleStash.SCANNER, 2));
 			break;
 		case BESERKER_FLOCK:
 			for (int i = 0; i < ENEMY_CAP; i++) {
@@ -187,6 +224,8 @@ public class CombatEvent extends NodeEvent{
 			setFailcoerce("");
 			enemies.add(EnemyStash.get().getNewEnemy(EnemyStash.PIRATE));
 			desc+="is a lone pirate vessel. If you cant avoid it the next best thing is paying it off.";
+			loot.add(ResourceStash.RESOURCES.get(ResourceStash.randomID()).clone());
+			
 			break;
 		default:
 			break;
@@ -201,6 +240,8 @@ public class CombatEvent extends NodeEvent{
 		}
 		return desc;
 	}
+	
+	
 	
 	public boolean attemptCoerce(){
 		int ran = getRandomInt(1, 10);
@@ -256,6 +297,10 @@ public class CombatEvent extends NodeEvent{
 
 	public void setSuccesscoerce(String successcoerce) {
 		this.successcoerce = successcoerce;
+	}
+	
+	public void setLoot(Array<Object> loot){
+		this.loot = loot;
 	}
 
 }

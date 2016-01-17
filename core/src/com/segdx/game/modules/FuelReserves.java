@@ -12,7 +12,7 @@ public class FuelReserves extends ShipModule{
 	public FuelReserves(int level) {
 		fuel_cap = 25;
 		this.setBaseValue(500);
-		this.setCost(4);
+		this.setCost(6);
 		this.setLevel(this.getRandomLevel());
 		if(level>0)
 			this.setLevel(level);

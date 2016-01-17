@@ -11,10 +11,12 @@ import com.badlogic.gdx.utils.Timer.Task;
 import com.segdx.game.SEGDX;
 import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.managers.Assets;
+import com.segdx.game.managers.Draft;
 import com.segdx.game.managers.NodeEventManager;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
 import com.segdx.game.managers.TradePostManager;
+import com.segdx.game.managers.WorkManager;
 import com.segdx.game.tween.SpriteAccessor;
 
 import aurelienribon.tweenengine.Tween;
@@ -74,6 +76,7 @@ public class LoadState implements Screen{
 					
 					@Override
 					public void run() {
+						SoundManager.get().playMusicList();
 						StateManager.get().changeState(StateManager.MENU);
 					}
 				}, LOAD_DELAY);
@@ -89,6 +92,8 @@ public class LoadState implements Screen{
 						StateManager.get().changeState(StateManager.GAME);
 						state.getSpaceMap().setNodeEventManager(new NodeEventManager(1, 1, 1));
 						state.getSpaceMap().setTradePostManager(new TradePostManager(state.getSpaceMap()));
+						state.getSpaceMap().setDraft(new Draft(state.difficulty));
+						state.getSpaceMap().setWorkManager(new WorkManager());
 					}
 				}, LOAD_DELAY);
 				break;
