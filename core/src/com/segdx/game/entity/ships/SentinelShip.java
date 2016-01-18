@@ -14,16 +14,16 @@ public class SentinelShip extends Ship{
 			this.setVersion(version);
 		this.setImage("map/largeblueship.png");
 		this.setName("Sentinel");
-		this.setCost(2000);
+		this.setCost(2800);
 		this.setSpeed(4);
-		this.setUpgradePoints(30);
+		this.setUpgradePoints(35);
 		this.setFuelEconomy(7);
 		this.setMaxfuel(140);
 		this.setCapacity(40);
 		this.setDetectionLevel(Ship.NO_DETECTION);
 		this.setSprite(new Sprite(Assets.manager.get(this.getImage(),Texture.class)));
 		this.getSprite().flip(false, true);
-		this.setHull(60);
+		this.setHull(70);
 		this.setDescription("A slow but hardy ship and the staple of the Arboros Empire. This ship"
 				+ " is why many think the Empire won the war.");
 	}

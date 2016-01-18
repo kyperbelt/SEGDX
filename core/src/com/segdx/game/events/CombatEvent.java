@@ -137,9 +137,9 @@ public class CombatEvent extends NodeEvent{
 			((GameState)StateManager.get().getState(StateManager.GAME)).updateAbilities();
 			SoundManager.get().playMusicList();
 			
-			if(enemies.size==0){
+			if(enemies.size==0&&combatType!=SBA_SCOUT){
 				this.getParentnode().getLoot().addAll(loot);
-				p.setCurrency(NodeEvent.getRandomInt(200, 2500));
+				p.setCurrency(p.getCurrency()+NodeEvent.getRandomInt(200, 2500));
 				StateManager.get().getGameState().actiontabs.setChecked("Loot");
 				StateManager.get().getGameState().updateActionbar();
 			}

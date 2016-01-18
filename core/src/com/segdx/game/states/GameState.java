@@ -1800,7 +1800,8 @@ public class GameState implements Screen{
 			missiontab.clearChildren();
 			if(restnode.getReststop().getWork()==null){
 				Label llll = new Label("there is no work at this Rest Stop.", skin);
-				missiontab.add(llll).expand();
+				llll.setWrap(true);
+				missiontab.add(llll).expand().fill();
 			}else{
 				System.out.println("sup");
 				missiontab.add(restnode.getReststop().getWork().getWorkTable(this)).expand().fill();

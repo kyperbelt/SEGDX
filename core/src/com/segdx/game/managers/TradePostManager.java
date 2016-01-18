@@ -100,10 +100,10 @@ public class TradePostManager {
 		for (int i = 0; i < tradeposts.size; i++) {
 			if(MathUtils.randomBoolean(.5f)){
 				int modmaxlvl = 0;
-				if(t.getCurrentCycle()/10>6){
+				if(t.getCurrentCycle()/4>6){
 					modmaxlvl = 5;
 				}else{
-					modmaxlvl = t.getCurrentCycle()/10;
+					modmaxlvl = t.getCurrentCycle()/4;
 				}
 				
 				
@@ -126,7 +126,7 @@ public class TradePostManager {
 			if(MathUtils.randomBoolean(.5f)){
 				CycleTimer t = StateManager.get().getGameState().getSpaceMap().getTimer();
 				int shipmaxversion = 0;
-				if(t.getCurrentCycle()/10>6){
+				if(t.getCurrentCycle()/4>6){
 					shipmaxversion = 5;
 				}else{
 					shipmaxversion = t.getCurrentCycle()/10;

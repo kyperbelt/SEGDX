@@ -33,7 +33,6 @@ public class Draft {
 	}
 	
 	public void draft(){
-		timespayed++;
 		Stats.get().replaceIfHigher("most consecutive drafts payed", timespayed);
 		showDraft("You are Being DRAFTED!","The Arboros Empire has sent their Recruiters to fetch up anyone in the vicinity. Im sure if you pay them enough they will look the other way."
 				+ "", StateManager.get().getGameState().skin).show(

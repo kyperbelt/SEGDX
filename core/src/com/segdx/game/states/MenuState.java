@@ -144,6 +144,24 @@ public class MenuState implements Screen{
 		});
 		
 		credits = new TextButton("Credits", skin);
+		credits.addListener(new ClickListener(){
+			public void clicked(InputEvent event, float x, float y) {
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
+				startgame.setDisabled(true);
+				back.setDisabled(true);
+				Tween.to(stage.getCamera(), CameraAccessor.POSITION_Y, 1).target(creditpage.getY()+(creditpage.getHeight()/2)).setCallback(
+						new TweenCallback() {
+							
+							@Override
+							public void onEvent(int type, BaseTween<?> arg1) {
+								if(type == TweenCallback.COMPLETE){
+									startgame.setDisabled(false);
+									back.setDisabled(false);
+								}
+							}
+						}).start(tm);
+			}
+		});
 		
 		//play.setSize(300, 90);
 		main.add(background).expand().colspan(2).row();
@@ -366,8 +384,8 @@ public class MenuState implements Screen{
 		creditpage.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		creditpage.setPosition(main.getX(), main.getY()-(creditpage.getHeight()+10));
 		creditpage.bottom();
-		creditpage.add(back4).expand();
-		creditpage.add(getCreditsTable(skin)).bottom().expand();
+		creditpage.add(back4).expand().row();;
+		creditpage.add(getCreditsTable(skin)).left().expand().fill();
 		
 		
 		//add tables to stage
@@ -375,6 +393,7 @@ public class MenuState implements Screen{
 		stage.addActor(statistics);
 		stage.addActor(setup);
 		stage.addActor(settings);
+		stage.addActor(creditpage);
 		
 		
 		//debug 
@@ -484,7 +503,7 @@ public class MenuState implements Screen{
 		Label cl = new Label("Credits", skin);
 		cl.setFontScale(3);
 		Label gheader  = new Label("Graphics", skin);
-		Label graphics = new Label("	[RED]MOST OF THESE GRAPHICS WERE RESIZED OR TRANSFORMED TO FIT THE GAME.[]"
+		Label graphics = new Label("	[RED]MOST OF THESE GRAPHICS WERE RESIZED OR TRANSFORMED TO FIT THE GAME.[]\n"
 				+ "shuttlespaceship: kindlyfire opengameart.org\nm42orionnebula google images.\n"
 				+ "Game Post Mortem:Hard Vacuum art by Daniel Cook (Lostgarden.com)\n\n		-mother2.bmp"
 				+"						Spaceship by phobi opengameart.org\n"
@@ -495,9 +514,17 @@ public class MenuState implements Screen{
 									+"	part2art by Skorpio (original parts) and Wubitog.  part2art.com  arrall.com opengameart.org\n"
 							+"			\n\n"
 								+"		pointer by qubodub opengamart.org\n", skin);
+		graphics.setFontScale(.5f);
+		graphics.setWrap(true);
 		Label soundheader = new Label("Audio", skin);
-		Label sound = new Label("", skin);
-		
+		Label sound = new Label("Blind Shift by PetterTheSturgeon opengameart.org\nStar Light by Eric Matyas opengameart.org\nCrazy Space by rubberduck opengameart.org\nBoarding Party by Trevor Lentz opengameart.org\n", skin);
+		sound.setFontScale(.5f);
+		sound.setWrap(true);
+		table.add(cl).left().expand().fillX().row();
+		table.add(gheader).left().expand().fillX().row();
+		table.add(graphics).left().expand().fillX().row();
+		table.add(soundheader).left().fillX().expand().row();
+		table.add(sound).left().expand().fillX().row();
 		return table;
 	}
 

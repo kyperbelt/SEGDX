@@ -77,7 +77,7 @@ public class ExtractResource extends ShipAbility{
 			state.getSpaceMap().getPlayer().getCurrentNode().getLoot()
 			.add(((ResourceEvent)sn.getEvent()).fetchResource());
 			Stats.get().increment("resources extracted", 1);
-			AchievementManager.get().grantAchievement("");
+			AchievementManager.get().grantAchievement("First Extraction");
 		}
 		state.actiontabs.setChecked("Loot");
 		state.updateActionbar();

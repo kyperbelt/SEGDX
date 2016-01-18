@@ -20,6 +20,7 @@ public class Berserker extends Enemy {
 		this.level = level;
 		this.setAbilities(new Array<ShipAbility>());
 		this.setShip(new GuillotineShip(level));
+		this.getShip().setSpeed(8);
 		this.setCurrentShield(0);
 		this.setCurrentHull(getShip().getHull());
 		this.setName("Beserker");

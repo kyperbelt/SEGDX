@@ -51,7 +51,7 @@ public class Ship {
 	
 	
 	public float getMaxfuel() {
-		return maxfuel;
+		return maxfuel+(maxfuel*getVersion());
 	}
 	public void setMaxfuel(float maxfuel) {
 		this.maxfuel = maxfuel;
@@ -77,7 +77,7 @@ public class Ship {
 		this.sprite.setY(y);
 	}
 	public float getCapacity() {
-		return capacity;
+		return capacity+(capacity*getVersion());
 	}
 	public void setCapacity(float capacity) {
 		this.capacity = capacity;
@@ -95,13 +95,13 @@ public class Ship {
 		this.name = name;
 	}
 	public int getCost() {
-		return cost*version;
+		return (int) (cost*version);
 	}
 	public void setCost(int cost) {
 		this.cost = cost;
 	}
 	public float getHull() {
-		return hull;
+		return hull+(hull*getVersion());
 	}
 	public void setHull(float hull) {
 		this.hull = hull;
@@ -188,11 +188,12 @@ public class Ship {
 				state.updateTradeBar();
 				s.setX(p.getX());
 				s.setY(p.getY());
-				Array<ShipModule> sm = new Array<ShipModule>(p.getModules());
 				p.setShip(s);
-				
-				for (int i = 0; i < sm.size; i++) {
-					p.installNewModule(sm.get(i));
+				p.setAbilities(new Array<ShipAbility>());
+				Array<ShipModule> modules = new Array<ShipModule>(p.getModules());
+				p.setModules(new Array<ShipModule>());
+				for (int i = 0; i < modules.size; i++) {
+					p.installNewModule(modules.get(i));
 				}
 			}
 		});

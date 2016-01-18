@@ -22,7 +22,7 @@ public class CruiserShip extends Ship{
 		this.setCapacity(60);
 		this.setDetectionLevel(Ship.NO_DETECTION);
 		this.setSprite(new Sprite(Assets.manager.get(this.getImage(),Texture.class)));
-		this.getSprite().flip(false, true);
+		this.getSprite().flip(false, false);
 		this.setHull(80);
 		this.setDescription("Not the fastest ship, but definitely able to keep up. Overall well rounded ship");
 	}

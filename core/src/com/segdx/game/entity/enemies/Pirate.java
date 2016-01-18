@@ -19,6 +19,7 @@ public class Pirate extends Enemy {
 		this.level = level;
 		this.setAbilities(new Array<ShipAbility>());
 		this.setShip(new RaiderShip(level));
+		this.getShip().setSpeed(7);
 		this.setCurrentShield(0);
 		this.setCurrentHull(getShip().getHull());
 		this.setName("Pirate");

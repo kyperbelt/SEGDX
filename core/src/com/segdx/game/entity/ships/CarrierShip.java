@@ -14,11 +14,11 @@ public class CarrierShip extends Ship{
 			this.setVersion(version);
 		this.setImage("map/mother2b.png");
 		this.setName("Carrier");
-		this.setCost(4050);
+		this.setCost(5700);
 		this.setSpeed(6);
 		this.setUpgradePoints(50);
 		this.setFuelEconomy(5);
-		this.setMaxfuel(300);
+		this.setMaxfuel(200);
 		this.setCapacity(120);
 		this.setDetectionLevel(Ship.NO_DETECTION);
 		this.setSprite(new Sprite(Assets.manager.get(this.getImage(),Texture.class)));

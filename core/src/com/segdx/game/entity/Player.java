@@ -156,6 +156,10 @@ public class Player extends SpaceEntity{
 		return ship.getHull()-getCurrentHull();
 	}
 	
+	public void setModules(Array<ShipModule> m){
+		this.modules = m;
+	}
+	
 	public void removeModule(ShipModule module){
 		for (int i = 0; i < modules.size; i++) {
 			if(modules.get(i).getId()==module.getId()){
@@ -221,6 +225,7 @@ public class Player extends SpaceEntity{
 		}else if(ship instanceof EnterpriseShip){
 			AchievementManager.get().grantAchievement("The Big Honcho");
 		}
+		StateManager.get().getGameState().hullinfo.setText(this.getCurrentHull()+"/"+this.getShip().getHull());
 	}
 
 	public boolean isTraveling() {
