@@ -6,8 +6,17 @@ import com.segdx.game.abilities.ExtractResource;
 import com.segdx.game.abilities.ShipAbility;
 import com.segdx.game.achievements.Achievement;
 import com.segdx.game.achievements.AchievementManager;
+import com.segdx.game.achievements.Stats;
 import com.segdx.game.entity.enemies.Enemy;
+import com.segdx.game.entity.ships.CarrierShip;
+import com.segdx.game.entity.ships.CruiserShip;
 import com.segdx.game.entity.ships.EnterpriseShip;
+import com.segdx.game.entity.ships.GuillotineShip;
+import com.segdx.game.entity.ships.InterceptorShip;
+import com.segdx.game.entity.ships.MarauderShip;
+import com.segdx.game.entity.ships.RaiderShip;
+import com.segdx.game.entity.ships.SentinelShip;
+import com.segdx.game.entity.ships.StarterShip;
 import com.segdx.game.events.CombatEvent;
 import com.segdx.game.events.NodeEvent;
 import com.segdx.game.managers.Assets;
@@ -63,7 +72,7 @@ public class Player extends SpaceEntity{
 		resources = new Array<Resource>();
 		modules = new Array<ShipModule>();
 		setAbilities(new Array<ShipAbility>());
-		ship = new EnterpriseShip(5);
+		ship = new StarterShip(3);
 		
 		
 		food = 0;
@@ -71,43 +80,25 @@ public class Player extends SpaceEntity{
 		setCurrentFuel(ship.getMaxfuel());
 		setCurrentHull(ship.getHull());
 		setResources(new Array<Resource>());
-		setCurrency(100000);
+		setCurrency(1300);
 		setDistanceTraveled(0);
 		
 		
 		//TEST RESOURCES
 		addResource(ResourceStash.DRIDIUM.clone());
 		addResource(ResourceStash.DRIDIUM.clone());
-		addResource(ResourceStash.NAQUIDRA.clone());
-		addResource(ResourceStash.NAQUIDRA.clone());
 		
 		addResource(ResourceStash.LATTERIUM.clone());
 		addResource(ResourceStash.LATTERIUM.clone());
-		addResource(ResourceStash.LATTERIUM.clone());
-		addResource(ResourceStash.LATTERIUM.clone());
 		
-		addResource(ResourceStash.SALVAGE.clone());
-		addResource(ResourceStash.SALVAGE.clone());
-		addResource(ResourceStash.SALVAGE.clone());
-		addResource(ResourceStash.SALVAGE.clone());
-		
-		addResource(ResourceStash.SALVAGE.clone());
+		addResource(ResourceStash.KNIPTORYTE.clone());
 		
 		//TEST MODULES
-		installNewModule(new RefineryModule());
-		installNewModule(new EngineBoosters());
 		installNewModule(new MiningModule(1));
-		installNewModule(new ScannerModule(1));
-		installNewModule(new FuelReserves(0));
-		installNewModule(new ExtraHaul(10));
-		installNewModule(new EnergyCannon(0));
-		installNewModule(new ShieldGenerator(4));
-		installNewModule(new ShieldGenerator(4));
-		installNewModule(new RailGun(2));
-		installNewModule(new RailGun(2));
-		installNewModule(new RepairKitModule(1));
-		installNewModule(new RepairDrones(1));
-		installNewModule(new MPGModule(2));
+		ShipModule m = new FuelReserves(1);
+		installNewModule(m);
+		installNewModule(new EngineBoosters(2));
+	
 	}
 	
 	public Vector2 getOriginPosition(){
@@ -126,6 +117,16 @@ public class Player extends SpaceEntity{
 			used+=modules.get(i).getCost();
 		}
 		return used;
+	}
+	
+	public ShipModule removeShipModuleClass(ShipModule m){
+		for (int i = 0; i < modules.size; i++) {
+			if(modules.get(i).getClass().getName().equals(m.getClass().getName())){
+				return modules.removeIndex(i);
+			}
+			
+		}
+		return null;
 	}
 	
 	public boolean containsModuleClass(ShipModule m){
@@ -190,6 +191,9 @@ public class Player extends SpaceEntity{
 					Assets.loadBlock(Assets.GAMEOVER_ASSETS);
 					StateManager.get().changeState(StateManager.LOAD);
 				}
+				if(this.food >= 100)
+					AchievementManager.get().grantAchievement("Overwhelming Hunger");
+				Stats.get().replaceIfHigher("most food", 1);
 	}
 	
 	
@@ -200,6 +204,23 @@ public class Player extends SpaceEntity{
 	
 	public void setShip(Ship ship){
 		this.ship = ship;
+		if(ship instanceof InterceptorShip){
+			AchievementManager.get().grantAchievement("Too Fast To Care");
+		}else if(ship instanceof RaiderShip){
+			AchievementManager.get().grantAchievement("Lets Get Some Booty");
+		}else if(ship instanceof SentinelShip){
+			AchievementManager.get().grantAchievement("For The Empire!");
+		}else if(ship instanceof GuillotineShip){
+			AchievementManager.get().grantAchievement("Ride Deaths Steed");
+		}else if(ship instanceof MarauderShip){
+			AchievementManager.get().grantAchievement("Thick Hull");
+		}else if(ship instanceof CruiserShip){
+			AchievementManager.get().grantAchievement("Im Just Cruising");
+		}else if(ship instanceof CarrierShip){
+			AchievementManager.get().grantAchievement("Delivery Guy");
+		}else if(ship instanceof EnterpriseShip){
+			AchievementManager.get().grantAchievement("The Big Honcho");
+		}
 	}
 
 	public boolean isTraveling() {
@@ -282,8 +303,7 @@ public class Player extends SpaceEntity{
 			//risk starving
 			System.out.println("not enough room for food in your cargo!");
 		}
-		this.food+=1f;
-		this.currentCapacity+=FOOD_MASS;
+		setFood(1);
 	}
 	
 	public void removeFood(){
@@ -336,7 +356,23 @@ public class Player extends SpaceEntity{
 	}
 
 	public void setCurrency(float currency) {
+		
+		if(this.currency > currency){
+			//money spent
+			Stats.get().increment("currency spent", (int) (this.currency - currency));
+		}else if(this.currency!=0){
+			//money gayned
+			Stats.get().increment("currency earned", (int) (currency - this.currency));
+		}
+		
 		this.currency = currency;
+		
+		Stats.get().replaceIfHigher("most currency", (int) this.currency);
+		
+		if(currency>=10000)
+			AchievementManager.get().grantAchievement("Moving Up");
+		if(currency>=50000)
+			AchievementManager.get().grantAchievement("Go Getter");
 	}
 
 	public float getDistanceTraveled() {

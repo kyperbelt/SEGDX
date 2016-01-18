@@ -1,6 +1,8 @@
 package com.segdx.game.abilities;
 
 import com.badlogic.gdx.math.MathUtils;
+import com.segdx.game.achievements.AchievementManager;
+import com.segdx.game.achievements.Stats;
 import com.segdx.game.entity.Player;
 import com.segdx.game.entity.SpaceEntity;
 import com.segdx.game.entity.SpaceNode;
@@ -74,6 +76,8 @@ public class ExtractResource extends ShipAbility{
 		for (int i = 0; i < extractnum; i++) {
 			state.getSpaceMap().getPlayer().getCurrentNode().getLoot()
 			.add(((ResourceEvent)sn.getEvent()).fetchResource());
+			Stats.get().increment("resources extracted", 1);
+			AchievementManager.get().grantAchievement("");
 		}
 		state.actiontabs.setChecked("Loot");
 		state.updateActionbar();

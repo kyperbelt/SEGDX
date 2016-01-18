@@ -12,6 +12,7 @@ import com.segdx.game.SEGDX;
 import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.Draft;
+import com.segdx.game.managers.GossipManager;
 import com.segdx.game.managers.NodeEventManager;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
@@ -92,7 +93,9 @@ public class LoadState implements Screen{
 						StateManager.get().changeState(StateManager.GAME);
 						state.getSpaceMap().setNodeEventManager(new NodeEventManager(1, 1, 1));
 						state.getSpaceMap().setTradePostManager(new TradePostManager(state.getSpaceMap()));
-						state.getSpaceMap().setDraft(new Draft(state.difficulty));
+						if(SpaceMap.intToBool(state.draft))
+							state.getSpaceMap().setDraft(new Draft(state.difficulty));
+						state.getSpaceMap().setGossipManager(new GossipManager(state.getSpaceMap()));
 						state.getSpaceMap().setWorkManager(new WorkManager());
 					}
 				}, LOAD_DELAY);

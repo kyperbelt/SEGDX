@@ -10,7 +10,7 @@ import com.badlogic.gdx.utils.Array;
  */
 public class CycleTimer {
 	
-	public static final int SLOW_CYCLE = 7;
+	public static final int SLOW_CYCLE = 90;
 	public static final int NORMAL_CYCLE = 75;
 	public static final int FAST_CYCLE = 45;
 	

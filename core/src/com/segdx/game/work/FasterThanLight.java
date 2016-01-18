@@ -8,26 +8,29 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.segdx.game.abilities.ShipAbility;
-import com.segdx.game.achievements.Achievement;
 import com.segdx.game.achievements.AchievementManager;
-import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.GameOver;
 import com.segdx.game.entity.Player;
-import com.segdx.game.entity.ships.StarterShip;
+import com.segdx.game.entity.ResourceStash;
+import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.StateManager;
+import com.segdx.game.modules.EngineBoosters;
+import com.segdx.game.modules.ShipModule;
 import com.segdx.game.states.GameState;
 
-public class CollectorsDesire extends Work{
+public class FasterThanLight extends Work {
 
-	public CollectorsDesire() {
-		this.setName("A Collectors Desire");
-		this.setDesc("A colelctor has approached you and asked you about your ship. He mentions"
-				+ "that he has been looking for it for a very long time and offers you a small fortune.");
+	int cost = 2000;
+	int naquidra = 10;
+	public FasterThanLight() {
+		this.setName("Faster than Light");
+		this.setDesc(" A Space travel science guy is braggin about having developed a new type of engine made out of Naquidra. He says that if you bring him some "
+				+ "he will give you his time. For a small fee.");
 	}
 	@Override
 	public boolean canComplete(Player p) {
-		if(p.getShip() instanceof StarterShip)
+		if(p.containsResource(ResourceStash.NAQUIDRA, naquidra)&&p.getCurrency()>=cost)
 			return true;
 		return false;
 	}
@@ -38,7 +41,8 @@ public class CollectorsDesire extends Work{
 		Table infotable = new Table();
 		Label name  = new Label(""+this.getName(), state.skin);
 		name.setFontScale(.8f);
-		Label desc = new Label(""+this.getDesc()+"\nRequirements:\n-Your Fathers Ship", state.skin);
+		Label desc = new Label(""+this.getDesc()+"\nRequirements:\n-"+naquidra+" Naquidra\n-"
+				+"$"+cost, state.skin);
 		desc.setFontScale(.5f);
 		desc.setWrap(true);
 		
@@ -57,17 +61,15 @@ public class CollectorsDesire extends Work{
 			complete.addListener(new ClickListener(){
 				public void clicked(InputEvent event, float x, float y) {
 					grantAchievement(state);
-					ShipAbility.showMessage("WOAH             ", "WE ARE RICH... WHO CARES IF THAT SHIP WAS MY DAED FATHERS....", state.skin).show(state.uistage);
-					
-					state.getSpaceMap().getTimer().addTimedTask(new TimedTask() {
-						
-						@Override
-						public void onExecute() {
-							GameOver.setCurrentGameOver(new GameOver(GameOver.SOLD_FATHERS_SHIP,state.getSpaceMap().getPlayer(),state.difficulty,state.size));
-							Assets.loadBlock(Assets.GAMEOVER_ASSETS);
-							StateManager.get().changeState(StateManager.LOAD);
-						}
-					}).repeat(1).setSleep(2);
+					for (int i = 0; i < naquidra; i++) {
+						state.getSpaceMap().getPlayer().removeResource(ResourceStash.NAQUIDRA.getId());
+					}
+					Player p = state.getSpaceMap().getPlayer();
+					p.setCurrency(p.getCurrency()-cost);
+					ShipModule m = new EngineBoosters(10);
+					m.setCost(0);
+					((EngineBoosters)m).setEconLoss(.01f);
+					p.installNewModule(m);
 				}
 			});
 		}

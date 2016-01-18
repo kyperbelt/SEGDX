@@ -8,26 +8,24 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.segdx.game.abilities.ShipAbility;
-import com.segdx.game.achievements.Achievement;
 import com.segdx.game.achievements.AchievementManager;
-import com.segdx.game.entity.CycleTimer.TimedTask;
-import com.segdx.game.entity.GameOver;
 import com.segdx.game.entity.Player;
-import com.segdx.game.entity.ships.StarterShip;
-import com.segdx.game.managers.Assets;
-import com.segdx.game.managers.StateManager;
+import com.segdx.game.modules.ScannerModule;
 import com.segdx.game.states.GameState;
 
-public class CollectorsDesire extends Work{
-
-	public CollectorsDesire() {
-		this.setName("A Collectors Desire");
-		this.setDesc("A colelctor has approached you and asked you about your ship. He mentions"
-				+ "that he has been looking for it for a very long time and offers you a small fortune.");
+public class ScannerResearch extends Work {
+	
+	public ScannerResearch() {
+		this.setName("Scanner Research!");
+		this.setDesc("Small talking with a man at this location he tells you of the work he used to do "
+				+ "for some of the corperations of the Shakt Belt Alliance. Scanner Research he says."
+				+ "He likes you and says if you bring manage to bring him one he will upgrade it for you "
+				+ "free of charge.");
 	}
+
 	@Override
 	public boolean canComplete(Player p) {
-		if(p.getShip() instanceof StarterShip)
+		if(p.containsModuleClass(new ScannerModule(0)))
 			return true;
 		return false;
 	}
@@ -38,7 +36,7 @@ public class CollectorsDesire extends Work{
 		Table infotable = new Table();
 		Label name  = new Label(""+this.getName(), state.skin);
 		name.setFontScale(.8f);
-		Label desc = new Label(""+this.getDesc()+"\nRequirements:\n-Your Fathers Ship", state.skin);
+		Label desc = new Label(""+this.getDesc()+"\nRequirements:\n-Scanner", state.skin);
 		desc.setFontScale(.5f);
 		desc.setWrap(true);
 		
@@ -57,17 +55,14 @@ public class CollectorsDesire extends Work{
 			complete.addListener(new ClickListener(){
 				public void clicked(InputEvent event, float x, float y) {
 					grantAchievement(state);
-					ShipAbility.showMessage("WOAH             ", "WE ARE RICH... WHO CARES IF THAT SHIP WAS MY DAED FATHERS....", state.skin).show(state.uistage);
+					ScannerModule scanner = new ScannerModule(2);
+					scanner.setLevel(2);
+					scanner.setCost(0);
+					state.getSpaceMap().getPlayer().removeModule(new ScannerModule(0));
+					state.getSpaceMap().getPlayer().installNewModule(scanner);
 					
-					state.getSpaceMap().getTimer().addTimedTask(new TimedTask() {
-						
-						@Override
-						public void onExecute() {
-							GameOver.setCurrentGameOver(new GameOver(GameOver.SOLD_FATHERS_SHIP,state.getSpaceMap().getPlayer(),state.difficulty,state.size));
-							Assets.loadBlock(Assets.GAMEOVER_ASSETS);
-							StateManager.get().changeState(StateManager.LOAD);
-						}
-					}).repeat(1).setSleep(2);
+					ShipAbility.showMessage("ScanTastic!         ", "The man has kept his word.. he has given you an upgraded version "
+							+ "of the scanner.", state.skin);
 				}
 			});
 		}

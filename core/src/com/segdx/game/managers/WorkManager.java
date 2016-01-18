@@ -5,6 +5,10 @@ import com.segdx.game.entity.CycleTimer.CycleTask;
 import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.SpaceMap;
 import com.segdx.game.entity.SpaceNode;
+import com.segdx.game.work.ANewTomorrow;
+import com.segdx.game.work.FasterThanLight;
+import com.segdx.game.work.ScannerResearch;
+import com.segdx.game.work.WayToPeace;
 import com.segdx.game.work.Work;
 
 public class WorkManager {
@@ -15,7 +19,13 @@ public class WorkManager {
 	
 	public WorkManager() {
 		work = new Array<Work>();
+		work.add(new ANewTomorrow());
+		work.add(new ScannerResearch());
+		work.add(new WayToPeace());
+		work.add(new FasterThanLight());
+		
 		SpaceMap map = StateManager.get().getGameState().getSpaceMap();
+		worklessnodes = new Array<SpaceNode>();
 		setWorklessnodes(map.getRestnodes());
 		
 		map.getTimer().addTimedTask(new TimedTask() {
@@ -62,11 +72,13 @@ public class WorkManager {
 	}
 
 	public void setWorklessnodes(Array<SpaceNode> worklessnodes) {
+		Array<SpaceNode> readynodes = new Array<SpaceNode>();
 		for (int i = 0; i < worklessnodes.size; i++) {
 			if(worklessnodes.get(i).getReststop().getWork()!=null)
-				worklessnodes.removeIndex(i);
+				continue;
+			readynodes.add(worklessnodes.get(i));
 		}
-		this.worklessnodes = worklessnodes;
+		this.worklessnodes = readynodes;
 	}
 
 	public Array<Work> getWork() {

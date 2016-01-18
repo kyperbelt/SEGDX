@@ -8,15 +8,20 @@ public class EngineBoosters extends ShipModule{
 	private float base_economy_loss;
 	private float original_value;
 	
-	public EngineBoosters() {
-		
-		this.setLevel(this.getRandomLevel());
+	public EngineBoosters(int level) {
+		this.setLevel(level);
+		if(level<=0)
+			this.setLevel(this.getRandomLevel());
 		this.setName("Engine Boost"+this.getLevel());
 		this.setCost(2);
 		this.setBaseValue(200);
 		base_boost = 1.5f;
 		base_economy_loss = .05f;
 		this.setDesc("Trade fuel economy for ship speed.");
+	}
+	
+	public void setEconLoss(float i){
+		base_economy_loss = i;
 	}
 	
 	@Override

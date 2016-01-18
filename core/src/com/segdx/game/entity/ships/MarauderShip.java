@@ -6,9 +6,9 @@ import com.segdx.game.entity.Ship;
 import com.segdx.game.events.NodeEvent;
 import com.segdx.game.managers.Assets;
 
-public class MauraderShip extends Ship{
+public class MarauderShip extends Ship{
 	
-	public MauraderShip(int version) {
+	public MarauderShip(int version) {
 		this.setVersion(NodeEvent.getRandomInt(1, 3));
 		if(version>0)
 			this.setVersion(version);

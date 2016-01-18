@@ -1,6 +1,8 @@
 package com.segdx.game.work;
 
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.segdx.game.achievements.Achievement;
+import com.segdx.game.achievements.AchievementManager;
 import com.segdx.game.entity.Player;
 import com.segdx.game.entity.RestStop;
 import com.segdx.game.states.GameState;
@@ -32,6 +34,11 @@ public abstract class Work {
 
 	public void setDesc(String desc) {
 		Desc = desc;
+	}
+	
+	public void grantAchievement(GameState state){
+		AchievementManager.get().grantAchievement("Hard Work Pays Off", Achievement.GAMEPLAY_ACHIEMENT, state.uistage, state.tm);
+		AchievementManager.get().grantAchievement(getName(), Achievement.GAMEPLAY_ACHIEMENT, state.uistage, state.tm);
 	}
 
 	public boolean shouldRemove() {

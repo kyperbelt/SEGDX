@@ -24,11 +24,13 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
+import com.segdx.game.achievements.Stats;
 import com.segdx.game.entity.CycleTimer.TimedTask;
 import com.segdx.game.entity.enemies.Enemy;
 import com.segdx.game.events.CombatEvent;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.Draft;
+import com.segdx.game.managers.GossipManager;
 import com.segdx.game.managers.NodeEventManager;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
@@ -68,6 +70,7 @@ public class SpaceMap {
 	private Draft draft;
 	private WorkManager workManager;
 	private TradePostManager tradePostManager;
+	private GossipManager gossipManager;
 	
 	private Array<Table> enemyframes;
 	
@@ -125,6 +128,7 @@ public class SpaceMap {
 					float distancetraveled = Vector2.dst(player.getCurrentNode().getX(), player.getCurrentNode().getY(), player.getX(), player.getY());
 					if(player.getDistanceTraveled()+player.getShip().getFuelEconomy() < distancetraveled){
 						player.setCurrentFuel(player.getCurrentFuel()-1);
+						Stats.get().increment("total distance traveled", (int)(distancetraveled-player.getDistanceTraveled()));
 						player.setDistanceTraveled(distancetraveled);
 					}
 				}
@@ -527,7 +531,7 @@ public class SpaceMap {
 					return;
 				state.getSpaceMap().getPlayer().removeFood();
 			}
-		}).setSleep(5).repeat();
+		}).setSleep(15-StateManager.get().getGameState().difficulty).repeat();
 		
 		
 	}
@@ -577,6 +581,14 @@ public class SpaceMap {
 
 	public void setWorkManager(WorkManager workManager) {
 		this.workManager = workManager;
+	}
+
+	public GossipManager getGossipManager() {
+		return gossipManager;
+	}
+
+	public void setGossipManager(GossipManager gossipManager) {
+		this.gossipManager = gossipManager;
 	}
 
 

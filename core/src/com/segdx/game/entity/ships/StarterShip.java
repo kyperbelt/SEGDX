@@ -17,7 +17,7 @@ public class StarterShip extends Ship{
 				+ "sought after by collectors.");
 		this.setCapacity(30);
 		this.setMaxfuel(100);
-		this.setHull(40);
+		this.setHull(35);
 		this.setCost(3000);
 		this.setSpeed(4);
 		this.setFuelEconomy(8);

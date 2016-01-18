@@ -27,7 +27,7 @@ public class ShipStash {
 			s = new SentinelShip(version);
 			break;
 		case MARAUDER:
-			s = new MauraderShip(version);
+			s = new MarauderShip(version);
 			break;
 		case CRUISER:
 			s = new CruiserShip(version);

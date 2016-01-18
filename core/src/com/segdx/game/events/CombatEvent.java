@@ -139,6 +139,7 @@ public class CombatEvent extends NodeEvent{
 			
 			if(enemies.size==0){
 				this.getParentnode().getLoot().addAll(loot);
+				p.setCurrency(NodeEvent.getRandomInt(200, 2500));
 				StateManager.get().getGameState().actiontabs.setChecked("Loot");
 				StateManager.get().getGameState().updateActionbar();
 			}

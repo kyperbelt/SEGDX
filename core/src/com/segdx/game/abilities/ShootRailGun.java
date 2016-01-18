@@ -7,8 +7,10 @@ import com.segdx.game.achievements.Stats;
 import com.segdx.game.entity.Player;
 import com.segdx.game.entity.ResourceStash;
 import com.segdx.game.entity.SpaceEntity;
+import com.segdx.game.entity.enemies.Berserker;
 import com.segdx.game.entity.enemies.Enemy;
 import com.segdx.game.entity.enemies.Pirate;
+import com.segdx.game.entity.enemies.SbaScout;
 import com.segdx.game.events.CombatEvent;
 import com.segdx.game.events.NodeEvent;
 import com.segdx.game.managers.SoundManager;
@@ -53,13 +55,22 @@ public class ShootRailGun extends ShipAbility{
 				SoundManager.get().playSound(SoundManager.EXPLOSION);
 				
 				if(target instanceof Enemy){
-					
+					AchievementManager.get().grantAchievement("First Kill", Achievement.GAMEPLAY_ACHIEMENT, StateManager.get().getGameState().uistage,
+								StateManager.get().getGameState().tm);
 					Stats.get().increment("kills", 1);
+					if(Stats.get().stattable.get("kills")>=20){
+						AchievementManager.get().grantAchievement("Executioner", Achievement.GAMEPLAY_ACHIEMENT, StateManager.get().getGameState().uistage,
+								StateManager.get().getGameState().tm);
+					}
 					if(target instanceof Pirate){
 						
 						Stats.get().increment("pirate kills", 1);
-						AchievementManager.get().grantAchievement("First Kill", Achievement.GAMEPLAY_ACHIEMENT, StateManager.get().getGameState().uistage,
-								StateManager.get().getGameState().tm);
+						
+					}else if(target instanceof Berserker){
+						
+						Stats.get().increment("berserker kills", 1);
+					}else if(target instanceof SbaScout){
+						Stats.get().increment("sba kills", 1);
 					}
 					
 					((Enemy) target).remove();

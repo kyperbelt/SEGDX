@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.segdx.game.entity.CycleTimer.CycleTask;
+import com.segdx.game.achievements.AchievementManager;
 import com.segdx.game.achievements.Stats;
 import com.segdx.game.entity.GameOver;
 import com.segdx.game.entity.Player;
@@ -14,10 +15,12 @@ public class Draft {
 	
 	private float currentcost;
 	private int diff;
+	private int timespayed;
 	
 	public Draft(int difficulty) {
+		timespayed = 0;
 		diff = difficulty;
-		currentcost = 200+((difficulty*100)*.5f);
+		currentcost = 100+((difficulty*100)*.5f);
 		
 		StateManager.get().getGameState().getSpaceMap().getTimer().addCycleTask(new CycleTask() {
 			
@@ -30,6 +33,8 @@ public class Draft {
 	}
 	
 	public void draft(){
+		timespayed++;
+		Stats.get().replaceIfHigher("most consecutive drafts payed", timespayed);
 		showDraft("You are Being DRAFTED!","The Arboros Empire has sent their Recruiters to fetch up anyone in the vicinity. Im sure if you pay them enough they will look the other way."
 				+ "", StateManager.get().getGameState().skin).show(
 				StateManager.get().getGameState().uistage);
@@ -49,6 +54,11 @@ public class Draft {
 					setCurrentcost(getCurrentcost()*2);
 					state.getSpaceMap().getTimer().setPaused(false);
 					Stats.get().increment("times draft payed", 1);
+					timespayed++;
+					Stats.get().replaceIfHigher("most consecutive drafts payed", timespayed);
+					AchievementManager.get().grantAchievement("Maybe Some Other Time");
+					if(timespayed>=10)
+						AchievementManager.get().grantAchievement("Not In A Million Years");
 				}else{
 					GameOver.setCurrentGameOver(new GameOver(GameOver.GOT_DRAFTED, p, diff, state.size));
 					Assets.loadBlock(Assets.GAMEOVER_ASSETS);

@@ -27,6 +27,9 @@ public class GameOver {
 	
 	public GameOver(int type,Player player,int difficulty,int size){
 		this.type = type;
+		this.player = player;
+		this.difficulty = difficulty;
+		this.size = size;
 	}
 	public int getType(){
 		return this.type;

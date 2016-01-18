@@ -31,7 +31,7 @@ public class ModuleStash {
 			break;
 			
 		case ENGINEBOOSTER:
-			m = new EngineBoosters();
+			m = new EngineBoosters(level);
 			break;
 			
 		case MINING:

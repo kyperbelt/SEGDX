@@ -1,5 +1,7 @@
 package com.segdx.game.entity;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.math.Circle;
@@ -17,6 +19,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.ImageButton.ImageButtonStyle;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.ArrayMap.Keys;
+import com.segdx.game.achievements.Achievement;
 import com.segdx.game.events.NodeEvent;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.SoundManager;
@@ -60,7 +66,10 @@ public class SpaceNode {
 	public SpaceNode(SpaceMap map) {
 		this.map = map;
 		this.loot = new Array<Object>();
+		logEntries= new Array<String>();
 	}
+	
+	
 
 	public ImageButton getButton() {
 		return button;

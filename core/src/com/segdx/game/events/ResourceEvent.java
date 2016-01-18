@@ -43,7 +43,7 @@ public class ResourceEvent extends NodeEvent{
 		this.setStartCycle(map.getTimer().getCurrentCycle());
 		
 		//dura
-		this.setCycleDuration(getRandomInt(1, 4));
+		this.setCycleDuration(getRandomInt(2, 5));
 		this.setShouldRemove(false);
 		this.setDescription(this.generateDescription());
 		this.setParentnode(node);

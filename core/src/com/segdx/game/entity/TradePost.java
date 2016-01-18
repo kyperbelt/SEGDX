@@ -131,6 +131,16 @@ public class TradePost {
 		return moduletable;
 	}
 	
+	public boolean hasEventModifier(){
+		buymodifiers.values().reset();
+		for (int i = 0; i < buymodifiers.size; i++) {
+			if(buymodifiers.values().next()==1){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	public boolean isEventModified(Resource r){
 		if(getModifierFor(r)==1f)
 			return true;

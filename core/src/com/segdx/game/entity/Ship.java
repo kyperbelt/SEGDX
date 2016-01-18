@@ -9,7 +9,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Array;
 import com.segdx.game.abilities.ShipAbility;
+import com.segdx.game.achievements.AchievementManager;
+import com.segdx.game.modules.ShipModule;
 import com.segdx.game.states.GameState;
 
 public class Ship {
@@ -58,6 +61,8 @@ public class Ship {
 	}
 	public void setSpeed(float speed) {
 		this.speed = speed;
+		if(this.speed > 10)
+			AchievementManager.get().grantAchievement("Faster Than The Falcon");
 	}
 	public float getX() {
 		return sprite.getX();
@@ -183,7 +188,12 @@ public class Ship {
 				state.updateTradeBar();
 				s.setX(p.getX());
 				s.setY(p.getY());
+				Array<ShipModule> sm = new Array<ShipModule>(p.getModules());
 				p.setShip(s);
+				
+				for (int i = 0; i < sm.size; i++) {
+					p.installNewModule(sm.get(i));
+				}
 			}
 		});
 			

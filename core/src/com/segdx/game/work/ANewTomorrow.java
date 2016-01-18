@@ -8,28 +8,33 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.segdx.game.abilities.ShipAbility;
-import com.segdx.game.achievements.Achievement;
 import com.segdx.game.achievements.AchievementManager;
-import com.segdx.game.entity.CycleTimer.TimedTask;
-import com.segdx.game.entity.GameOver;
 import com.segdx.game.entity.Player;
-import com.segdx.game.entity.ships.StarterShip;
-import com.segdx.game.managers.Assets;
-import com.segdx.game.managers.StateManager;
+import com.segdx.game.entity.ResourceStash;
+import com.segdx.game.modules.ExtraHaul;
+import com.segdx.game.modules.ShipModule;
 import com.segdx.game.states.GameState;
 
-public class CollectorsDesire extends Work{
-
-	public CollectorsDesire() {
-		this.setName("A Collectors Desire");
-		this.setDesc("A colelctor has approached you and asked you about your ship. He mentions"
-				+ "that he has been looking for it for a very long time and offers you a small fortune.");
+public class ANewTomorrow extends Work {
+	
+	int kniptoryte = 0;
+	
+	public ANewTomorrow() {
+		this.setName("A New Tomorrow");
+		this.setDesc("After the devestation brought on by the war against the Kartek United Federation a lot of people were left planetless and by extension HomeLess."
+				+ "Help us collect enough Material to rebuild our colonies and we might make it worth your while.");
 	}
+
 	@Override
 	public boolean canComplete(Player p) {
-		if(p.getShip() instanceof StarterShip)
+		if(kniptoryte>=200)
 			return true;
 		return false;
+	}
+	
+	public void turnin(Player p){
+		kniptoryte++;
+		p.removeResource(ResourceStash.KNIPTORYTE.getId());
 	}
 
 	@Override
@@ -38,7 +43,7 @@ public class CollectorsDesire extends Work{
 		Table infotable = new Table();
 		Label name  = new Label(""+this.getName(), state.skin);
 		name.setFontScale(.8f);
-		Label desc = new Label(""+this.getDesc()+"\nRequirements:\n-Your Fathers Ship", state.skin);
+		Label desc = new Label(""+this.getDesc()+"\nRequirements:\n-"+(200-kniptoryte)+" Kniptoryte", state.skin);
 		desc.setFontScale(.5f);
 		desc.setWrap(true);
 		
@@ -49,6 +54,18 @@ public class CollectorsDesire extends Work{
 		infotable.add(descscroll).left().expand().fill().row();
 		
 		Table optionstable = new Table();
+		TextButton turnin = new TextButton("Turn In", state.skin);
+		if(!state.getSpaceMap().getPlayer().containsResource(ResourceStash.KNIPTORYTE, 1)||kniptoryte==200){
+			turnin.setDisabled(true);
+			turnin.setColor(Color.FIREBRICK);
+		}
+		turnin.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				turnin(state.getSpaceMap().getPlayer());
+				state.updateRestBar();
+			}
+		});
 		TextButton complete = new TextButton("Complete", state.skin);
 		if(!canComplete(state.getSpaceMap().getPlayer())){
 			complete.setDisabled(true);
@@ -57,25 +74,21 @@ public class CollectorsDesire extends Work{
 			complete.addListener(new ClickListener(){
 				public void clicked(InputEvent event, float x, float y) {
 					grantAchievement(state);
-					ShipAbility.showMessage("WOAH             ", "WE ARE RICH... WHO CARES IF THAT SHIP WAS MY DAED FATHERS....", state.skin).show(state.uistage);
-					
-					state.getSpaceMap().getTimer().addTimedTask(new TimedTask() {
-						
-						@Override
-						public void onExecute() {
-							GameOver.setCurrentGameOver(new GameOver(GameOver.SOLD_FATHERS_SHIP,state.getSpaceMap().getPlayer(),state.difficulty,state.size));
-							Assets.loadBlock(Assets.GAMEOVER_ASSETS);
-							StateManager.get().changeState(StateManager.LOAD);
-						}
-					}).repeat(1).setSleep(2);
+					ShipModule m = new ExtraHaul(10);
+					m.setCost(0);
+					state.getSpaceMap().getPlayer().installNewModule(m);
+					ShipAbility.showMessage("Thank You!              ", "You have helped numerous people. "
+							+ "They will now be able to establish a new colony. In thanks they have given you all their Extra Haul Modules(no points cost)", state.skin);
 				}
 			});
 		}
+		
+		optionstable.add(turnin).left().expand();
+		optionstable.add().fillX();
 		optionstable.add(complete).right().expand();
 		
 		t.add(infotable).left().expand().fill().row();
 		t.add(optionstable).left().expand().fillX();
-		
 		return t;
 	}
 

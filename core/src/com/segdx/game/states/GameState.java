@@ -258,6 +258,7 @@ public class GameState implements Screen{
 				
 				float distance = Vector2.dst(start.x, start.y, destination.x, destination.y);
 				
+				actiontabs.setChecked("Event");
 				updateRestBar();
 				updateTradeBar();
 				updateActionbar();
@@ -274,6 +275,8 @@ public class GameState implements Screen{
 							if(type == COMPLETE){
 								map.getPlayer().setTraveling(false);
 								map.getPlayer().setCurrentNode(selectednode);
+								if(Stats.get().stattable.get("most distance traveled")<map.getPlayer().getDistanceTraveled())
+									Stats.get().stattable.put("most distance traveled", (int)map.getPlayer().getDistanceTraveled());
 								map.getPlayer().setDistanceTraveled(0);
 								updateRestBar();
 								updateTradeBar();
@@ -769,7 +772,7 @@ public class GameState implements Screen{
 							if(MathUtils.randomBoolean(.7f)){
 							informationdialog.getButtonTable().clearChildren();
 							informationdialog.getContentTable().clearChildren();
-							
+							Stats.get().increment("wreckages searched", 1);
 							informationdialog.setColor(Color.FOREST);
 							informationdialog.setSize(uistage.getWidth()*.5f, uistage.getHeight()*.3f);
 							Label interactionlabel= new Label("You found the wreckage and succesfuly collected the salvage.", skin);
@@ -789,14 +792,14 @@ public class GameState implements Screen{
 									updateActionbar();
 								}
 								
-							});
+							});informationdialog.show(uistage);
 							}else{
 								ShipAbility.showMessage("Nothing was found.", " You searched but nothing that you could use was here.", skin).show(uistage);
 							}
 							//TODO:else if it was a trap and you were ambushed! do some code here
 							//--------------------------------------------
 
-							informationdialog.show(uistage);
+							
 					
 						}
 					});
@@ -812,13 +815,16 @@ public class GameState implements Screen{
 					flee.getLabel().setFontScale(.7f);
 					flee.addListener(new ClickListener(){
 						public void clicked(InputEvent evezsnt, float x, float y) {
-							player.setCurrentFuel(player.getCurrentFuel()-(player.getShip().getMaxfuel()*.09f));
+							player.setCurrentFuel((int)(player.getCurrentFuel()-(player.getShip().getMaxfuel()*.09f)));
 							if(ce.attemptFlee(player.getShip().getSpeed())){
 								ce.setShouldRemove(true);
 								player.setIncombat(false);
 								ShipAbility.showMessage("Success       ", "They will remember this as the day you Captain <Copyrighted name> escaped!", skin).show(uistage);
 								updateActionbar();
 								Stats.get().increment("times fled", 1);
+								AchievementManager.get().grantAchievement("You Cant Catch Me!");
+								if(Stats.get().stattable.get("times fled")>=30)
+									AchievementManager.get().grantAchievement("Cowards Live Forever");
 							}else{
 								ShipAbility.showMessage("Failure        ", "You almost got away! but you were not fast enough....", skin).show(uistage);
 								player.setIncombat(true);
@@ -1539,6 +1545,7 @@ public class GameState implements Screen{
 					public void clicked(InputEvent event, float x, float y) {
 						if(((TextButton)event.getListenerActor()).isDisabled())
 							return;
+						Stats.get().increment("resources bought", 1);
 						AchievementManager.get().grantAchievement("Spend Money to Make Money", Achievement.GAMEPLAY_ACHIEMENT, uistage, tm);
 						player.addResource(tradepost.getResource(finalresource));
 						player.setCurrency(player.getCurrency()-tradepost.getResourceBuyPrice(finalresource));
@@ -1563,6 +1570,7 @@ public class GameState implements Screen{
 					public void clicked(InputEvent event, float x, float y) {
 						if(((TextButton)event.getListenerActor()).isDisabled())
 							return;
+						Stats.get().increment("resources sold", 1);
 						AchievementManager.get().grantAchievement("Getting Rid of Some Junk", Achievement.GAMEPLAY_ACHIEMENT, uistage, tm);
 						tradepost.addResource(player.removeResource(finalresource.getId()));
 						player.setCurrency(player.getCurrency()+tradepost.getResourceSellPrice(finalresource));
@@ -1784,6 +1792,8 @@ public class GameState implements Screen{
 			
 			break;
 		case 1:
+			gossiptab.clearChildren();
+			gossiptab.add(getSpaceMap().getGossipManager().getGossipTable(this)).expand().fill();
 			restbar.add(gossiptab).expand().fill();
 			break;
 		case 2:

@@ -117,7 +117,7 @@ public class NodeEventManager {
 		case NodeEvent.HELP:
 		case NodeEvent.RESOURCE:
 			ResourceEvent e = new ResourceEvent(node);
-			e.setType(eventtype);
+			e.setType(NodeEvent.RESOURCE);
 			node.setEvent(e);
 			while(events.containsKey(id)){
 				id++;

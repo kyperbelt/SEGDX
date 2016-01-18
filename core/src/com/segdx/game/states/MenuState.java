@@ -2,22 +2,37 @@ package com.segdx.game.states;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.InputListener;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.badlogic.gdx.scenes.scene2d.ui.ButtonGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Slider;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener.ChangeEvent;
 import com.badlogic.gdx.utils.Align;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.segdx.game.SEGDX;
+import com.segdx.game.achievements.Achievement;
+import com.segdx.game.achievements.AchievementManager;
+import com.segdx.game.achievements.Stats;
+import com.segdx.game.entity.SpaceNode;
 import com.segdx.game.managers.Assets;
 import com.segdx.game.managers.SoundManager;
 import com.segdx.game.managers.StateManager;
@@ -34,10 +49,9 @@ public class MenuState implements Screen{
 	
 	private SpriteBatch batch;
 	private TweenManager tm;
-	private OrthographicCamera cam;
-	private Sprite titlesprite;
-	private TextButton play,credits,startgame,back;
-	private Table main,setup;
+	private Image background;
+	private TextButton play,options,achievements,credits,startgame,back;
+	private Table main,setup,settings,statistics,creditpage,holder;
 	private Stage stage;
 	private Skin skin;
 	private ButtonGroup<TextButton> mapsizes;
@@ -46,19 +60,19 @@ public class MenuState implements Screen{
 	private ButtonGroup<TextButton> lore;
 	private ButtonGroup<TextButton> difficulty;
 	
+	public TextButton statstab,achievestab;
+	
 
 	@Override
 	public void show() {
 		batch = new SpriteBatch();
 		tm = new TweenManager();
-		cam = new OrthographicCamera(Gdx.graphics.getWidth(),Gdx.graphics.getHeight());
-		cam.setToOrtho(false);
-		titlesprite = new Sprite(Assets.manager.get("ui/title.png",Texture.class));
-		titlesprite.setOriginCenter();
+		background = new Image(Assets.manager.get("ui/title.png",Texture.class));
+		
 		skin = Assets.manager.get("ui/uiskin.json",Skin.class);
+		skin.get("default-font", BitmapFont.class).getData().markupEnabled = true;
 		//initiate stage with my own camera
-		cam.position.set(titlesprite.getOriginX(), titlesprite.getOriginY(), 0);
-		stage = new Stage(new ScreenViewport(cam), batch);
+		stage = new Stage(new ScreenViewport(), batch);
 		Gdx.input.setInputProcessor(stage);
 		
 		//create the main menu
@@ -72,7 +86,7 @@ public class MenuState implements Screen{
 				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
 				startgame.setDisabled(true);
 				back.setDisabled(true);
-				Tween.to(cam, CameraAccessor.POSITION_X, 1).target(setup.getX()+(setup.getWidth()/2)).setCallback(
+				Tween.to(stage.getCamera(), CameraAccessor.POSITION_X, 1).target(setup.getX()+(setup.getWidth()/2)).setCallback(
 						new TweenCallback() {
 							
 							@Override
@@ -86,8 +100,58 @@ public class MenuState implements Screen{
 				return true;
 			}
 		});
+		
+		options = new TextButton("Options", skin);
+		options.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
+				startgame.setDisabled(true);
+				back.setDisabled(true);
+				Tween.to(stage.getCamera(), CameraAccessor.POSITION_X, 1).target(settings.getX()+(settings.getWidth()/2)).setCallback(
+						new TweenCallback() {
+							
+							@Override
+							public void onEvent(int type, BaseTween<?> arg1) {
+								if(type == TweenCallback.COMPLETE){
+									startgame.setDisabled(false);
+									back.setDisabled(false);
+								}
+							}
+						}).start(tm);
+			}
+		});
+		
+		achievements = new TextButton("Achievements", skin);
+		achievements.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
+				startgame.setDisabled(true);
+				back.setDisabled(true);
+				Tween.to(stage.getCamera(), CameraAccessor.POSITION_Y, 1).target(statistics.getY()+(statistics.getHeight()/2)).setCallback(
+						new TweenCallback() {
+							
+							@Override
+							public void onEvent(int type, BaseTween<?> arg1) {
+								if(type == TweenCallback.COMPLETE){
+									startgame.setDisabled(false);
+									back.setDisabled(false);
+								}
+							}
+						}).start(tm);
+			}
+		});
+		
+		credits = new TextButton("Credits", skin);
+		
 		//play.setSize(300, 90);
-		main.add(play).width(300).height(90);
+		main.add(background).expand().colspan(2).row();
+		main.add(achievements).width(200).height(80).expand().colspan(2).row();
+		main.add(options).width(200).height(80).expand();
+		main.add(play).width(200).height(80).expand().row();
+		main.add(credits).width(200).height(80).expand().colspan(2).row();
+		main.add().colspan(2).expand().fill();
 		setup = new Table();
 		setup.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		setup.setPosition(main.getX()+setup.getWidth()+10, main.getY());
@@ -195,7 +259,37 @@ public class MenuState implements Screen{
 			@Override
 			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
 				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
-				Tween.to(cam, CameraAccessor.POSITION_X, 1).target(main.getX()+(main.getWidth()/2)).start(tm);
+				Tween.to(stage.getCamera(), CameraAccessor.POSITION_X_Y, 1).target(main.getX()+(main.getWidth()/2),main.getY()+(main.getHeight()/2)).start(tm);
+				return true;
+			}
+		});
+		
+		TextButton back2 = new TextButton("BACK", skin);
+		back2.addListener(new InputListener(){
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
+				Tween.to(stage.getCamera(), CameraAccessor.POSITION_X_Y, 1).target(main.getX()+(main.getWidth()/2),main.getY()+(main.getHeight()/2)).start(tm);
+				return true;
+			}
+		});
+		
+		TextButton back3 = new TextButton("BACK", skin);
+		back3.addListener(new InputListener(){
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
+				Tween.to(stage.getCamera(), CameraAccessor.POSITION_X_Y, 1).target(main.getX()+(main.getWidth()/2),main.getY()+(main.getHeight()/2)).start(tm);
+				return true;
+			}
+		});
+		
+		TextButton back4 = new TextButton("BACK", skin);
+		back4.addListener(new InputListener(){
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+				SoundManager.get().playSound(SoundManager.OPTIONPRESSED);
+				Tween.to(stage.getCamera(), CameraAccessor.POSITION_X_Y, 1).target(main.getX()+(main.getWidth()/2),main.getY()+(main.getHeight()/2)).start(tm);
 				return true;
 			}
 		});
@@ -223,11 +317,64 @@ public class MenuState implements Screen{
 		setup.add().width(setup.getWidth()).height(setup.getHeight()*.1f).row();
 		setup.add(optioncontainer).width(setup.getWidth()).height(setup.getHeight()*.1f).row();
 		
+		statistics = new Table();
+		statistics.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		statistics.setPosition(main.getX(), main.getY()+statistics.getHeight()+10);
+		statistics.center();
+		
+		holder = new Table();
+		holder.add(this.achievementsTable(skin,AchievementManager.get())).expand().fill();
+		
+		achievestab = new TextButton("Achievements", skin,"toggle");
+		achievestab.addListener(new ClickListener(){@Override
+			public void clicked(InputEvent event, float x, float y) {
+				holder.clearChildren();
+				holder.add(achievementsTable(skin,AchievementManager.get())).expand().fill();
+			}});
+		statstab = new TextButton("Statistics", skin ,"toggle");
+		statstab.addListener(new ClickListener(){
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				holder.clearChildren();
+				holder.add(getStatsTable(skin, Stats.get())).expand().fill();
+			}
+		});
+		
+		ButtonGroup<TextButton> statistictabs = new ButtonGroup<TextButton>(achievestab,
+			statstab);
+		statistictabs.setMaxCheckCount(1);
+		statistictabs.setChecked("Achievements");
+		
+		Table actionbartabstable = new Table();
+		actionbartabstable.left();
+		actionbartabstable.add(achievestab,statstab);
+		
+		statistics.add(actionbartabstable).align(Align.topLeft).expandX().row();
+		statistics.add(holder).expand().fill().row();
+		statistics.add(back2);
+		
+		
+		settings = new Table();
+		settings.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		settings.setPosition(main.getX()-settings.getWidth()+10, main.getY());
+		settings.left();
+		settings.add(getMenuTable(skin)).left().expand();
+		settings.add(back3).expand();
+		
+		
+		creditpage = new Table();
+		creditpage.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		creditpage.setPosition(main.getX(), main.getY()-(creditpage.getHeight()+10));
+		creditpage.bottom();
+		creditpage.add(back4).expand();
+		creditpage.add(getCreditsTable(skin)).bottom().expand();
 		
 		
 		//add tables to stage
 		stage.addActor(main);
+		stage.addActor(statistics);
 		stage.addActor(setup);
+		stage.addActor(settings);
 		
 		
 		//debug 
@@ -243,14 +390,115 @@ public class MenuState implements Screen{
 		SEGDX.clear();
 		stage.act(delta);
 		
-		batch.setProjectionMatrix(cam.combined);
-		batch.begin();
-		titlesprite.draw(batch);
-		batch.end();
 		stage.draw();
 		
-		cam.update();
+		stage.getCamera().update();
 		tm.update(delta);
+	}
+	
+	public Table getStatsTable(Skin skin,Stats s){
+		Table table = null;
+		if(table == null){
+			table = new Table();
+			table.setBackground(new Button(skin).getBackground());
+			table.setColor(Color.DARK_GRAY);
+			Label statsshow = new Label("Statistics", skin);
+			table.add(statsshow).expand().row();
+			
+			Table holder = new Table();
+			
+			for (int i = 0; i < s.stattable.size; i++) {
+				
+				String name = s.getStatName(i);
+				int value = s.getStatValue(i);
+				Label stat  = new Label(name+": "+value, skin);
+				stat.setFontScale(.7f);
+				holder.add(stat).left().expand().row();
+			}
+			
+			ScrollPane pane = new ScrollPane(holder, skin);
+			pane.setColor(Color.FIREBRICK);
+			table.add(pane).expand().fill();
+		}
+		return table;
+	}
+	
+	public Table achievementsTable(Skin skin ,AchievementManager a){
+	    Table holderss = null;
+		if(holderss==null){
+			holderss = new Table();
+			holderss.setBackground(new Button(skin).getBackground());
+			Label points = new Label("Points "+a.getPoints()+"/"+a.getTotalPoints(), skin);
+			Table achieveholder = new Table();
+			//achieveholder.setFillParent(true);
+			int index;
+			for (int i = 0; i < a.game_achievements.size; i+=2) {
+				Achievement aa = a.getAchievementValue(i);
+				Achievement b = a.getAchievementValue(i+1);
+				achieveholder.add(a.getAchievementTableDos(skin, aa)).expand().fillX();
+				achieveholder.add(a.getAchievementTableDos(skin, b)).expand().fillX().row();
+			}
+			if(a.game_achievements.size%2!=0){
+				Achievement aa = a.game_achievements.get(a.getAchievementName(a.game_achievements.size));
+				achieveholder.add(a.getAchievementTableDos(skin, aa)).expand().row();
+			}
+		
+			holderss.add(points).expand().row();
+			ScrollPane pane = new ScrollPane(achieveholder,skin);
+			pane.layout();
+			pane.setColor(Color.BROWN);
+			holderss.add(pane).expand().fill();
+		}
+		return holderss;
+	}
+	
+	public Table getMenuTable(Skin skin){
+		Table table = new Table();
+		Label ml = new Label("Game Options", skin);
+		ml.setFontScale(3);
+		Label volume = new Label("Volume:", skin);
+		final Slider volslide = new Slider(0, 1, .01f, false, skin);
+		volslide.setValue(SoundManager.get().getVolume());
+		volslide.addListener(new ChangeListener() {
+			public void changed(ChangeEvent event, Actor actor) {
+				SoundManager.get().setVolume(volslide.getValue());
+			}
+		});
+		
+		table.add(ml).left().expand().row();
+		final TextButton fullscreen = new TextButton("fullscreen", skin,"toggle");
+		fullscreen.setChecked(Gdx.graphics.isFullscreen());
+		fullscreen.addListener(new ClickListener(){@Override
+		public void clicked(InputEvent event, float x, float y) {
+			Gdx.graphics.setDisplayMode(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), fullscreen.isChecked());
+		}});
+		table.add(volume).left().row();;
+		table.add(volslide).left().expand().row();
+		table.add(fullscreen).left().expand().row();
+		
+		return table;
+	}
+	
+	public Table getCreditsTable(Skin skin){
+		Table table = new Table();
+		Label cl = new Label("Credits", skin);
+		cl.setFontScale(3);
+		Label gheader  = new Label("Graphics", skin);
+		Label graphics = new Label("	[RED]MOST OF THESE GRAPHICS WERE RESIZED OR TRANSFORMED TO FIT THE GAME.[]"
+				+ "shuttlespaceship: kindlyfire opengameart.org\nm42orionnebula google images.\n"
+				+ "Game Post Mortem:Hard Vacuum art by Daniel Cook (Lostgarden.com)\n\n		-mother2.bmp"
+				+"						Spaceship by phobi opengameart.org\n"
+					+"					mothershipbu7.png by clayster2012 opengameart.org\n"
+						+"				redshipr.png by MillionthVector http://millionthvector.blogspot.de opengameart.org\n"
+							+"			Gods-and-idols_screenshots jattenalle opengameart.org  www.GodsAndIdols.com\n"
+								+"		spr_shield.png by bonsaiheldin opengameart.org\n"
+									+"	part2art by Skorpio (original parts) and Wubitog.  part2art.com  arrall.com opengameart.org\n"
+							+"			\n\n"
+								+"		pointer by qubodub opengamart.org\n", skin);
+		Label soundheader = new Label("Audio", skin);
+		Label sound = new Label("", skin);
+		
+		return table;
 	}
 
 	@Override
@@ -259,15 +507,18 @@ public class MenuState implements Screen{
 
 	@Override
 	public void pause() {
+		tm.pause();
 	}
 
 	@Override
 	public void resume() {
+		tm.resume();
 	}
 
 	@Override
 	public void hide() {
 	}
+	
 
 	@Override
 	public void dispose() {

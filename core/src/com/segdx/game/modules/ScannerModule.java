@@ -13,7 +13,7 @@ public class ScannerModule extends ShipModule{
 		if(level>0){
 			this.setLevel(level);
 		}
-		this.setBaseValue(1400);
+		this.setBaseValue(2100);
 		this.setName("Scanners ");
 		this.setDesc("Allows you to get more detailed descriptions of travel nodes when targeting them. "
 				+ "Removes a lot of the guess work. Only one scanner per ship.");
